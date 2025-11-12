@@ -51,10 +51,10 @@ return (
             <div
                 className="fixed inset-0 bg-black/50"
                 style={{
-                    backgroundImage: `url(${background})`,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                    backgroundAttachment: "fixed",
+                    //backgroundImage: `url(${background})`,
+                    //backgroundSize: "cover",
+                    //backgroundPosition: "center",
+                    //backgroundAttachment: "fixed",
                 }}
             />
 

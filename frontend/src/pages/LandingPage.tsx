@@ -4,7 +4,8 @@ import Modal from "../components/ui/Modal";
 import { API_PROTOCOL } from "../../shared/api-protocols";
 import type { RegisterUserPayload } from "../../shared/payloads";
 import { useAuth } from "../context/AuthContext";
-import CenteredContainer from "../components/layout/CenteredContainer"; // <-- Import it
+import CenteredContainer from "../components/layout/CenteredContainer";
+import AnimatedText from "../components/layout//AnimatedText";
 import { useTranslation } from "../shared/Translation";
 
 const setServerLang = (code: "en" | "fi" | "sv") => localStorage.setItem("serverLang", code);
@@ -238,6 +239,17 @@ const HomePage: React.FC = () => {
 	};
 
 	return (
+		<>
+		{/* Animated PONG text */}
+		<div className="absolute top-16 left-0 w-full flex justify-center z-10">
+			<AnimatedText
+			text={t("home.title")}
+			strokeColor="white"
+			strokeWidth={3}
+			className="max-w-[800px]"
+			/>
+		</div>
+
 		<CenteredContainer> 
 		{/* Semi-transparent card wrapper for Home page content */}
 		<div className="w-full max-w-md bg-gray-900/90 rounded-xl p-8 text-white shadow-2xl flex flex-col items-center space-y-8">
@@ -282,7 +294,7 @@ const HomePage: React.FC = () => {
 					</p>
 				</div>
 			)}
-	</div>
+		</div>
 
 	<Modal
 		isOpen={isModalOpen}
@@ -326,6 +338,7 @@ const HomePage: React.FC = () => {
 		</div>
 	)}
 	</CenteredContainer> 
+	</>
 );
 };
 
