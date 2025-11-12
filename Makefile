@@ -1,5 +1,7 @@
 DOCKER_COMPOSE_FILE := ./docker-compose.yml
 
+dev:
+	docker compose -f docker-compose.yml up frontend-dev
 
 # Target to create the custom network
 #start-network:

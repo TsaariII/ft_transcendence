@@ -9,7 +9,7 @@ export default defineConfig({
     port: 5173,
     host: '0.0.0.0',
     proxy: {
-      '/api': 'https://backend:3000',
+      '/api': 'http://backend:3000',  // NOTE! change back to https!!!!! 
     },
   },
 
