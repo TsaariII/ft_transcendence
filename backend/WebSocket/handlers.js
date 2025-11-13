@@ -1,15 +1,6 @@
-const {
-	createGameState, initGame, updateKeys, updateGame
-} = require('../pong_game/pong_server.js');
-
-const {
-	games,
-	getGame
-} = require('@Rgame');
-
-const {
-	verifyToken
-} = require('@security');
+const { updateGame } = require('../pong_game/pong_server.js');
+const { getGame } = require('@Rgame');
+const { verifyToken } = require('@security');
 
 function handleGreet(ws, data){
 		console.log('Received greeting:', data.message);
@@ -37,19 +28,8 @@ function startLoop(ws, gameState, player1, player2) {
 	}, 1000 / gameState.fps);
 
 }
-
-/**
- * reminder of how the token may look
-const player1Token = jwt.sign(
-  { playerId: user1.id, gameId: gameId, role: 'player1' },
-  secretKey,
-  { expiresIn: '15m' }
-);
- */
-
 // each player must send their own init
 function initPlayer(ws, token) {
-  //console.log("CHEKCING:: initplayer is getting players", Array.from(players.entries()));
   const session = verifyToken(token)//n(token, gameId); own fucntion here
 	console.log("whats in session", session);
   if (!session) {
@@ -63,9 +43,7 @@ function initPlayer(ws, token) {
 //  ws.send(JSON.stringify({ status: 'connected ', playerId: session.playerId }));
 }
 //once both players have connected front end sends yes and we start the game
-
 function attachPlayerToGame(ws, session) {
-	//const game = getGame(session.gameId);
 	ws.playerId = session.id;
 	ws.gameId = session.gameId;
 
@@ -74,7 +52,6 @@ function attachPlayerToGame(ws, session) {
 	console.log('player id from token', ws.playerId);
     const player = game.players.get(ws.playerId);
 	if (!player) {
-		//console.log('acces player ready state', player.ready);
 		console.log("Player not found in game, player id", player.playerId,'player itesle', player);
 		ws.send(JSON.stringify({ error: 'Player not found in game' }));
 		ws.close();
@@ -84,7 +61,6 @@ function attachPlayerToGame(ws, session) {
 	console.log("Attached player to ws:", ws.player);
 	player.ws = ws;
 	player.ready = 'true';
-	//console.log("CHEKCING:: initplayer after updating", Array.from(players.entries()));
 	return true;
 }
 
@@ -102,24 +78,3 @@ function getGameContext(ws, data, playerinit) {
 }
 module.exports = {handleGreet, startLoop, initPlayer, getGameContext}
 
-/** example of an active game body
- * activeGames.get('abc123') === {
-  player1: {
-    id: 'user123',
-    alias: 'PlayerOne',
-    ws: WebSocketObject // now attached
-  },
-  player2: {
-    id: 'user456',
-    alias: 'PlayerTwo',
-    ws: null // until they connect
-  },
-  state: {
-    score: { player1: 0, player2: 0 },
-    ballPosition: { x: 100, y: 200 },
-    status: 'waiting'
-  }
-}
- */
-
-// and send like this game.player1.ws.send(JSON.stringify({ type: 'opponentMove', direction: 'left' }));

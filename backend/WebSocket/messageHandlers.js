@@ -1,18 +1,16 @@
 
 const {
-	createGameState, initGame, updateKeys, updateGame
+	initGame,
+	updateKeys,
 } = require('../pong_game/pong_server.js');
 
-const {logger} = require('@logger');
-const flog = logger.child({ fileContext: 'get.js' }); // scoped logger
+const {logger, log} = require('@logger');
+const flog = logger.child({ fileContext: 'messageHandler.js' }); // scoped logger
 const {
   handleGreet,
   startLoop,
   initPlayer,
   getGameContext,
-  //handleMove,
-  //handleConnection,
-  //handlePing
 } = require('./handlers.js');
 
 const {
@@ -25,54 +23,32 @@ const {
 	updateBracket,
 } = require('@db/tournament.js');
 
-const {
-	getGame,
-	addPlayer,
-} = require("@Rgame");
-// we should rename this to message deligation?
+const { addPlayer } = require("@Rgame");
 
-const {log} = require('@logger');
-
-// guarding send calls
-//if (webSocket.readyState === WebSocket.OPEN) {
-//  webSocket.send(JSON.stringify(keysDown));
-//}
-
-//let gameState;
-let currentWs;
+// let ws;
 let playerinit = false;
 let paused = false;
-let reconnect = false;
-// if remote play , each player should have its own set of keys , that are clearly
-// attatched to the relative paddles
-/**
- *
-gameState.keys = {
-  player1: { up: false, down: false },
-  player2: { up: false, down: false }
-};
 
- */
 function handleMessage(ws, data) {
-	currentWs = ws; // this will have to be changed for remote play
+	// ws = ws; // this will have to be changed for remote play
 	const context = getGameContext(ws, data, playerinit);
-	//console.log('getGameContext returned:', context);
 	const {game, gameState} = context || {};
-
-	// console.log("we have entered the dam handler");
-	if (data.type != "keys")
-		console.log("Message received: (Ignoring keypresses)", data);
-	
+	if (data.type != 'keys')
+		flog.debug('Message received: (Ignoring keypresses)', data);
 	switch (data.type) {
 		case 'greet':
-			handleGreet(currentWs, data);
+			handleGreet(ws, data);
 			break;
 		case 'ping':
-			currentWs.send(JSON.stringify({ type: 'pong', payload: 'Pong!' }));
+			ws.send(JSON.stringify({ type: 'pong', payload: 'Pong!' }));
 			break;
-		case "pause": {
-				console.log("Game paused");//Error 
-
+		case 'pause':
+		{
+			flog.info('Game paused');//Error 
+			if (!gameState)
+			{
+				flog.error('Pause called but no gameState found', {data});
+			}
 			if (gameState.loop) {
 				clearInterval(gameState.loop);
 				gameState.loop = undefined; // mark as stopped
@@ -83,25 +59,18 @@ function handleMessage(ws, data) {
 		}
 		case 'initPlayer':{
 			// this fucntion dosnt care about if remote or local
-			console.log("starting player init");
-			initPlayer(currentWs, data.token);
-			//if (game.type === 'local'){
-			//	// just verify player2 . or we can attatch the webscoket but its of no use
-			//	//initPlayer();
-			//}
-
-			// send status data.player ready, gameid?,
-			// update a player init, wait for second before full true
-			log('PLAYER INIT CASE::', "after init ");
+			flog.info('Starting player init');
+			initPlayer(ws, data.token);
+			log('PLAYER INIT CASE::', 'after init ');
 			playerinit = true;
-			console.log("finnished player init");
-			currentWs.send(JSON.stringify({type: 'playerInit_ack', message: 'player init success' }));
+			flog.info('Finnished player init');
+			ws.send(JSON.stringify({type: 'playerInit_ack', message: 'player init success' }));
 			break;
 		}
 		case 'getPlayerNames': {
-			const player1 = [...game.players.values()].find(player => player.role === "player1");
-			const player2 = [...game.players.values()].find(player => player.role === "player2");
-			currentWs.send(JSON.stringify({
+			// const player1 = [...game.players.values()].find(player => player.role === "player1");
+			// const player2 = [...game.players.values()].find(player => player.role === "player2");
+			ws.send(JSON.stringify({
 				type: 'playerNames',
 				player1: (player1.alias ? player1.alias : "Player 1"),
 				player2: (player2.alias ? player2.alias : "Player 2")
@@ -131,36 +100,28 @@ function handleMessage(ws, data) {
 		}
 		case 'gameOver': {
 			const gameId = ws ? ws.gameId || game.gameId : game.gameId;
-			//console.log(`[WS] Game ${gameId} - Game Over received`);
-			//console.log("[WS] DEBUG players in game:", [...game.players.values()]);
-
 			const [id1, player1] = [...game.players.entries()]
 				.find(([_, p]) => p.role === 'player1');
 			const [id2, player2] = [...game.players.entries()]
 				.find(([_, p]) => p.role === 'player2');
-
 			if (!player1.alias) player1.alias = player1.type === 'login' ? `User${id1}` : player1.type === 'ai' ? 'AI Bot' : 'Guest';
 			if (!player2.alias) player2.alias = player2.type === 'login' ? `User${id2}` : player2.type === 'ai' ? 'AI Bot' : 'Guest';
-
 			if (!player1.id) player1.id = id1;
 			if (!player2.id) player2.id = id2;
-			
-			console.log(`[WS] Player1: ${player1.alias} (${player1.type}), score: ${player1.score}`);
-			console.log(`[WS] Player2: ${player2.alias} (${player2.type}), score: ${player2.score}`);
-
+			flog.info(`[WS] Player1: ${player1.alias} (${player1.type}), score: ${player1.score}`);
+			flog.info(`[WS] Player2: ${player2.alias} (${player2.type}), score: ${player2.score}`);
 			const player1Won = player1.score > player2.score;
 			const winnerId = player1Won ? id1 : id2;
 			const loserId = player1Won ? id2 : id1;
 			const winner = player1Won ? player1 : player2;
 			const loser = player1Won ? player2 : player1;
-
-			console.log(`[WS] Winner: ${winner.alias} (${winner.type})`);
-  			console.log(`[WS] Loser: ${loser.alias} (${loser.type})`);
+			flog.info(`[WS] Winner: ${winner.alias} (${winner.type})`);
+  			flog.info(`[WS] Loser: ${loser.alias} (${loser.type})`);
 
 			// helper function to handle stats update per player
 			const updateStatsIfLogin = async (isWinner, playerId, player, opponent) => {
 				if (player.type === 'login') {
-				console.log(`[WS] Updating stats for ${player.alias} with id ${playerId} (${isWinner ? 'WIN' : 'LOSS'})`);
+				flog.info(`[WS] Updating stats for ${player.alias} with id ${playerId} (${isWinner ? 'WIN' : 'LOSS'})`);
 				await updatePlayerGameStats(isWinner, playerId, player.score);
 				await updateMatchHistory(
 					playerId,
@@ -171,10 +132,10 @@ function handleMessage(ws, data) {
 					opponent.score,
 					opponent.type
 				);
-				console.log(`[WS] ✅ Stats updated for ${player.alias}`);
-				} else {
-				console.log(`[WS] ⏭️ Skipping stats update for ${player.alias} (${player.type})`);
+				flog.info(`[WS] ✅ Stats updated for ${player.alias}`);
 				}
+				else
+					flog.info(`[WS] ⏭️ Skipping stats update for ${player.alias} (${player.type})`);
 			};
 
 			Promise.all([
@@ -188,15 +149,13 @@ function handleMessage(ws, data) {
 //				console.error(`[WS] ❌ Failed to update game stats for Game ${gameId}`, err);
 				});
 			if (game.mode === "tournament") {
-//				console.log(`[WS] Tournament detected - updating tournament stats for Game ${gameId}`);
-//				console.log(`[WS] Tournament ID: ${game.tid}`);
 
 				updateTournamentStats(gameId, player1.score, player2.score, "finished", winnerId)
 					.then(() => {
-					console.log(`[WS] ✅ Tournament stats updated for Game ${gameId}`);
+					flog.info(`[WS] ✅ Tournament stats updated for Game ${gameId}`);
 					})
 					.catch(err => {
-					console.error(`[WS] ❌ Failed to update tournament stats for Game ${gameId}`, err);
+					flog.error(`[WS] ❌ Failed to update tournament stats for Game ${gameId}`, err);
 					});
 
 				const winnerData = player1Won ? player1 : player2;
@@ -229,31 +188,23 @@ function handleMessage(ws, data) {
 		case 'init': {
 			// if remote initgame should only happen for player1
 			initGame(gameState, data.payload); // payload = { height, width, ballSize, paddleSize, paddleOffset, ballSpeed, paddleSpeed, powerUp }
-			currentWs.send(JSON.stringify({type: 'init_ack', message: 'game init success' }));
+			ws.send(JSON.stringify({type: 'init_ack', message: 'game init success' }));
             gameState.powerups = data.payload.powerups;
 		}
 			break;
 		case 'keys':{
-			// if remote update keys should somehow update keys for both players at the same time
-			/**
-			 * const playerId = ws.playerId;
-				gameState.keys[playerId/orsomething] = payload;
-
-			 */
 			updateKeys(gameState, data.payload); // update keys in game state
 			break;
 		}
 		case "start_loop":{
 			// if remote this should only start once player 1 and player 2 have initilized and player 1 has initilized the game
 			// then this should be updated to startloop for both player websockets
-			const {ws, ...player1Debug} = [...game.players.values()].find(player => player.role === "player1");
-			const player2Debug = [...game.players.values()].find(player => player.role === "player2");
-
-			// !!!! Edited this to take the first two players, does not expect specific role
-			//flog.debug({fucntion: 'MessageHandler startLoop', player1: player1, player2: player2});
-
-			const [player1, player2] = [...game.players.values()].slice(0, 2);
-			flog.debug({fucntion: '------------------------------------------MessageHandler startLoop', player1id: player1Debug, player2id: player2Debug});
+			// const {ws, ...player1Debug} = [...game.players.values()].find(player => player.role === "player1");
+			// const player2Debug = [...game.players.values()].find(player => player.role === "player2");
+			// const [player1, player2] = [...game.players.values()].slice(0, 2);
+			const player1 = [...game.players.values()].find(player => player.role === "player1");
+			const player2 = [...game.players.values()].find(player => player.role === "player2");
+			flog.debug({fucntion: 'MessageHandler startLoop', player1, player2});
 			if (!player1 || !player2)
 			{
 				console.log("Error getting players");
@@ -261,35 +212,21 @@ function handleMessage(ws, data) {
 				console.log("Player2: ", player2);
 				return;
 			}
-			startLoop(currentWs, gameState, player1, player2);
+			startLoop(ws, gameState, player1, player2);
 			break;
 		}
 		case "reconnect": {
 			paused = false; // may have future use, should be stored in game object
-			reconnect = true; // may have future use, not sure
-			currentWs.send(JSON.stringify(gameState.positions));
+			ws.send(JSON.stringify(gameState.positions));
 			if (!gameState.loop) {
 				gameState.gameRunning = true;
 				const player1 = [...game.players.values()].find(player => player.role === "player1");
 				const player2 = [...game.players.values()].find(player => player.role === "player2");
-				startLoop(currentWs, gameState, player1, player2);
+				startLoop(ws, gameState, player1, player2);
 				console.log("Game resumed");
 			}
 			break;
 		}
-		// i dont know how this would work , where is the score update coming from
-		// does the internally update it?
-		//case "updateScore": {
-		//	// this should be called by the game loop only , not by the client
-		//	// if remote this should update both players websockets
-		//	if (gameState.gameRunning) {
-		//		updateScores(gameState);
-		//	}
-		//	break;
-		//send current scores , front end checks if scores meet win condition?
-		//	currentWs.send(JSON.stringify({ type: 'score_update', player1: gameState.players.player1.score, player2: gameState.players.player2.score }));
-		//	break;
-		//}
 		case "end": {
 			// do we use game phase === end to detemrine this? or does front end send me it in this case
 			//update scores in database
@@ -297,59 +234,28 @@ function handleMessage(ws, data) {
 			// send final scores to both players
 			// clean up game state
 			console.log("Game ended");
-			const player1 = Object.values(game.players).find(player => player.role === "player1");
-			const player2 = Object.values(game.players).find(player => player.role === "player2");
-			//isntead of clearing everything here , send me a game end confrimed message so i can clean up and close the webscokets
-			//if (gameState.loop) {
-			//	clearInterval(gameState.loop);
-			//	gameState.loop = undefined; // mark as stopped
-			//	gameState.gameRunning = false; // optional flag
-			//	paused = false;
-			//	reconnect = false;
-			//}
-			currentWs.send(JSON.stringify({ type: 'game_end', payload: gameState.positions, player1: player1.score, player2: player2.score }));
+			const player1 = [...game.players.values()].find(player => player.role === "player1");
+			const player2 = [...game.players.values()].find(player => player.role === "player2");
+			if (!player1 || !player2)
+			{
+				flog.error('Game end requested but players not found', {players: [...game.palyers.values()]});
+				break;
+			}
+			ws.send(JSON.stringify({ type: 'game_end', payload: gameState.positions, player1: player1.score, player2: player2.score }));
 			}
 			break;
 		case "close": {
-			// this should be called when a player closes the webscoket or navigates away
-			// stop game loop
-			// notify other player
-			// clean up game state
+
 			console.log("Game closed by player");
-			//if (gameState.loop) {
-			//	clearInterval(gameState.loop);
-			//	gameState.loop = undefined; // mark as stopped
-			//	gameState.gameRunning = false; // optional flag
-			//	paused = false;
-			//	reconnect = false;
-			//}
-			currentWs.send(JSON.stringify({ type: 'game_closed', message: 'Game closed by player' }));
+			ws.send(JSON.stringify({ type: 'game_closed', message: 'Game closed by player' }));
 		}
 			break;
 		default:
 			console.error('Unknown message type:', data.type);
-			currentWs.send(JSON.stringify({ error: 'Unknown message type' }));
+			ws.send(JSON.stringify({ error: 'Unknown message type' }));
 			break;
 	}
 }
 
 module.exports = { handleMessage };
 
-/** example of how 2 websockets can communicate or get updates at the same time
- * for (const player of game.players.values()) {
-  if (player.ws && player.ws.readyState === WebSocket.OPEN) {
-    player.ws.send(JSON.stringify({ type: 'start_game', payload: game.payload }));
-  }
-}
-
- */
-
-/** example of looping through players to chekc ready status and open status , to start game loop
- * const allReady = Array.from(game.players.values()).every(p => p.ready);
-if (allReady) {
-  for (const p of game.players.values()) {
-    if (p.ws && p.ws.readyState === WebSocket.OPEN) {
-      p.ws.send(JSON.stringify({ type: 'start_game', payload: game.payload }));
-    }
-  }
- */
