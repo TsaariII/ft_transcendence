@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 const {
   getActiveTournamentForUser,
   buildTournamentState,
-  startTournamentTx,
+  startTournament,
   createTournamentWithOwner,
   getUserByCredentials,
   insertPlayer,
@@ -13,7 +13,6 @@ const {
 } = require('../../database/tournament.js'); // adjust path
 const { getUserIdFromToken } = require('@security'); // adjust path
 
-let _db;
 const _wrap = (db) => ({
 	run: (sql, params = []) => new Promise((res, rej) =>
 		db.run(sql, params, function (err){
@@ -49,73 +48,77 @@ module.exports = async function tournamentRoutes(fastify, options) {
 	});
 
 	fastify.post(API_PROTOCOL.CREATE_TOURNAMENT.path, async (request, reply) => {
-	const { db } = options;
-	const token = request.cookies?.auth_token;
-	if (!token) return reply.code(401).send({ status: 'ERROR', error: 'Not authenticated' });
-	let userId; try { userId = getUserIdFromToken(token); } catch { return reply.code(401).send({ status: 'ERROR', error: 'Invalid auth token' }); }
+		const { db } = options;
+		const token = request.cookies?.auth_token;
+		if (!token) return reply.code(401).send({ status: 'ERROR', error: 'Not authenticated' });
+		let userId; try { userId = getUserIdFromToken(token); } catch { return reply.code(401).send({ status: 'ERROR', error: 'Invalid auth token' }); }
 
-	const ownerAlias = typeof request.body?.alias === 'string' ? request.body.alias : undefined;
-	try {
-		const tid = await createTournamentWithOwner(db, userId, ownerAlias);
-		const state = await buildTournamentState(db, tid, userId);
-		return reply.code(201).send({ status: 'OK', tournament: state });
-	} catch (err) {
-		const msg = String(err?.message || '');
-		if (msg.includes('UNIQUE') || msg.includes('constraint')) return reply.code(409).send({ status: 'ERROR', error: 'Tournament create conflict' });
-		request.log.error({ err }, 'CREATE_TOURNAMENT');
-		return reply.code(500).send({ status: 'ERROR', error: 'Create tournament failed' });
-	}
+		const ownerAlias = typeof request.body?.alias === 'string' ? request.body.alias : undefined;
+		try
+		{
+			const tid = await createTournamentWithOwner(db, userId, ownerAlias);
+			const state = await buildTournamentState(db, tid, userId);
+			return reply.code(201).send({ status: 'OK', tournament: state });
+		}
+		catch (err) {
+			const msg = String(err?.message || '');
+			if (msg.includes('UNIQUE') || msg.includes('constraint')) return reply.code(409).send({ status: 'ERROR', error: 'Tournament create conflict' });
+			request.log.error({ err }, 'CREATE_TOURNAMENT');
+			return reply.code(500).send({ status: 'ERROR', error: 'Create tournament failed' });
+		}
 	});
 
 	fastify.post(API_PROTOCOL.VERIFY_PLAYER.path, async (request, reply) => {
-	const { db } = options;
-	const token = request.cookies?.auth_token;
-	if (!token) return reply.code(401).send({ status: 'ERROR', error: 'Not authenticated' });
-	let userId; try { userId = getUserIdFromToken(token); } catch { return reply.code(401).send({ status: 'ERROR', error: 'Invalid auth token' }); }
-	request.log.info(
-		{ params: request.params, body: request.body, cookies: Object.keys(request.cookies || {}) },
-		'verify-player in'
-	);
-	const tid = Number(request.params.id);
-	const { role, alias, username, password } = request.body || {};
-	if (!Number.isInteger(tid)) return reply.code(400).send({ status: 'ERROR', error: 'Invalid tournament id' });
+		const { db } = options;
+		const token = request.cookies?.auth_token;
+		if (!token) return reply.code(401).send({ status: 'ERROR', error: 'Not authenticated' });
+		let userId; try { userId = getUserIdFromToken(token); } catch { return reply.code(401).send({ status: 'ERROR', error: 'Invalid auth token' }); }
+		request.log.info(
+			{ params: request.params, body: request.body, cookies: Object.keys(request.cookies || {}) },
+			'verify-player in'
+		);
+		const tid = Number(request.params.id);
+		const { role, alias, username, password } = request.body || {};
+		if (!Number.isInteger(tid)) return reply.code(400).send({ status: 'ERROR', error: 'Invalid tournament id' });
 
-	if (role === 1) {
-		await upsertHostAlias(db, tid, String(alias || '').trim());
+		if (role === 1) {
+			await upsertHostAlias(db, tid, String(alias || '').trim());
+			const state = await buildTournamentState(db, tid, userId);
+			return reply.send({ status: 'OK', tournament: state });
+		}
+
+		if (![2,3,4].includes(role)) return reply.code(400).send({ status: 'ERROR', error: 'Role must be 2–4' });
+		if (!alias || !username || !password) return reply.code(400).send({ status: 'ERROR', error: 'Missing fields' });
+
+		if (await isRoleTaken(db, tid, role)) return reply.code(409).send({ status: 'ERROR', error: `Role ${role} already taken` });
+
+		const u = await getUserByCredentials(db, username, password);
+		if (!u) return reply.code(401).send({ status: 'ERROR', error: 'Invalid credentials' });
+
+		await insertPlayer(db, tid, u.id, String(alias).trim(), role);
 		const state = await buildTournamentState(db, tid, userId);
 		return reply.send({ status: 'OK', tournament: state });
-	}
+		});
 
-	if (![2,3,4].includes(role)) return reply.code(400).send({ status: 'ERROR', error: 'Role must be 2–4' });
-	if (!alias || !username || !password) return reply.code(400).send({ status: 'ERROR', error: 'Missing fields' });
-
-	if (await isRoleTaken(db, tid, role)) return reply.code(409).send({ status: 'ERROR', error: `Role ${role} already taken` });
-
-	const u = await getUserByCredentials(db, username, password);
-	if (!u) return reply.code(401).send({ status: 'ERROR', error: 'Invalid credentials' });
-
-	await insertPlayer(db, tid, u.id, String(alias).trim(), role);
-	const state = await buildTournamentState(db, tid, userId);
-	return reply.send({ status: 'OK', tournament: state });
-	});
-
-	fastify.post(API_PROTOCOL.START_TOURNAMENT.path, async (request, reply) => {
-	const { db } = options;
-	const token = request.cookies?.auth_token;
-	if (!token) return reply.code(401).send({ status: 'ERROR', error: 'Not authenticated' });
-	let userId; try { userId = getUserIdFromToken(token); } catch { return reply.code(401).send({ status: 'ERROR', error: 'Invalid auth token' }); }
-
-	const tid = Number(request.params.id);
-	if (!Number.isInteger(tid)) return reply.code(400).send({ status: 'ERROR', error: 'Invalid tournament id' });
-	try {
-		await startTournamentTx(db, tid);
-		const state = await buildTournamentState(db, tid, userId);
-		return reply.send({ status: 'OK', tournament: state });
-	}
-	catch (err)
-	{
-		return reply.code(err.statusCode || 500).send({ status: 'ERROR', error: err.message || 'Failed to start tournament' });
-	}
+		fastify.post(API_PROTOCOL.START_TOURNAMENT.path, async (request, reply) => {
+		const { db } = options;
+		const token = request.cookies?.auth_token;
+		if (!token) return reply.code(401).send({ status: 'ERROR', error: 'Not authenticated' });
+		let userId; 
+		try { userId = getUserIdFromToken(token); }
+		catch { return reply.code(401).send({ status: 'ERROR', error: 'Invalid auth token' }); }
+		const tid = Number(request.params.id);
+		if (!Number.isInteger(tid)) return reply.code(400).send({ status: 'ERROR', error: 'Invalid tournament id' });
+		try
+		{
+			await startTournament(db, tid);
+			const state = await buildTournamentState(db, tid, userId);
+			return reply.send({ status: 'OK', tournament: state });
+		}
+		catch (err)
+		{
+			return reply.code(err.statusCode || 500).send({ status: 'ERROR', error: err.message || 'Failed to start tournament' });
+		}
 	});
 	fastify.delete(API_PROTOCOL.CANCEL_TOURNAMENT.path, async (request, reply) => {
 		const { db } = options;

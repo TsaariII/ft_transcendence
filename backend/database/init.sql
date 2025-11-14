@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS friends (
 CREATE TABLE IF NOT EXISTS tournaments (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     status TEXT NOT NULL DEFAULT 'waiting'
-        CHECK (status IN ('waiting','ongoing','finished')),
+        CHECK (status IN ('waiting','ongoing','finished', 'closed')),
     winner_id TEXT,
     FOREIGN KEY (winner_id) REFERENCES users(id) ON DELETE SET NULL
 );

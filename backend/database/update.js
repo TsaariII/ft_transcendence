@@ -11,17 +11,12 @@ function updateOnlineStatus(userId, status) {
 		db.run ('UPDATE users SET status = ? WHERE id = ?',
 			[status, userId],
 			function (err) {
-				if (err) {
+				if (err)
 					return reject ({ error: 'failed to update status', code: 418 });
-				}
-				else if (this.changes === 0) {
+				else if (this.changes === 0)
 					return reject({error: 'no changes made', code: 401});
-				}
-				else {
-					return resolve (this.changes);
-				}
+				return resolve (this.changes);
 			}
-
 		)
 	}
 )

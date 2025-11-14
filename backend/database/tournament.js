@@ -4,7 +4,7 @@
 const {logger} = require('@logger');
 const flog = logger.child({ fileContext: 'DBtournament.js' }); // scoped logger
 const bcrypt = require('bcryptjs');
-const tournament = require('../routes/tournament_group_2/tournament.js');
+const tournament = require('../routes/tournament/tournament.js');
 
 const ROLE_COL = 'role'; // matches your schema
 
@@ -20,7 +20,7 @@ function _wrap(db) {
       db.all(sql, params, (e, rows) => e ? rej(e) : res(rows || []))
     ),
     tx: async (fn) => {
-      const run = (s,p=[]) => _wrap(db).run(s,p);
+      const run = (s,p = []) => _wrap(db).run(s,p);
       await run('BEGIN');
       try { const r = await fn(_wrap(db)); await run('COMMIT'); return r; }
       catch (e) { await run('ROLLBACK'); throw e; }
@@ -121,20 +121,17 @@ async function insertInitialBracket(db, tid, s1, s2, s3, s4) {
   );
 }
 
-async function startTournamentTx(db, tid) {
+async function startTournament(db, tid) {
   const w = _wrap(db);
   return w.tx(async ({ get }) => {
     const t = await get(`SELECT id, status FROM tournaments WHERE id = ?`, [tid]);
     if (!t) { const e = new Error('Tournament not found'); e.statusCode = 404; throw e; }
     if (t.status !== 'waiting') { const e = new Error('Tournament already started'); e.statusCode = 409; throw e; }
-
     const players = await getTournamentPlayers(db, tid);
     if (players.length !== 4) { const e = new Error('Tournament requires exactly 4 players'); e.statusCode = 409; throw e; }
-
     const byRole = r => players.find(p => p.role === r)?.user_id;
     const s1 = byRole(1), s2 = byRole(2), s3 = byRole(3), s4 = byRole(4);
     if (!s1 || !s2 || !s3 || !s4) { const e = new Error('Roles 1–4 must be assigned'); e.statusCode = 409; throw e; }
-
     await insertInitialBracket(db, tid, s1, s2, s3, s4);
     await setTournamentStatus(db, tid, 'ongoing');
     return true;
@@ -249,7 +246,7 @@ module.exports = {
   insertPlayer,
   getUserByCredentials,
   insertInitialBracket,
-  startTournamentTx,
+  startTournament,
   buildTournamentState,
   createTournamentWithOwner,
   cancelTournament
