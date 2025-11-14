@@ -8,3 +8,27 @@ body, html, #root {
 	/* Use 100% height to ensure Flexbox calculations work */
 	height: 100%; 
 }
+
+@font-face {
+	font-family: 'Doodle';
+	src: url('/fonts/Handodle.ttf') format('truetype');
+	font-weight: 400;
+	font-style: normal;
+}
+
+.btn-handdrawn {
+	padding: 0.7rem 0.7rem;
+	margin: 0 0.5rem;
+
+	border: 3px solid;
+	
+	/* Wobbly corners */
+	border-top-left-radius: 105px 10px;
+	border-top-right-radius: 10px 105px;
+	border-bottom-right-radius: 105px 10px;
+	border-bottom-left-radius: 10px 105px;
+  
+	box-shadow: 1px 1px 0px currentColor, -1px -1px 0px currentColor;
+	transition: all 0.2s ease;
+  }
+  

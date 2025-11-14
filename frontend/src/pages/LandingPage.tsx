@@ -240,7 +240,7 @@ const HomePage: React.FC = () => {
 
 	return (
 		<>
-		{/* Animated PONG text */}
+		{/* Animated PONG text }
 		<div className="absolute top-16 left-0 w-full flex justify-center z-10">
 			<AnimatedText
 			text={t("home.title")}
@@ -248,7 +248,7 @@ const HomePage: React.FC = () => {
 			strokeWidth={3}
 			className="max-w-[800px]"
 			/>
-		</div>
+	</div> */}
 
 		<CenteredContainer> 
 		{/* Semi-transparent card wrapper for Home page content */}
@@ -260,7 +260,7 @@ const HomePage: React.FC = () => {
 				</div>
 			)}
 
-			<h1 className="text-5xl font-bold">{t("home.title")}</h1>
+			<h1 className="text-5xl font-hand">{t("home.title")}</h1>
 
 			{!isLoggedIn && (
 				<div className="flex gap-4">
