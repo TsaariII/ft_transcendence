@@ -19,7 +19,7 @@ import Friends from "./pages/Friends";
 import Profile from "./pages/ProfilePage";
 import SettingsPage from "./pages/SettingsPage";
 import ProtectedRoute from "./components/layout/ProtectedRoute";
-import background from "./assets/background.png";
+import background from "./assets/background2.jpg";
 import Exit from "./pages/Exit";
 import NotFound from "./pages/NotFound";
 
@@ -49,12 +49,13 @@ return (
         <div className="relative h-full"> {/* CHANGE MIN-H-SCREEN TO H-FULL */}
             {/* Background (unchanged) */}
             <div
-                className="fixed inset-0 bg-black/50"
+                className="fixed inset-0 bg-white/90"
                 style={{
-                    //backgroundImage: `url(${background})`,
-                    //backgroundSize: "cover",
-                    //backgroundPosition: "center",
-                    //backgroundAttachment: "fixed",
+                    backgroundImage: `url(${background})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                    backgroundAttachment: "fixed",
+                    backgroundBlendMode: "overlay", 
                 }}
             />
 
