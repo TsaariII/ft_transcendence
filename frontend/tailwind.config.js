@@ -6,7 +6,11 @@ module.exports = {
     "./index.html",             //  include the main HTML file
     "./src/**/*.{ts,tsx}"],     // include all TypeScript and TSX files in the src folder
   theme: {                      // allows customizing default design tokens (colors, spacing, fonts, etc.)
-    extend: {},                 // empty object -> uses Tailwind defaults    
+    extend: {
+      fontFamily: {
+        hand: ['Doodle', 'cursive'],
+      },
+    },
   },
   plugins: [],                   // Tailwind plugins for additional utilities/components
 };
