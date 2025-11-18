@@ -10,7 +10,7 @@ const getJwtSecret = () => process.env.JWT_SECRET || 'dev-secret-key';
 function generateToken(id, username) {
 	console.log("checking id and name before tokenization", id, username);
 	return jwt.sign(
-    { id: userId, username: username },
+    { id: id, username: username },
     getJwtSecret(),
     { expiresIn: '1h' }
   );
