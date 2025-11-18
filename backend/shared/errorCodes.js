@@ -1,27 +1,21 @@
 /**
- * These are error codes matched to messages, do not change the variable holding the message
- * Fucntions are using the variable formats to pass on message ques, changing them may affect
- * code elsewhere and result in unaligned error messaging
- * 
- * Messages can be changed to your will, remeber that error code objects that use a key,
- * will return an object which must be decoded where used, if you want the specifci error messsage and code.
- * 
- * eg const error = ERROR_CODES.UNAUTHORIZED('MISSING_TOKEN');
-			return reply.code(error.code).send({ error: error.message});
-
-	code 500 is a catch all error, it may be better to call that or send it from the failing fucntion,
-	so better context can be applied
+ * Centralised error messages and HTTP codes for the API layer.
+ *
+ * Usage examples:
+ *
+ *   const { ERROR_CODES } = require('@sharedErr');
+ *
+ *   // Auth failures (token / login issues)
+ *   const err = ERROR_CODES.UNAUTHORIZED('MISSING_TOKEN');
+ *   reply.code(err.code).send({ error: err.message });
+ *
+ *   // Validation failures (used by errorFormatter)
+ *   const err = ERROR_CODES.VALIDATION_FAILED();
+ *   reply.code(err.code).send({ error: err.message });
  */
 
-/**
- *  DEFAULT_AUTH: 'Authentication required', (is default message)
-	INVALID_TOKEN: 'Invalid Token', (prompt a new login)
-	MISSING_TOKEN: 'Missing Token', (could suggest tampered with , force logout)
-	TOKEN_EXPIRED: 'Token expired , refresh',(prompt a new miniLogin, or if we choose
-		to implemet refresh tokens, prompt refresh )
-	USER_NOT_VERIFIED: 'User account is not verified', (somehow user is not logged in)
- */
 
+// Messages specifically for authentication/token problems
 const AUTH_ERROR_MSG = {
 	DEFAULT_AUTH: 'Authentication required',
 	INVALID_TOKEN: 'Invalid Token',
@@ -30,11 +24,7 @@ const AUTH_ERROR_MSG = {
 	USER_NOT_VERIFIED: 'User account is not verified',
 }
 
-const VALIDATION_ERR = {
-	PASSWORD: 'invalid password',
-	DEFAULT: 'invalid input'
-}
-
+// Generic, non-auth error messages (optional, used as defaults)
 const ERROR_MESSAGES = {
 	INVALID_USERNAME: 'Username does not exist',
 	INVALID_PASSWORD: 'Incorrect password',
@@ -44,14 +34,23 @@ const ERROR_MESSAGES = {
 };
 
 const ERROR_CODES = {
-  VALIDATION_FAILED: (msgKey = 'DEFAULT_AUTH') =>({
+  /**
+    * Generic validation failure (HTTP 400).
+    * The exact human-readable message is usually decided in errorFormatter.js,
+    * but this provides the canonical status code and a safe default.
+    */
+  VALIDATION_FAILED: () =>({
     code: 400,
-	message: AUTH_ERROR_MSG[msgKey] || AUTH_ERROR_MSG.DEFAULT_AUTH
+    message: ERROR_MESSAGES.DEFAULT_VALIDATION
   }),
-  
+    /**
+   * Auth / token failure (HTTP 401).
+   * msgKey should be one of AUTH_ERROR_MSG keys:
+   *   'DEFAULT_AUTH' | 'INVALID_TOKEN' | 'MISSING_TOKEN' | 'TOKEN_EXPIRED' | 'USER_NOT_VERIFIED'
+   */
   UNAUTHORIZED: (msgKey = 'DEFAULT_AUTH') =>({
     code: 401,
-	message: AUTH_ERROR_MSG[msgKey] || AUTH_ERROR_MSG.DEFAULT_AUTH
+    message: AUTH_ERROR_MSG[msgKey] || AUTH_ERROR_MSG.DEFAULT_AUTH
   }),
 
   FORBIDDEN: {
@@ -72,4 +71,4 @@ const ERROR_CODES = {
   }
 };
 
-module.exports = {ERROR_CODES, ERROR_MESSAGES};
+module.exports = {ERROR_CODES, ERROR_MESSAGES, AUTH_ERROR_MSG};

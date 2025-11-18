@@ -1,9 +1,7 @@
 'use strict';
 
-// const db = require('./initDB.js');
 const {logger} = require('@logger');
 const flog = logger.child({ fileContext: 'DBtournament.js' }); // scoped logger
-const bcrypt = require('bcryptjs');
 const tournament = require('../routes/tournament/tournament.js');
 
 const ROLE_COL = 'role'; // matches your schema

@@ -21,13 +21,14 @@ const db = new sqlite3.Database(DB_PATH, sqlite3.OPEN_READWRITE | sqlite3.OPEN_C
     db.run('PRAGMA foreign_keys = ON;');
   });
   try {
-    if (FORCE_INIT || (await needsInit(db))) {
+    if (FORCE_INIT || (await needsInit(db)))
+    {
       const sql = fs.readFileSync(INIT_SQL_PATH, 'utf8');
       await exec(db, 'BEGIN;'); await exec(db, sql); await exec(db, 'COMMIT;');
       console.log('Schema ensured from init.sql');
-    } else {
-      console.log('Schema already present; skipping init.');
     }
+    else
+      console.log('Schema already present; skipping init.');
   } catch (e) {
     console.error('Schema init failed:', e.message);
     try { await exec(db, 'ROLLBACK;'); } catch {}

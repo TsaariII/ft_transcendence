@@ -84,7 +84,7 @@ async function loginUser(fastify, options) {
                         tempAuthToken: tempToken
                     });
                 } else {
-                    const token = secure.generateToken(result, username);
+                    const token = secure.generateToken(result.id, username);
 //                    flog.info({ function: 'loginUser' }, `2FA not enabled. Issuing standard token for user: ${result.id}`);
                     secure.setAuthCookie(reply, token);
 					const temp = secure.getUserIdFromToken(token);

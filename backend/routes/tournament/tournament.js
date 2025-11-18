@@ -1,5 +1,4 @@
 const { API_PROTOCOL } = require('@sharedApi');
-const bcrypt = require('bcryptjs');
 const {
   getActiveTournamentForUser,
   buildTournamentState,
@@ -36,15 +35,15 @@ const _wrap = (db) => ({
 
 module.exports = async function tournamentRoutes(fastify, options) {
 	fastify.get(API_PROTOCOL.GET_ACTIVE_TOURNAMENT.path, async (request, reply) => {
-	const { db } = options;
-	const token = request.cookies?.auth_token;
-	if (!token) return reply.code(401).send({ status: 'ERROR', error: 'Not authenticated' });
-	let userId; try { userId = getUserIdFromToken(token); } catch { return reply.code(401).send({ status: 'ERROR', error: 'Invalid auth token' }); }
+		const { db } = options;
+		const token = request.cookies?.auth_token;
+		if (!token) return reply.code(401).send({ status: 'ERROR', error: 'Not authenticated' });
+		let userId; try { userId = getUserIdFromToken(token); } catch { return reply.code(401).send({ status: 'ERROR', error: 'Invalid auth token' }); }
 
-	const t = await getActiveTournamentForUser(db, userId);
-	if (!t) return reply.send({ status: 'OK', tournament: null });
-	const state = await buildTournamentState(db, t.id, userId);
-	return reply.send({ status: 'OK', tournament: state });
+		const t = await getActiveTournamentForUser(db, userId);
+		if (!t) return reply.send({ status: 'OK', tournament: null });
+		const state = await buildTournamentState(db, t.id, userId);
+		return reply.send({ status: 'OK', tournament: state });
 	});
 
 	fastify.post(API_PROTOCOL.CREATE_TOURNAMENT.path, async (request, reply) => {
@@ -52,7 +51,6 @@ module.exports = async function tournamentRoutes(fastify, options) {
 		const token = request.cookies?.auth_token;
 		if (!token) return reply.code(401).send({ status: 'ERROR', error: 'Not authenticated' });
 		let userId; try { userId = getUserIdFromToken(token); } catch { return reply.code(401).send({ status: 'ERROR', error: 'Invalid auth token' }); }
-
 		const ownerAlias = typeof request.body?.alias === 'string' ? request.body.alias : undefined;
 		try
 		{
@@ -98,9 +96,9 @@ module.exports = async function tournamentRoutes(fastify, options) {
 		await insertPlayer(db, tid, u.id, String(alias).trim(), role);
 		const state = await buildTournamentState(db, tid, userId);
 		return reply.send({ status: 'OK', tournament: state });
-		});
+	});
 
-		fastify.post(API_PROTOCOL.START_TOURNAMENT.path, async (request, reply) => {
+	fastify.post(API_PROTOCOL.START_TOURNAMENT.path, async (request, reply) => {
 		const { db } = options;
 		const token = request.cookies?.auth_token;
 		if (!token) return reply.code(401).send({ status: 'ERROR', error: 'Not authenticated' });

@@ -3,7 +3,7 @@ const {logger} = require('@logger');
 const flog = logger.child({ fileContext: 'get.js' }); // scoped logger
 const bcrypt = require('bcrypt');
 const { ERROR_CODES } = require('@sharedErr');
-const { VALIDATION_ERR} = ERROR_CODES;
+
 // naming can be changed 
 // get each element from database , such as score, name , status
 // userId is passed as ({object}) not (value) to allow adjustmenst such as do not show password
