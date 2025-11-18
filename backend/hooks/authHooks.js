@@ -59,24 +59,20 @@ async function authHook(fastify, options) {
 	//	}
 
 		const token = request.cookies?.auth_token;
-	//	flog.debug({function: "authHook", token: token},'cookie requested');
-		try {
+		try
+		{
 			const result = secure.getUserIdFromTokenH(token);
 			flog.debug({function: "authHook", result: result},'id decoded');
-			if (result?.id) {
-				
-				request.userId = result.id.id;
-	//			flog.debug({ function: "authHook", userId: request.userId }, 'userId set in hook');
-
-//				flog.debug({fucntion: "authHook", sending: result.id}, "ARE WE STEPPING INTO ATTATCHING THE ID ");
-			} else if (result.error) {
+			if (result?.id)
+				request.userId = result.id;
+			else if (result.error) {
 				flog.error({function: "authHook", errMsg: result.error},'error from getuserIdFromToken');
 				const errorResponse = ERROR_CODES.UNAUTHORIZED(result.error);
 				return reply.code(errorResponse.code).send({ error: errorResponse.message });
 			}
 		} catch (err) {
 			flog.error({function: "authHook", errMsg: err.stack},'unknown error');
-			reply.code(418).send({error: 'unknown error from authHook'});
+			reply.code(500).send({error: 'UNKNOWN_AUT_ERROR'});
 		}
 		});
 }

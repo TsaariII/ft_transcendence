@@ -30,7 +30,7 @@ async function registerUser(fastify, options) {
             const userId = await DBinsert.insertUser({username, password, score: 0, status: 'online'});
             const token = secure.generateToken(userId, username);
             secure.setAuthCookie(reply, token);
-            reply.code(200).send('ok');
+            reply.code(200).send({status: 'ok'});
         }
         catch (err) { reply.code(err?.status || 500).send(err);}
 	});
@@ -54,7 +54,7 @@ async function loginUser(fastify, options) {
                 }
                 const token = secure.generateToken(result.id, username);
                 secure.setAuthCookie(reply, token);
-                reply.code(200).send('ok');
+                reply.code(200).send({status: 'ok'});
             }
             catch (err) { reply.code(401).send({error: 'Invalid username or password'}); }
         }
