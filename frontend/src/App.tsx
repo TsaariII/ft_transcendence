@@ -48,7 +48,7 @@ const showNavbar = isLoggedIn || location.pathname !== "/";
 return (
         <div className="relative h-full"> {/* CHANGE MIN-H-SCREEN TO H-FULL */}
             {/* Background (unchanged) */}
-            <div
+            {/*<div
                 className="fixed inset-0 bg-white/90"
                 style={{
                     backgroundImage: `url(${background})`,
@@ -57,7 +57,7 @@ return (
                     backgroundAttachment: "fixed",
                     backgroundBlendMode: "overlay", 
                 }}
-            />
+            />/*}
 
             {/* Foreground content: h-full is now 100% of viewport height */}
             <div className="relative z-10 flex flex-col h-full p-6"> {/* CHANGE MIN-H-SCREEN TO H-FULL */}

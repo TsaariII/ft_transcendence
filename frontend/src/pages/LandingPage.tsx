@@ -7,6 +7,8 @@ import { useAuth } from "../context/AuthContext";
 import CenteredContainer from "../components/layout/CenteredContainer";
 import AnimatedText from "../components/layout//AnimatedText";
 import { useTranslation } from "../shared/Translation";
+import { Gamepad2, Trophy, Users, ListOrdered, Settings as SettingsIcon } from "lucide-react";
+import DoodleButton from "../components/ui/DoodleButton";
 
 const setServerLang = (code: "en" | "fi" | "sv") => localStorage.setItem("serverLang", code);
 
@@ -287,13 +289,54 @@ const HomePage: React.FC = () => {
 			)}
 
 			{isLoggedIn && (
-				<div className="flex flex-col items-center gap-2">
-					<p id="welcome">
-						{t("home.greeting")}, {user?.username}!
-						<span aria-hidden="true"> 🏓</span>
-					</p>
-				</div>
-			)}
+    <div className="flex flex-col items-center gap-8 w-full">
+
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-8 w-full max-w-10xl mt-4">
+
+            {/* Game */}
+		<DoodleButton
+			label="Game"
+			icon={<Gamepad2 size={64} strokeWidth={2.5} />}
+			onClick={() => navigate("/game")}
+			rotate="-rotate-2"
+			borderRadius="rounded-[25px_15px_28px_18px]"
+		/>
+
+		<DoodleButton
+			label="Tournament"
+			icon={<Trophy size={64} strokeWidth={2.5} />}
+			onClick={() => navigate("/tournament")}
+			rotate="rotate-1.5"
+			borderRadius="rounded-[18px_28px_15px_22px]"
+		/>
+
+		<DoodleButton
+			label="Friends"
+			icon={<Users size={64} strokeWidth={2.5} />}
+			onClick={() => navigate("/friends")}
+			rotate="-rotate-1"
+			borderRadius="rounded-[22px_12px_26px_16px]"
+		/>
+
+		<DoodleButton
+			label="Leaderboard"
+			icon={<ListOrdered size={64} strokeWidth={2.5} />}
+			onClick={() => navigate("/leaderboard")}
+			rotate="rotate-2"
+			borderRadius="rounded-[15px_24px_18px_20px]"
+		/>
+
+		<DoodleButton
+			label="Settings"
+			icon={<SettingsIcon size={64} strokeWidth={2.5} />}
+			onClick={() => navigate("/settings")}
+			rotate="-rotate-1.5"
+			borderRadius="rounded-[20px_16px_22px_14px]"
+		/>
+		</div>
+    </div>
+)}
+
 		</div>
 
 	<Modal
