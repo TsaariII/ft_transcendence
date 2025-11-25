@@ -9,9 +9,21 @@ const {
   insertPlayer,
   isRoleTaken,
   upsertHostAlias,
-  cancelTournament
+  markOngoingIfFull,
+  cancelTournament,
+  closeTournament
 } = require('../../database/tournament.js'); // adjust path
 const { getUserIdFromToken } = require('@security'); // adjust path
+
+function roleStringToNumber(role) {
+  const map = {
+    player1: 1,
+    player2: 2,
+    player3: 3,
+    player4: 4,
+  };
+  return map[role] ?? null;
+}
 
 const _wrap = (db) => ({
 	run: (sql, params = []) => new Promise((res, rej) =>
@@ -84,19 +96,20 @@ module.exports = async function tournamentRoutes(fastify, options) {
 			const state = await buildTournamentState(db, tid, userId);
 			return reply.send({ status: 'OK', tournament: state });
 		}
-
 		if (!['player2','player3','player4'].includes(role)) return reply.code(400).send({ status: 'ERROR', error: 'Role must be 2–4' });
 		if (!alias || !username || !password) return reply.code(400).send({ status: 'ERROR', error: 'Missing fields' });
-
 		if (await isRoleTaken(db, tid, role)) return reply.code(409).send({ status: 'ERROR', error: `Role ${role} already taken` });
 		const u = await getUserByCredentials(db, username, password);
 		if (!u) return reply.code(400).send({ status: 'ERROR', error: 'Invalid credentials' });
-
-		await insertPlayer(db, tid, u.id, String(alias).trim(), role);
+		const roleNum = roleStringToNumber(role);
+		await insertPlayer(db, tid, u.id, String(alias).trim(), roleNum);
+		await markOngoingIfFull(db, tid);
 		const state = await buildTournamentState(db, tid, userId);
 		return reply.send({ status: 'OK', tournament: state });
 	});
-
+	fastify.delete(API_PROTOCOL.REMOVE_PLAYER_FROM_TOURNAMENT.path, async (request, reply) => {
+		
+	});
 	fastify.post(API_PROTOCOL.START_TOURNAMENT.path, async (request, reply) => {
 		const { db } = options;
 		const token = request.cookies?.auth_token;
@@ -136,4 +149,26 @@ module.exports = async function tournamentRoutes(fastify, options) {
 			return reply.code(err.statusCode || 500).send({ status: 'ERROR', error: err.message || 'Failed to cancel tournament' });
 		}
 	});
+	// fastify.post(API_PROTOCOL.CLOSE_TOURNAMENT.path, async (request, reply) => {
+	// 	const {db} = options;
+	// 	const token = request.cookies?.auth_token;
+	// 	if (!token) return reply.code(401).send({ status: 'ERROR', error: 'Not authenticated' });
+	// 	let userId; 
+	// 	try { userId = getUserIdFromToken(token); }
+	// 	catch { return reply.code(401).send({ status: 'ERROR', error: 'Invalid auth token' }); }
+	// 	const active = await getActiveTournamentForUser(db, userId);
+	// 	if (!active) return reply.code(404).send({status: 'ERROR', error: 'No active tournament'});
+	// 	try
+	// 	{
+	// 		await closeTournament(db, active.id, userId);
+	// 		return reply.send({status: 'OK', tournament: null});
+	// 	}
+	// 	catch (err)
+	// 	{
+	// 		request.log.error({err, tid: active.id}, 'CLOSE_TOURNAMENT failed');
+	// 		return reply.code(err.statusCode || 500).send({
+	// 			status: 'ERROR', error: err.message || 'Failed to close tournament'
+	// 		});
+	// 	}
+	// });
 }

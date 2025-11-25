@@ -89,16 +89,19 @@ async function upsertHostAlias(db, tid, alias) {
 
 async function insertPlayer(db, tid, userId, alias, role) {
   const { run } = _wrap(db);
+  
   return run(
     `INSERT INTO tournament_players (tournament_id, user_id, alias, ${ROLE_COL}, verified)
      VALUES (?, ?, ?, ?, 1)`, [tid, userId, alias, role]
   );
 }
 
+
+
 async function getUserByCredentials(db, username, password) {
   const { get } = _wrap(db);
-  const row = get(
-    `SELECT id, username, avatar_file FROM users WHERE username = ?`,
+  const row = await get(
+    `SELECT id, username, password, avatar_file FROM users WHERE username = ?`,
     [username]
   );
   if (!row) return null;
@@ -173,7 +176,8 @@ async function buildTournamentState(db, tid, viewingUserId) {
   const players = [1,2,3,4].map(n => toTournamentPlayer(
     playersRows.find(r => r.role === n), t.status, viewingUserId, `player${n}`
   ));
-
+  // if (players.length === 4 && t.status === 'waiting')
+  //   await run(`UPDATE tournaments SET status = 'closed' WHERE id = ?`, [tid]);
   const rounds = Math.max(0, ...games.map(g => g.round || 0));
   const bracket = rounds ? Array.from({length: rounds}, (_, i) => {
     const r = i + 1;
@@ -185,7 +189,6 @@ async function buildTournamentState(db, tid, viewingUserId) {
       return { match_id: String(g.game_id), player1: p1, player2: p2, winner, score, status: ['pending','ongoing','finished'].includes((g.status||'').toLowerCase()) ? g.status : 'pending' };
     });
   }) : [];
-
   const state = {
     tournament_id: String(t.id),
     status: t.status,
@@ -195,10 +198,8 @@ async function buildTournamentState(db, tid, viewingUserId) {
     can_start: playersRows.length === 4 && playersRows.every(r => !!r.verified),
     pending_players: players.filter(p => !p.isVerified).length,
   };
-
   const current = bracket.flat().find(m => m.status === 'ongoing');
   if (current) state.currentMatch = current;
-
   if (t.winner_id) {
     const w = playersById.get(t.winner_id);
     if (w?.username) state.winner = w.username;
@@ -222,6 +223,35 @@ async function createTournamentWithOwner(db, creatorId, ownerAlias) {
   });
 }
 
+async function markOngoingIfFull(db, tid)
+{
+  const w = _wrap(db);
+  return w.tx(async ({get, all, run}) => {
+		const t = await get('SELECT id, status FROM tournaments WHERE id = ?', [tid]);
+		if (!t) { const e = new Error('Tournament not found'); e.statusCode = 404; throw e; }
+    if (t.status === 'finished' || t.status === 'closed')
+    {
+      const e = new Error(`Tournament cannot be modified in status ${t.status}`);
+      e.statusCode = 409; throw e;
+    }
+    if (t.status === 'ongoing') return {changed: false};
+    const pl = await all(
+      `SELECT ${ROLE_COL} AS role, verified
+       FROM tournament_players
+       WHERE tournament_id = ?`, [tid]
+    );
+    const full = pl.length === 4 && pl.every(p => p.verified);
+    const roles = new Set(ps.map(p => p.role));
+    const rolesOK = [1, 2, 3, 4].every(r => roles.has(r));
+    if (full && rolesOK)
+    {
+      await run(`UPDATE tournaments SET status = 'ongoing' WHERE id = ?`, [tid]);
+      return {changes: true};
+    }
+    return {changes: false};
+  });
+}
+
 async function cancelTournament(db, tid, hostId)
 {
 	const w = _wrap(db);
@@ -237,6 +267,24 @@ async function cancelTournament(db, tid, hostId)
 		await run (`DELETE FROM tournaments WHERE id = ?`, [tid]);
 		return true;
 	});
+}
+
+async function closeTournament(db, tid, userId)
+{
+  const w = _wrap(db);
+  return w.tx(async ({get, run}) => {
+    const t = await get(`SELECT id, status FROM tournaments WHERE id = ?`, [tid]);
+    if (!t) {const e = new Error('Tournament not found'); e.statusCode = 403; throw e;}
+    if (t.status === 'closed') {const e = new Error('Tournament already closed'); e.statusCode = 409; throw e;}
+    const host = await get(
+      `SELECT userd_id FROM tournament_players WHERE tournament_id = ? AND role = 1`, [tid]);
+    if (!host || host.user_id !== userId)
+    {
+      const e = new Error('Only host can close'); e.statusCode = 403; throw e;
+    }
+    await run(`UPDATE tournaments SET status = 'closed' WHERE id = ?`, [tid]);
+    return true;
+  });
 }
 
 module.exports = {
@@ -255,5 +303,7 @@ module.exports = {
   startTournament,
   buildTournamentState,
   createTournamentWithOwner,
-  cancelTournament
+  markOngoingIfFull,
+  cancelTournament,
+  closeTournament
 };
