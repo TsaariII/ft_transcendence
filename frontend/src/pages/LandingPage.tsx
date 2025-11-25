@@ -300,7 +300,7 @@ const HomePage: React.FC = () => {
 						/>
 
 						<DoodleButton
-							icon={<Trophy className="w-44 h-44 stroke-white" />}
+							icon={<Trophy strokeWidth={1} className="w-44 h-44 stroke-white" />}
 							hoverStrokeColor="stroke-red-500"
 							width="w-44"
 							height="h-44"
