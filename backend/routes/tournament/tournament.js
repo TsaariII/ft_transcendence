@@ -7,6 +7,7 @@ const {
   createTournamentWithOwner,
   getUserByCredentials,
   insertPlayer,
+  removePlayerFromTournament,
   isRoleTaken,
   upsertHostAlias,
   markOngoingIfFull,
@@ -64,10 +65,9 @@ module.exports = async function tournamentRoutes(fastify, options) {
 		const token = request.cookies?.auth_token;
 		if (!token) return reply.code(401).send({ status: 'ERROR', error: 'Not authenticated' });
 		let userId; try { userId = getUserIdFromToken(token); } catch { return reply.code(401).send({ status: 'ERROR', error: 'Invalid auth token' }); }
-		const ownerAlias = typeof request.body?.alias === 'string' ? request.body.alias : undefined;
 		try
 		{
-			const tid = await createTournamentWithOwner(db, userId, ownerAlias);
+			const tid = await createTournamentWithOwner(db, userId);
 			const state = await buildTournamentState(db, tid, userId);
 			return reply.code(201).send({ status: 'OK', tournament: state });
 		}
@@ -98,17 +98,29 @@ module.exports = async function tournamentRoutes(fastify, options) {
 		}
 		if (!['player2','player3','player4'].includes(role)) return reply.code(400).send({ status: 'ERROR', error: 'Role must be 2–4' });
 		if (!alias || !username || !password) return reply.code(400).send({ status: 'ERROR', error: 'Missing fields' });
-		if (await isRoleTaken(db, tid, role)) return reply.code(409).send({ status: 'ERROR', error: `Role ${role} already taken` });
+		const roleNum = roleStringToNumber(role);
+		if (await isRoleTaken(db, tid, roleNum)) return reply.code(409).send({ status: 'ERROR', error: `Role ${role} already taken` });
 		const u = await getUserByCredentials(db, username, password);
 		if (!u) return reply.code(400).send({ status: 'ERROR', error: 'Invalid credentials' });
-		const roleNum = roleStringToNumber(role);
 		await insertPlayer(db, tid, u.id, String(alias).trim(), roleNum);
 		await markOngoingIfFull(db, tid);
 		const state = await buildTournamentState(db, tid, userId);
 		return reply.send({ status: 'OK', tournament: state });
 	});
 	fastify.delete(API_PROTOCOL.REMOVE_PLAYER_FROM_TOURNAMENT.path, async (request, reply) => {
-		
+		const {db} = options;
+		const {role} = request.body || {};
+		const token = request.cookies?.auth_token;
+		if (!token) return reply.code(401).send({ status: 'ERROR', error: 'Not authenticated' });
+		let userId; 
+		try { userId = getUserIdFromToken(token); }
+		catch { return reply.code(401).send({ status: 'ERROR', error: 'Invalid auth token' }); }
+		const tid = Number(request.body?.tournament_id);
+		if (!Number.isInteger(tid)) return reply.code(400).send({ status: 'ERROR', error: 'Invalid tournament id' });
+		const roleNum = roleStringToNumber(role);
+		const result = removePlayerFromTournament(db, tid, roleNum);
+		if (!result || !result.changes) return reply.code(404).send({status: 'ERROR', error: 'Player not in tournament'});
+		return reply.send({ok: true});
 	});
 	fastify.post(API_PROTOCOL.START_TOURNAMENT.path, async (request, reply) => {
 		const { db } = options;

@@ -96,7 +96,16 @@ async function insertPlayer(db, tid, userId, alias, role) {
   );
 }
 
-
+function removePlayerFromTournament(db, tournamentId, role)
+{
+  const {run} = _wrap(db);
+  return run(
+    `DELETE FROM tournament_players
+     WHERE tournament_id = ?
+      AND player_role = ?`,
+      [tid, role]
+  );
+}
 
 async function getUserByCredentials(db, username, password) {
   const { get } = _wrap(db);
@@ -135,7 +144,7 @@ async function startTournament(db, tid) {
   return w.tx(async ({ get }) => {
     const t = await get(`SELECT id, status FROM tournaments WHERE id = ?`, [tid]);
     if (!t) { const e = new Error('Tournament not found'); e.statusCode = 404; throw e; }
-    if (t.status !== 'waiting') { const e = new Error('Tournament already started'); e.statusCode = 409; throw e; }
+    // if (t.status !== 'waiting') { const e = new Error('Tournament already started'); e.statusCode = 409; throw e; }
     const players = await getTournamentPlayers(db, tid);
     if (players.length !== 4) { const e = new Error('Tournament requires exactly 4 players'); e.statusCode = 409; throw e; }
     const byRole = r => players.find(p => p.role === r)?.user_id;
@@ -176,8 +185,6 @@ async function buildTournamentState(db, tid, viewingUserId) {
   const players = [1,2,3,4].map(n => toTournamentPlayer(
     playersRows.find(r => r.role === n), t.status, viewingUserId, `player${n}`
   ));
-  // if (players.length === 4 && t.status === 'waiting')
-  //   await run(`UPDATE tournaments SET status = 'closed' WHERE id = ?`, [tid]);
   const rounds = Math.max(0, ...games.map(g => g.round || 0));
   const bracket = rounds ? Array.from({length: rounds}, (_, i) => {
     const r = i + 1;
@@ -207,7 +214,7 @@ async function buildTournamentState(db, tid, viewingUserId) {
   return state;
 }
 
-async function createTournamentWithOwner(db, creatorId, ownerAlias) {
+async function createTournamentWithOwner(db, creatorId) {
   const w = _wrap(db);
   return w.tx(async ({ get, run }) => {
     const u = await get(`SELECT username FROM users WHERE id = ?`, [creatorId]);
@@ -241,7 +248,7 @@ async function markOngoingIfFull(db, tid)
        WHERE tournament_id = ?`, [tid]
     );
     const full = pl.length === 4 && pl.every(p => p.verified);
-    const roles = new Set(ps.map(p => p.role));
+    const roles = new Set(pl.map(p => p.role));
     const rolesOK = [1, 2, 3, 4].every(r => roles.has(r));
     if (full && rolesOK)
     {
@@ -298,6 +305,7 @@ module.exports = {
   isRoleTaken,
   upsertHostAlias,
   insertPlayer,
+  removePlayerFromTournament,
   getUserByCredentials,
   insertInitialBracket,
   startTournament,
