@@ -274,11 +274,11 @@ const TournamentLobby: React.FC = () => {
 		);
 	}
 	const setupInProgress = tournament && (
-		tournament.status?.status === "waiting" || 
-		(tournament.status?.status === "ongoing" && (!tournament.bracket || tournament.bracket.length === 0)));
+		tournament.status === "waiting" || 
+		(tournament.status === "ongoing" && (!tournament.bracket || tournament.bracket.length === 0)));
 
 	const bracketVisible = tournament && 
-		tournament.status?.status == "ongoing" && 
+		tournament.status == "ongoing" && 
 		tournament.bracket && 
 		tournament.bracket.length > 0;
 

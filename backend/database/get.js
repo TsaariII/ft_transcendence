@@ -1,55 +1,84 @@
 const db = require('./initDB.js');
+const bcrypt = require('bcrypt');
 const {logger} = require('@logger');
 const flog = logger.child({ fileContext: 'get.js' }); // scoped logger
-const bcrypt = require('bcrypt');
-const { ERROR_CODES } = require('@sharedErr');
 
-// naming can be changed 
-// get each element from database , such as score, name , status
-// userId is passed as ({object}) not (value) to allow adjustmenst such as do not show password
-// this should be what is being returned
-/**
- * 		const mockProfile = {
-				username: "PlayerOne",
-				avatarFile: "avatars/avatar1.png",
-				twoFactor: false,
-				rank: 5,
-				score: 1200,
-				victories: 15,
-				losses: 7,
-				totalMatches: 22,
-				friends: [
-					{ id: "1", username: "Player2", avatar: "/avatars/avatar2.png" },
-					{ id: "2", username: "Player3", avatar: "/avatars/avatar3.png" },
-				],
-				matchHistory: [
-					{ id: "m1", opponent: "Player2", result: "win", score: 21, timestamp: "2025-08-25T12:00:00" },
-					{ id: "m2", opponent: "Player3", result: "loss", score: 18, timestamp: "2025-08-24T15:30:00" },
-				],
-			};
-this could be managed by routes calling 3 fucntions     const player = await db.getPlayerById(playerId);
-    const friends = await db.getFriendsForPlayer(playerId);
-    const matchHistory = await db.getMatchHistory(playerId);
- */
 
-async function fetchUser(userId ) {
-	//console.log('Finside db::fetching user with ID:', userId);
-	//const test = userId.id;
-		return new Promise((resolve, reject) => {
-			db.get('SELECT * FROM users WHERE id = ?', [userId], (err, row) =>{
-				if (err) {
-					console.error('DB error:', err);
-					reject({ error: 'DB error fecth' });
-				} else if (!row) {
-					console.warn('User not found for ID:', userId);
-					reject({ error: 'User not found fecth' });
-				} else {
-					//console.log('User found:', row);
-					resolve(row);
-				}
+function _normalizeId(arg) {
+  return typeof arg === 'string' ? arg : (arg && arg.id) ? arg.id : undefined;
+}
 
-			});
-		});
+function fetchUser(userId) {
+//   const id = _normalizeId(userId);
+  return new Promise((resolve, reject) => {
+    db.get(
+      `SELECT id, username, avatar_file, language, status, mfa_enabled, rank, score, wins, losses, total_games
+       FROM users WHERE id = ?`,
+      [userId],
+      (err, row) => {
+        if (err) return reject({ error: 'DB error fetchUser' });
+        if (!row) return reject({ error: 'User not found' });
+        resolve(row);
+      }
+    );
+  });
+}
+
+function getFriendsForPlayer(userId) {
+  const id = _normalizeId(userId);
+  return new Promise((resolve, reject) => {
+    db.all(
+      `SELECT u.id AS friendID,
+              u.username AS username,
+              u.avatar_file AS avatar,
+              u.status AS status
+       FROM friends f
+       JOIN users u ON f.friend_id = u.id
+       WHERE f.user_id = ? AND f.status = 'accepted'
+       ORDER BY u.username COLLATE NOCASE`,
+      [id],
+      (err, rows) => {
+        if (err) return reject({ error: 'DB error getFriendsForPlayer' });
+        resolve(rows || []);
+      }
+    );
+  });
+}
+
+// Returns games the user participated in, with joined usernames/aliases
+function getMatchHistory(userId) {
+//   const id = _normalizeId(userId);
+  return new Promise((resolve, reject) => {
+    db.all(
+      `SELECT
+          g.id,
+          g.tournament_id,
+          g.p1_id, g.p2_id,
+          g.p1_score, g.p2_score,
+          g.status,
+          g.winner_id,
+          u1.username AS p1_username,
+          u2.username AS p2_username,
+          uW.username AS winner_username,
+          tp1.alias AS p1_alias,
+          tp2.alias AS p2_alias,
+          g.round,
+          g.bracket_pos
+       FROM games g
+       LEFT JOIN users u1 ON u1.id = g.p1_id
+       LEFT JOIN users u2 ON u2.id = g.p2_id
+       LEFT JOIN users uW ON uW.id = g.winner_id
+       LEFT JOIN tournament_players tp1 ON tp1.tournament_id = g.tournament_id AND tp1.user_id = g.p1_id
+       LEFT JOIN tournament_players tp2 ON tp2.tournament_id = g.tournament_id AND tp2.user_id = g.p2_id
+       WHERE g.p1_id = ? OR g.p2_id = ?
+       ORDER BY g.id DESC`,
+      [userId, userId],
+      (err, rows) => {
+        if (err) return reject({ error: 'DB error getMatchHistory' });
+        resolve(rows || []);
+      }
+    );
+  });
 }
 
 // get user by username , ie when adding friend
@@ -72,86 +101,7 @@ async function fetchUserByUsername(username) {
 			});
 		});
 }
-// get friends list for userId, take information from users table , as usenames may change
-// rename provided results to make data access clearer
-// status is pending, accepted, blocked etc. attatched which can be used in front end if wished
-async function getFriendsForPlayer( userId ) {
-	flog.info({ function: 'getFriendsForPlayer', username: userId}, 'checking id matches  ');
-	//const test = userId.id;
-	return new Promise((resolve, reject) => {
-		db.all(
-			`SELECT users.id AS user_id,
-				users.username AS username,
-				users.avatar_file AS avatar,
-				users.status AS online_status,
-				friends.status AS friendshipstatus
-			FROM friends
-			JOIN users ON friends.friend_id = users.id
-			WHERE friends.user_id = ?`,
-			[userId],
-			(err, rows) => {
-				if (err) {
-					if (!rows) {	
-						rows = [];
-						resolve(rows);
-					}
-					console.error('DB error fetching friends:', err);
-					reject({ error: 'DB error fetching friends' });
-				} else {
-					const formattedRows = rows.map(row => ({
-						...row, // keep all original fields
-						status: Boolean(row.status) // convert just this one
-					}));
-					console.log(`Found ${rows.length} friends for user ID ${userId}`);
-					resolve(formattedRows);
-				}
-			}
-		);
-	});
-}
-// can we have a schema that checks if table empty first?
-async function getMatchHistory(userId) {
-	//console			.log('DB::Fetching match history for user ID:', userId);
-//	const test = userId.id;
-	return new Promise((resolve, reject) => {
-		db.all(
-			` 	SELECT 
-				    match_history.user_id AS matchID,
-				    match_history.result AS result,
-				    match_history.user_score AS score,
-				    match_history.match_date AS timestamp,
-					users.username AS opponentUsername,
-					users.id AS userTableID,
-					match_history.opponent_id AS opid,
-				    CASE 
-				        WHEN match_history.opponent_type = 'login' THEN users.username
-				        WHEN match_history.opponent_type = 'guest' THEN 'Guest'
-				        WHEN match_history.opponent_type = 'ai' THEN 'AI Bot'
-				    END AS opponent
-				FROM match_history
-				LEFT JOIN users ON match_history.opponent_id = users.id
-				WHERE match_history.user_id = ?;
-			`
-			,[userId],
-			(err, rows) => {
-				if (err) {
-					console.error('DB error fetching match history:', err);
-					if (!rows) {	
-						rows = [];
-						resolve(rows);
-					}	
-					reject({ error: 'DB error fetching match history' });
-				} else {
-					//console.log(`Found ${rows.length} matches for user ID ${userId}`);
-					//console.log("whats going on with username -- ${rows.opponentUsername}");
-					//console.log("and the users.id is ${rows.userTableId}");
-					//console.log("and as opid ${rows.opid}")
-					resolve(rows || []);
-				}
-			}
-		);
-	});
-}
+
 
 //needs some adjustment for clarity
 async function checkUsernameAvailable( username ) {
@@ -167,61 +117,34 @@ async function checkUsernameAvailable( username ) {
 		});
 }
 
-async function checkPasswordMatch( userId, password ) {
+async function checkPasswordMatch( password ) {
 	console.log('Fetching user with password:', );
 		return new Promise((resolve, reject) => {
-			db.get('SELECT * FROM users WHERE id = ?', [userId], (err, row) =>{
-			    if (err) {
-        			return reject({ error: 'Database error', code: 418 });
-      			}
-    			if (!row) {
-        			return reject({ error: 'User not found', code: 404 });
-      			}
-		    	bcrypt.compare(password, row.password, (err, isMatch) => {
-        			if (err) {
-        				return reject({ error: 'Hash comparison failed', code: 418 });
-        			}
-        			if (!isMatch) {
-          				return reject({ error: 'Invalid password', code: 400 });
-        			}
-					if (isMatch){
-		        		resolve({ ok: 'Password match', userId: row.id });
-					}
-				});
-			}
-		)
-			
+			db.get('SELECT * FROM users WHERE password = ?', [password], (err, row) =>{
+				if (err || !row) {
+					reject({ error: 'password does not match' });
+				} else {
+					resolve({ok: 'password match'});
+				}
+			});
 		});
 }
 // mini example of checking player exists and password matches . 
 
 async function miniLogin(username, password) {
   console.log("minilogin activated, no access to profile should be possible");
-
+  flog.info({ function: 'miniLogin' }, 'login attempt');
   return new Promise((resolve, reject) => {
-    db.get('SELECT * FROM users WHERE username = ?', [username], (err, row) => {
-		if (err) {
-		  return reject({ error: 'Database error', code: 401 });
-		}
-		if (!row) {
-		  return reject({ error: 'User not found', code: 401 });
-		}
-		  // Compare hashed password
-		bcrypt.compare(password, row.password, (err, isMatch) => {
-			if (err) {
-			  return reject({ error: 'Hash comparison failed', code: 418 });
-			}
-			if (!isMatch) {
-			  return reject({ error: 'Invalid password', code: 400 });
-			}
-			if (isMatch) {
-				flog.info({ function: 'miniLogin', userId: row.id}, 'mini login success ');
-				resolve({ id: row.id});
-			}
-//      // TEMP: plain text password check for testing only
-//      if (row.password !== password) {
-//        return reject({ error: 'Invalid password', code: 401 });
-      })
+    db.get('SELECT * FROM users WHERE username = ?', [username], async (err, row) => {
+      if (err) return reject({ error: 'Database error' });
+      if (!row) return reject({ error: 'User not found' });
+	  try
+	  {
+		const ok = await bcrypt.compare(password, row.password);
+		if (!ok) return reject({error: 'Invalid username or password'});
+		resolve({id: row.id});
+	  }
+	  catch (e) { reject({error: 'Password check failed'}); }
     });
   });
 }
@@ -272,10 +195,3 @@ module.exports = { fetchUser,
 	is2FaEnabled,
 	get2FaSecret
 };
-//similar logic as below may be required
-//async function userRoutes(fastify, options) {
-//  await registerUser(fastify, options);
-//  await getUser(fastify, options);
-//}
-//
-//module.exports = userRoutes;

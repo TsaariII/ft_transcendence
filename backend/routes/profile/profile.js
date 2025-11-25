@@ -53,23 +53,19 @@ async function getUser(fastify, options) {
 
   fastify.get(API_PROTOCOL.GET_PROFILE.path, {}, async (request, reply) => {
     const token = request.cookies?.auth_token;
-    if (!token) return reply.code(401).send({ error: 'Unauthorized' });
-
+    if (!token) return reply.code(401).send({ error: 'Invalid auth token' });
     let userId;
-    try {
-      userId = secure.getUserIdFromToken(token);
-    } catch {
-      return reply.code(401).send({ error: 'Unauthorized' });
-    }
-
+    try { userId = secure.getUserIdFromToken(token);}
+	catch { return reply.code(401).send({ error: 'Invalid auth token' }); }
+	console.log("PROFILE userId from token:", userId, typeof userId);
     try {
       // 1) base user row
-      const profile = await DBget.fetchUser({ userId });
+      const profile = await DBget.fetchUser(userId);
 
       // 2) friends + match history
       const [friendsRows, historyRows] = await Promise.all([
         DBget.getFriendsForPlayer(userId),
-        DBget.getMatchHistory({ userId })
+        DBget.getMatchHistory(userId)
       ]);
 
       // 3) tournament state (use the DAL; do NOT rely on a non-existent users.active_tournament_id)
@@ -101,9 +97,14 @@ async function getUser(fastify, options) {
       };
 
       return reply.code(200).send(payload);
-    } catch (err) {
-      request.log.error({ err }, 'Failed to build profile');
-      return reply.code(500).send({ error: 'Failed to fetch profile' });
+    }
+	catch (err)
+	{
+		if (err && err.error === 'User not found')
+			return reply.code(404).send({error: 'User not found'})
+		if (err && err.error === 'DB error getMatchHistory')
+			return reply.code(500).send({error: 'Failed to load match history'});
+		return reply.code(500).send({ error: 'Failed to fetch profile' });
     }
   });
 }
@@ -134,7 +135,7 @@ async function updateUsername(fastify, options) {
 				console.log('checking res', res);
 			}
 
-			const profile = await DBget.fetchUser({userId});
+			const profile = await DBget.fetchUser(userId);
 			if (!profile) {
 				console.log('error in fetching user id or profile ');
 				reply.code(404).send({
@@ -148,7 +149,7 @@ async function updateUsername(fastify, options) {
 				profile: profile,
 			});
 		} catch (err) {
-			console.log(('Error during login:', err));
+			
 			reply.code(500).send(err);
 		}
 	}
@@ -215,7 +216,7 @@ async function uploadAvatarFileRoute(fastify, options) {
 				}
 
 				// 1. Fetch current user data to get the old avatar URL for later deletion
-				const currentUserData = await DBget.fetchUser({ userId });
+				const currentUserData = await DBget.fetchUser(userId);
 				const oldAvatarUrl = currentUserData ? currentUserData.avatar_file : null;
 
 				// Parse the file data from the multipart request

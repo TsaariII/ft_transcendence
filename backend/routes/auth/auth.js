@@ -1,6 +1,5 @@
 const schemas = require('@schemas/signSchema');
 const { API_PROTOCOL } = require('@sharedApi');
-const {log} = require('@logger');
 const {logger} = require('@logger');
 const flog = logger.child({ fileContext: 'auth' }); // scoped logger
 
@@ -22,7 +21,7 @@ defaults
 async function registerUser(fastify, options) {
 	const {secure, DBinsert,} = options;
 	fastify.post(API_PROTOCOL.REGISTER_USER.path, {
-	schema: { body: schemas.RegisterUser }
+	schema: {body: schemas}
 	}, async (request, reply) => {
 		const { username, password} = request.body;
         try
@@ -283,7 +282,7 @@ async function verifyLoginTwoFactor(fastify, options) {
             if (isVerified) {
                 flog.info({ function: 'verifyLoginTwoFactor', userId }, 'Login OTP verified. Issuing final token.');
 
-                const finalToken = secure.generateToken({ id: userId }, decodedTempToken.username);
+                const finalToken = secure.generateToken(userId , decodedTempToken.username);
                 secure.setAuthCookie(reply, finalToken);
                 reply.code(200).send('ok');
             } else {

@@ -118,8 +118,8 @@ const TournamentSetup: React.FC<TournamentSetupProps> = ({ onCancel, onTournamen
 	For some reason backend sends status as status: status: "waiting" */
 
 	const setupInProgress = tournament && (
-		tournament.status?.status === "waiting" || 
-		(tournament.status?.status === "ongoing" && 
+		tournament.status === "waiting" || 
+		(tournament.status === "ongoing" && 
 			(!tournament.bracket || tournament.bracket.length === 0)));
 	
 		const allPlayersReady =
@@ -127,7 +127,7 @@ const TournamentSetup: React.FC<TournamentSetupProps> = ({ onCancel, onTournamen
 
 	const tournamentCanStart =
 		tournament &&
-			tournament.status?.status === "ongoing" &&
+			tournament.status === "ongoing" &&
 			allPlayersReady;
 
 	return (

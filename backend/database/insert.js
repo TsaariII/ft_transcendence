@@ -52,8 +52,7 @@ function insertFriend(friendId, userId) {
 			//flog.warn({ function: 'insertFRiend', error: err }, 'what error');
 
             return reject({ error: 'Failed to add friend', details: err });
-          } else {
-				flog.debug({ function: 'insertFRiend', friend: friendId, user: userId }, 'what went in ');
+          } else {	
                 db.all(
               `SELECT * FROM friends WHERE user_id = ?`,
               [userId],

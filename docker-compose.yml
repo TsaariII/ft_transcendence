@@ -59,6 +59,7 @@ services:
       - ./backend/data:/app/data
       - ./volumes/backend_secrets:/run/secrets
       - ./volumes/backend_avatars:/app/public/avatars
+      - ./volumes/backend_logs:/app/logUtils/logs
     expose:
     - "3000" # Expose backend API port
     networks:

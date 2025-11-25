@@ -1,7 +1,6 @@
 // this file is just for dev testing , package.json points to this file specifically
 
 const jwt = require('jsonwebtoken');
-const {log} = require('@logger');
 const {logger} = require('@logger');
 const flog = logger.child({ fileContext: 'security.js' }); // scoped logger
 
@@ -10,7 +9,7 @@ const getJwtSecret = () => process.env.JWT_SECRET || 'dev-secret-key';
 function generateToken(id, username) {
 	console.log("checking id and name before tokenization", id, username);
 	return jwt.sign(
-    { id: id, username: username },
+    {id, username },
     getJwtSecret(),
     { expiresIn: '1h' }
   );
@@ -18,7 +17,7 @@ function generateToken(id, username) {
 
 function generateWsToken(playerId, gameId) {
   return jwt.sign(
-    { id: playerId, gameId},
+    { playerId, gameId},
     getJwtSecret(),
     { expiresIn: '15m' } // short-lived
   );
@@ -29,8 +28,8 @@ function setAuthCookie(reply, token) {
   reply.setCookie('auth_token', token, {
     httpOnly: true, //this must be https eventually
     path: '/',
-    sameSite: 'none', // change to strict 
-    secure: true // set to true in production
+    sameSite: 'lax', // change to strict 
+    secure: false // set to true in production
   });
 }
 
@@ -39,8 +38,8 @@ function clearAuthCookie(reply) {
 	expires: new Date(0),
 	httpOnly: true,
 	path:'/',
-	sameSite: 'none', //this should be strict not dev
-	secure: true //this should be true when not dev
+	sameSite: 'lax', //this should be strict not dev
+	secure: false //this should be true when not dev
 ,	});
 }
 
@@ -48,40 +47,54 @@ function verifyToken(token) {
   return jwt.verify(token, getJwtSecret());
 }
 
-function getUserIdFromToken(token) {
-	log('GET USER ID FROM TOKEN', 'taking id from token');
-	try {
-		flog.warn({fucntion: 'get user id from token', secret: getJwtSecret()}, 'NOTICE--------ME-----sENPAI')
+function getUserIdFromToken(token)
+{
+	if (!token) return undefined;
+	try
+	{
 		const decoded = jwt.verify(token, getJwtSecret());
-		if (decoded === undefined) {
-			flog.warn( {function: 'getUserIdFromToken'}, 'Token verification returned undefined');
-			//return undefined;
-		}
-		log('GET USER ID FROM TOKEN', `decoded token ${JSON.stringify(decoded)}`);
-//		return JSON.stringify(decoded.id); // or whatever claim you expect
-		return decoded.id; // or whatever claim you expect
-	} catch (err) {
-		flog.error( {function: 'getUserIdFromToken', error: err}, 'Error verifying token');
-		console.error('Invalid or expired token:', err.message);
-		return undefined; // or throw a custom error if you want to handle it upstream
+    	const raw = decoded?.id;
+        const id = (raw && typeof raw === 'object' && 'id' in raw) ? raw.id : raw;
+		return typeof id === 'string' ? id : undefined;
+	}
+	catch (err)
+	{
+		flog.error({ function: 'getUserIdFromToken', errorName: err.name, errorMessage: err.message }, 'Error verifying token');
+		return undefined;
 	}
 }
 
-function getUserIdFromTokenH(token) {
-	log('GET USER ID FROM TOKEN', 'taking id from token');
-	if (!token) {
+// function getUserIdFromToken(token) {
+// 	log('GET USER ID FROM TOKEN', 'taking id from token');
+// 	try {
+// 		const decoded = jwt.verify(token, getJwtSecret());
+// 		if (decoded === undefined) {
+// 			flog.warn( {function: 'getUserIdFromToken'}, 'Token verification returned undefined');
+// 			//return undefined;
+// 		}
+// 		log('GET USER ID FROM TOKEN', `decoded token ${JSON.stringify(decoded)}`);
+// //		return JSON.stringify(decoded.id); // or whatever claim you expect
+// 		return decoded.id; // or whatever claim you expect
+// 	} catch (err) {
+// 		flog.error( {function: 'getUserIdFromToken', error: err}, 'Error verifying token');
+// 		console.error('Invalid or expired token:', err.message);
+// 		return undefined; // or throw a custom error if you want to handle it upstream
+// 	}
+// }
+
+function getUserIdFromTokenH(token)
+{
+	if (!token)
 		return {error: 'MISSING_TOKEN'};
-	}
-	try {
+	try
+	{
 		const decoded = jwt.verify(token, getJwtSecret());
-		if (decoded === undefined) {
+		if (decoded === undefined)
 			flog.warn( {function: 'getUserIdFromToken'}, 'Token verification returned undefined');
-			//return undefined;
-		}
-		log('GET USER ID FROM TOKEN', `decoded token ${JSON.stringify(decoded)}`);
-//		return JSON.stringify(decoded.id); // or whatever claim you expect
-		return {id: decoded.id}; // or whatever claim you expect
-	} catch (err) {
+		return { id: decoded.id};
+	}
+	catch (err)
+	{
 		flog.error( {function: 'getUserIdFromToken', error: err}, 'Error verifying token');
 		if (err.name === 'TokenExpiredError') {
 		  return { error: 'TOKEN_EXPIRED' };

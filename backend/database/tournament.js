@@ -3,7 +3,7 @@
 const {logger} = require('@logger');
 const flog = logger.child({ fileContext: 'DBtournament.js' }); // scoped logger
 const tournament = require('../routes/tournament/tournament.js');
-
+const bcrypt = require('bcrypt');
 const ROLE_COL = 'role'; // matches your schema
 
 function _wrap(db) {
@@ -97,10 +97,18 @@ async function insertPlayer(db, tid, userId, alias, role) {
 
 async function getUserByCredentials(db, username, password) {
   const { get } = _wrap(db);
-  return get(
-    `SELECT id, username, avatar_file FROM users WHERE username = ? AND password = ?`,
-    [username, password]
+  const row = get(
+    `SELECT id, username, avatar_file FROM users WHERE username = ?`,
+    [username]
   );
+  if (!row) return null;
+  const ok = bcrypt.compare(password, row.password);
+  if (!ok) return null;
+  return {
+    id: row.id,
+    username: row.username,
+    avatar_file: row.avatar_file
+  };
 }
 
 async function insertInitialBracket(db, tid, s1, s2, s3, s4) {
@@ -202,13 +210,13 @@ async function createTournamentWithOwner(db, creatorId, ownerAlias) {
   const w = _wrap(db);
   return w.tx(async ({ get, run }) => {
     const u = await get(`SELECT username FROM users WHERE id = ?`, [creatorId]);
-    const alias = (ownerAlias || u?.username || 'player1').trim();
+    // const alias = (ownerAlias || u?.username || 'player1').trim();
     const insT = await run(`INSERT INTO tournaments (status) VALUES ('waiting')`, []);
     const tid = insT.lastID;
     await run(
       `INSERT INTO tournament_players (tournament_id, user_id, alias, ${ROLE_COL}, verified)
-       VALUES (?, ?, ?, 1, 1)`,
-      [tid, creatorId, alias]
+       VALUES (?, ?, 'Alias', 1, 1)`,
+      [tid, creatorId]
     );
     return tid;
   });

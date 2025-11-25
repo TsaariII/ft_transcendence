@@ -1,4 +1,5 @@
 const { API_PROTOCOL } = require('@sharedApi');
+const bcrypt = require('bcrypt');
 const {
   getActiveTournamentForUser,
   buildTournamentState,
@@ -75,23 +76,21 @@ module.exports = async function tournamentRoutes(fastify, options) {
 			{ params: request.params, body: request.body, cookies: Object.keys(request.cookies || {}) },
 			'verify-player in'
 		);
-		const tid = Number(request.params.id);
+		const tid = Number(request.body?.tournament_id);
 		const { role, alias, username, password } = request.body || {};
 		if (!Number.isInteger(tid)) return reply.code(400).send({ status: 'ERROR', error: 'Invalid tournament id' });
-
-		if (role === 1) {
+		if (role === 'player1') {
 			await upsertHostAlias(db, tid, String(alias || '').trim());
 			const state = await buildTournamentState(db, tid, userId);
 			return reply.send({ status: 'OK', tournament: state });
 		}
 
-		if (![2,3,4].includes(role)) return reply.code(400).send({ status: 'ERROR', error: 'Role must be 2–4' });
+		if (!['player2','player3','player4'].includes(role)) return reply.code(400).send({ status: 'ERROR', error: 'Role must be 2–4' });
 		if (!alias || !username || !password) return reply.code(400).send({ status: 'ERROR', error: 'Missing fields' });
 
 		if (await isRoleTaken(db, tid, role)) return reply.code(409).send({ status: 'ERROR', error: `Role ${role} already taken` });
-
 		const u = await getUserByCredentials(db, username, password);
-		if (!u) return reply.code(401).send({ status: 'ERROR', error: 'Invalid credentials' });
+		if (!u) return reply.code(400).send({ status: 'ERROR', error: 'Invalid credentials' });
 
 		await insertPlayer(db, tid, u.id, String(alias).trim(), role);
 		const state = await buildTournamentState(db, tid, userId);
@@ -105,7 +104,7 @@ module.exports = async function tournamentRoutes(fastify, options) {
 		let userId; 
 		try { userId = getUserIdFromToken(token); }
 		catch { return reply.code(401).send({ status: 'ERROR', error: 'Invalid auth token' }); }
-		const tid = Number(request.params.id);
+		const tid = Number(request.body?.tournament_id);
 		if (!Number.isInteger(tid)) return reply.code(400).send({ status: 'ERROR', error: 'Invalid tournament id' });
 		try
 		{

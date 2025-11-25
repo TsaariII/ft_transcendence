@@ -44,16 +44,18 @@ fastify.get('/status', async (request, reply) => {
 // Register the multipart plugin (Mandatory for request.file() to work)
 
 fastify.setErrorHandler((error, request, reply) => {
-    if (error.validation) {
+    if (error.validation)
+    {
         const formatted = formatError.formatValidationError(error);
         reply.code(formatted.code).send({
             error: formatted.error,
             details: formatted.message
         });
     }
-    reply.code(418).send({ 
+    logger.error({error}, 'Unhandled server error');
+    reply.code(500).send({ 
         error: 'SERVER_ERROR', 
-        message: error.message 
+        message: 'Unexpected server error' 
     });
 });
 
