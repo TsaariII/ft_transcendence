@@ -1,7 +1,6 @@
 import React from "react";
 
 interface DoodleBoxProps {
-  label?: string;
   icon?: React.ReactNode; // icon component or image
   imageSrc?: string; // optional imported image
   onClick?: () => void;
@@ -9,10 +8,10 @@ interface DoodleBoxProps {
   height?: string; // tailwind height class e.g., "h-32"
   rotate?: string; // tailwind rotate class e.g., "rotate-2"
   borderRadius?: string; // tailwind rounded class or custom e.g., "rounded-xl"
+  hoverStrokeColor?: string;
 }
 
 const DoodleBox: React.FC<DoodleBoxProps> = ({
-  label,
   icon,
   imageSrc,
   onClick,
@@ -20,18 +19,27 @@ const DoodleBox: React.FC<DoodleBoxProps> = ({
   height = "h-36",
   rotate = "rotate-0",
   borderRadius = "rounded-xl",
+  hoverStrokeColor = "stroke-blue-500",
+
 }) => {
   return (
     <button
       onClick={onClick}
-      className={`group ${width} ${height} p-4 text-white border-4 border-white ${borderRadius} ${rotate} 
-        flex flex-col items-center justify-center gap-2 hover:bg-white hover:text-black transition-all duration-300`}
+      className={`group ${width} ${height} p-0 ${borderRadius} ${rotate}
+        flex flex-col items-center justify-center`}
     >
-      {icon && <div className="text-5xl">{icon}</div>}
       {imageSrc && (
-        <img src={imageSrc} alt={label} className="w-3/4 h-3/4 object-contain" />
+        <img
+          src={imageSrc}
+          alt=""
+          className="w-full h-full object-cover"
+        />
       )}
-      {label && <span className="text-xl font-bold">{label}</span>}
+      {icon && (
+        <div className={`transition-all group-hover:${hoverStrokeColor}`}>
+          {icon}
+        </div>
+      )}
     </button>
   );
 };

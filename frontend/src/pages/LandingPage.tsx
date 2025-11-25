@@ -9,8 +9,13 @@ import AnimatedText from "../components/layout//AnimatedText";
 import { useTranslation } from "../shared/Translation";
 import { Gamepad2, Trophy, Users, ListOrdered, Settings as SettingsIcon } from "lucide-react";
 import DoodleButton from "../components/ui/DoodleButton";
+import arcade from "../assets/doodles/arcade.png";
+import podium from "../assets/doodles/podium.png";
+import ArcadeIcon from "../assets/doodles/arcade.svg?react";
 
 const setServerLang = (code: "en" | "fi" | "sv") => localStorage.setItem("serverLang", code);
+
+console.log("arcade import is:", arcade);
 
 const LanguageToggle: React.FC<{ compact?: boolean }> = ({ compact = true }) => {
 	const { t, setLang } = useTranslation();
@@ -220,15 +225,6 @@ const HomePage: React.FC = () => {
 				throw new Error(error?.error || t("home.2fa.verifyFailed"));
 			}
 
-			//try {
-			//	await fetch(API_PROTOCOL.CHANGE_LANGUAGE.path, {
-			//		method: API_PROTOCOL.CHANGE_LANGUAGE.method,
-			//		headers: { "Content-Type": "application/json" },
-			//		credentials: "include",
-			//		body: JSON.stringify({ language: lang }),
-			//	});
-			//} catch (_) {}
-
 			await refreshSession();
 			alert(t("home.alert.loginSuccess"));
 			setIs2faStep(false); // hide 2FA modal
@@ -250,7 +246,7 @@ const HomePage: React.FC = () => {
 			strokeWidth={3}
 			className="max-w-[800px]"
 			/>
-	</div> */}
+		</div> */}
 
 		<CenteredContainer> 
 		{/* Semi-transparent card wrapper for Home page content */}
@@ -287,58 +283,60 @@ const HomePage: React.FC = () => {
 					</button>
 				</div>
 			)}
-
+		</div>
+		
 			{isLoggedIn && (
-    <div className="flex flex-col items-center gap-8 w-full">
+				<div className="w-full max-w-2xl mx-auto mt-12 grid grid-cols-2 md:grid-cols-3 gap-8 p-4 bg-transparent">
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-8 w-full max-w-10xl mt-4">
+						{/* Game */}
+						<DoodleButton
+							icon={<ArcadeIcon className="w-full h-full stroke-black" />}
+							hoverStrokeColor="stroke-red-500"
+							width="w-52"
+							height="h-52"
+							onClick={() => navigate("/game")}
+							rotate="-rotate-2"
+							borderRadius="rounded-[25px_15px_28px_18px]"
+						/>
 
-            {/* Game */}
-		<DoodleButton
-			label="Game"
-			icon={<Gamepad2 size={64} strokeWidth={2.5} />}
-			onClick={() => navigate("/game")}
-			rotate="-rotate-2"
-			borderRadius="rounded-[25px_15px_28px_18px]"
-		/>
+						<DoodleButton
+							icon={<Trophy className="w-44 h-44 stroke-white" />}
+							hoverStrokeColor="stroke-red-500"
+							width="w-44"
+							height="h-44"
+							onClick={() => navigate("/tournament")}
+							rotate="rotate-1.5"
+							borderRadius="rounded-[18px_28px_15px_22px]"
+						/>
 
-		<DoodleButton
-			label="Tournament"
-			icon={<Trophy size={64} strokeWidth={2.5} />}
-			onClick={() => navigate("/tournament")}
-			rotate="rotate-1.5"
-			borderRadius="rounded-[18px_28px_15px_22px]"
-		/>
+						<DoodleButton
+							icon={<Users size={64} strokeWidth={2.5} />}
+							width="w-52"
+							height="h-52"
+							onClick={() => navigate("/friends")}
+							rotate="-rotate-1"
+							borderRadius="rounded-[22px_12px_26px_16px]"
+						/>
 
-		<DoodleButton
-			label="Friends"
-			icon={<Users size={64} strokeWidth={2.5} />}
-			onClick={() => navigate("/friends")}
-			rotate="-rotate-1"
-			borderRadius="rounded-[22px_12px_26px_16px]"
-		/>
+						<DoodleButton
+							imageSrc={podium}
+							width="w-52"
+							height="h-52"
+							onClick={() => navigate("/leaderboard")}
+							rotate="rotate-2"
+							borderRadius="rounded-[15px_24px_18px_20px]"
+						/>
 
-		<DoodleButton
-			label="Leaderboard"
-			icon={<ListOrdered size={64} strokeWidth={2.5} />}
-			onClick={() => navigate("/leaderboard")}
-			rotate="rotate-2"
-			borderRadius="rounded-[15px_24px_18px_20px]"
-		/>
-
-		<DoodleButton
-			label="Settings"
-			icon={<SettingsIcon size={64} strokeWidth={2.5} />}
-			onClick={() => navigate("/settings")}
-			rotate="-rotate-1.5"
-			borderRadius="rounded-[20px_16px_22px_14px]"
-		/>
-		</div>
-    </div>
-)}
-
-		</div>
-
+						<DoodleButton
+							icon={<SettingsIcon size={64} strokeWidth={2.5} />}
+							width="w-52"
+							height="h-52"
+							onClick={() => navigate("/settings")}
+							rotate="-rotate-1.5"
+							borderRadius="rounded-[20px_16px_22px_14px]"
+						/>
+				</div>
+			)}
 	<Modal
 		isOpen={isModalOpen}
 		onClose={() => {
@@ -374,9 +372,9 @@ const HomePage: React.FC = () => {
 				<button
 					onClick={() => setIs2faStep(false)}
 					className="w-full mt-2 px-6 py-3 bg-gray-700 text-white rounded hover:bg-gray-600 transition"
-				>
-                	{t("common.cancel")}
-			</button>
+					>
+					{t("common.cancel")}
+				</button>
 			</div>
 		</div>
 	)}
