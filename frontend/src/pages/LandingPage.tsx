@@ -9,8 +9,10 @@ import AnimatedText from "../components/layout//AnimatedText";
 import { useTranslation } from "../shared/Translation";
 import { Gamepad2, Trophy, Users, ListOrdered, Settings as SettingsIcon } from "lucide-react";
 import DoodleButton from "../components/ui/DoodleButton";
+import SketchyButton from "../components/ui/SketchyButtons";
 import arcade from "../assets/doodles/arcade.png";
 import podium from "../assets/doodles/podium.png";
+import TrophyIcon from "../assets/doodles/trophy.svg?react";
 import ArcadeIcon from "../assets/doodles/arcade.svg?react";
 
 const setServerLang = (code: "en" | "fi" | "sv") => localStorage.setItem("serverLang", code);
@@ -213,12 +215,12 @@ const HomePage: React.FC = () => {
 			return;
 		}
 
-        try {
-            const res = await fetch(API_PROTOCOL.TFA_LOGIN_VERIFY.path, { // new endpoint for 2FA login
-                method: API_PROTOCOL.TFA_LOGIN_VERIFY.method,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ otp, tempAuthToken }),
-            });
+		try {
+			const res = await fetch(API_PROTOCOL.TFA_LOGIN_VERIFY.path, { // new endpoint for 2FA login
+				method: API_PROTOCOL.TFA_LOGIN_VERIFY.method,
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ otp, tempAuthToken }),
+			});
 
 			if (!res.ok) {
 				const error = await res.json();
@@ -250,7 +252,7 @@ const HomePage: React.FC = () => {
 
 		<CenteredContainer> 
 		{/* Semi-transparent card wrapper for Home page content */}
-		<div className="w-full max-w-md bg-gray-900/90 rounded-xl p-8 text-white shadow-2xl flex flex-col items-center space-y-8">
+		<div className="w-full max-w-md sketch-border bg-[#dce4e5] rounded-xl p-8 text-black shadow-2xl flex flex-col items-center space-y-8">
 			{/* Language flags */}
 			{!isLoggedIn && (
 				<div className="w-full flex justify-end">
@@ -258,29 +260,34 @@ const HomePage: React.FC = () => {
 				</div>
 			)}
 
-			<h1 className="text-5xl font-hand">{t("home.title")}</h1>
+			<h1 className="text-5xl font-heading">{t("home.title")}</h1>
 
 			{!isLoggedIn && (
 				<div className="flex gap-4">
-					<button
-						className="px-6 py-3 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+					<SketchyButton
+						variant="striped"
+						bg="#D9897A"
+						hoverBg="#C8553E"
 						onClick={() => {
 							setModalMode("register");
 							setIsModalOpen(true);
 						}}
 					>
 						{t("home.cta.register")}
-					</button>
+					</SketchyButton>
 
-					<button
-						className="px-6 py-3 bg-green-500 text-white rounded hover:bg-green-600 transition"
+					<SketchyButton
+						variant="striped"
+						bg="#D9897A"
+						hoverBg="#C8553E"
+						className="transition-colors"
 						onClick={() => {
 							setModalMode("login");
 							setIsModalOpen(true);
 						}}
 					>
 						{t("home.cta.login")}
-					</button>
+					</SketchyButton>
 				</div>
 			)}
 		</div>
@@ -290,51 +297,72 @@ const HomePage: React.FC = () => {
 
 						{/* Game */}
 						<DoodleButton
-							icon={<ArcadeIcon className="w-full h-full stroke-black" />}
-							hoverStrokeColor="stroke-red-500"
-							width="w-52"
-							height="h-52"
+							imageSrc={arcade}
+							width="w-44"
+							height="h-44"
 							onClick={() => navigate("/game")}
 							rotate="-rotate-2"
 							borderRadius="rounded-[25px_15px_28px_18px]"
+							hoverText="Pong"
+							strokeColor="#61bfbf"
+							strokeWidth={1.5}
+							animationDuration={200}
 						/>
 
 						<DoodleButton
-							icon={<Trophy strokeWidth={1} className="w-44 h-44 stroke-white" />}
-							hoverStrokeColor="stroke-red-500"
+							icon={<Trophy strokeWidth={0.4} className="w-44 h-44 stroke-white" />}
+							hoverStrokeClass="stroke-[#61bfbf]"
 							width="w-44"
 							height="h-44"
 							onClick={() => navigate("/tournament")}
 							rotate="rotate-1.5"
 							borderRadius="rounded-[18px_28px_15px_22px]"
+							hoverText="Tournament"
+							strokeColor="#61bfbf"
+							strokeWidth={1.5}
+							animationDuration={200}
 						/>
-
+						{/*
 						<DoodleButton
-							icon={<Users size={64} strokeWidth={2.5} />}
-							width="w-52"
-							height="h-52"
+							icon={<Users strokeWidth={1} className="w-44 h-44 stroke-white" />}
+							hoverStrokeClass="stroke-[#ffb7bb]"
+							width="w-44"
+							height="h-44"
 							onClick={() => navigate("/friends")}
 							rotate="-rotate-1"
 							borderRadius="rounded-[22px_12px_26px_16px]"
-						/>
+							hoverText="Friends"
+							strokeColor="#61bfbf"
+							strokeWidth={1.5}
+							animationDuration={200}
+						/>*/}
 
 						<DoodleButton
 							imageSrc={podium}
-							width="w-52"
-							height="h-52"
+							width="w-44"
+							height="h-44"
 							onClick={() => navigate("/leaderboard")}
-							rotate="rotate-2"
+							rotate="-rotate-1"
 							borderRadius="rounded-[15px_24px_18px_20px]"
+							hoverText="Leaderboard"
+							strokeColor="#61bfbf"
+							strokeWidth={1.5}
+							animationDuration={200}
 						/>
-
+						{/* 
 						<DoodleButton
-							icon={<SettingsIcon size={64} strokeWidth={2.5} />}
-							width="w-52"
-							height="h-52"
+							icon={<SettingsIcon strokeWidth={1} className="w-44 h-44 stroke-white" />}
+							hoverStrokeClass="stroke-[#bfbfe3]"
+							width="w-44"
+							height="h-44"
 							onClick={() => navigate("/settings")}
 							rotate="-rotate-1.5"
 							borderRadius="rounded-[20px_16px_22px_14px]"
-						/>
+							hoverText="Settings"
+							strokeColor="#61bfbf"
+							strokeWidth={1.5}
+							animationDuration={200}
+						/>*/}
 				</div>
 			)}
 	<Modal
