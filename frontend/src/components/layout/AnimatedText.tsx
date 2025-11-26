@@ -15,53 +15,41 @@ export default function AnimatedText({
   duration = 2000,
   className = "",
 }: AnimatedTextProps) {
-  const textRef = useRef<SVGTextElement>(null);
+  if (!text) return null;
 
-  useEffect(() => {
-	const textEl = textRef.current;
-	if (!textEl) return;
-
-	const length = textEl.getComputedTextLength();
-	textEl.style.strokeDasharray = `${length}`;
-	textEl.style.strokeDashoffset = `${length}`;
-
-	textEl.animate(
-	  [
-		{ strokeDashoffset: length, opacity: 0 },
-		{ strokeDashoffset: 0, opacity: 1 },
-	  ],
-	  {
-		duration,
-		easing: "ease-in-out",
-		fill: "forwards",
-	  }
-	);
-  }, [text, duration]);
+  const letters = text.split("");
+  const letterDuration = duration / letters.length;
 
   return (
-	<div className={`flex justify-center ${className}`}>
-	  <svg
-		viewBox="0 0 2200 600"
-		className="w-full max-w-[2000px] h-auto"
-	  >
-		<text
-		  ref={textRef}
-		  x="50%"
-		  y="50%"
-		  textAnchor="middle"
-		  className="fill-transparent font-bold"
-		  style={{
-			fontSize: "clamp(8rem, 20vw, 18rem)",
-            fontFamily: "sans-serif",
-            dominantBaseline: "middle",
-            stroke: strokeColor,
-            strokeWidth,
-		  }}
-		>
-		  {text}
-		</text>
-	  </svg>
-	</div>
+    <div className={`flex justify-center ${className} font-hand text-xl`}>
+      {letters.map((char, i) => (
+        <span
+          key={i}
+          style={{
+            color: strokeColor,
+            opacity: 0,
+            display: "inline-block",
+            animation: `writeLetter ${letterDuration}ms ease forwards`,
+            animationDelay: `${i * letterDuration}ms`,
+          }}
+        >
+          {char}
+        </span>
+      ))}
+
+      <style jsx>{`
+        @keyframes writeLetter {
+          0% {
+            opacity: 0;
+            transform: translateY(1em);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
+    </div>
   );
-};
+}
 
