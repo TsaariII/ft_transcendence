@@ -9,6 +9,8 @@ module.exports = {
     extend: {
       fontFamily: {
         hand: ['Doodle', 'cursive'],
+        heading: ['Heading'],
+        body: ['Body']
       },
     },
   },

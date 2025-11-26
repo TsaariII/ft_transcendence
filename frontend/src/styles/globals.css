@@ -16,19 +16,30 @@ body, html, #root {
 	font-style: normal;
 }
 
-.btn-handdrawn {
-	padding: 0.7rem 0.7rem;
-	margin: 0 0.5rem;
+@font-face {
+	font-family: 'Heading';
+	src: url('/fonts/edosz.ttf') format('truetype');
+	font-weight: 400;
+	font-style: normal;
+}
 
-	border: 3px solid;
+@font-face {
+	font-family: 'Body';
+	src: url('/fonts/YuseiMagic-Regular.ttf') format('truetype');
+	font-weight: 400;
+	font-style: normal;
+}
+
+.sketch-border {
+padding: 0.7rem 0.7rem;
+	margin: 0 0.5rem;
+	border: 2px solid;
 	
-	/* Wobbly corners */
-	border-top-left-radius: 105px 10px;
-	border-top-right-radius: 10px 105px;
-	border-bottom-right-radius: 105px 10px;
-	border-bottom-left-radius: 10px 105px;
-  
+	border-top-left-radius: var(--tl-x, 100px) var(--tl-y, 10px);
+	border-top-right-radius: var(--tr-x, 10px) var(--tr-y, 100px);
+	border-bottom-right-radius: var(--br-x, 100px) var(--br-y, 10px);
+	border-bottom-left-radius: var(--bl-x, 10px) var(--bl-y, 105px);
+	
 	box-shadow: 1px 1px 0px currentColor, -1px -1px 0px currentColor;
 	transition: all 0.2s ease;
-  }
-  
+}
