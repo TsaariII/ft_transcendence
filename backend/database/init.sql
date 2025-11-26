@@ -72,6 +72,8 @@ CREATE TABLE IF NOT  EXISTS tournament_players (
     tournament_id INTEGER NOT NULL,
     alias TEXT NOT NULL,
     role INTEGER NOT NULL CHECK (role BETWEEN 1 AND 4),
+    status TEXT NOT NULL DEFAULT 'waiting'
+        CHECK (status IN ('waiting', 'ready', 'playing', 'finished')),
     verified INTEGER NOT NULL DEFAULT 0,
     UNIQUE (tournament_id, user_id),
     UNIQUE (tournament_id, alias),

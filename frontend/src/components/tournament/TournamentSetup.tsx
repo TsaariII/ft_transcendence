@@ -77,32 +77,40 @@ const TournamentSetup: React.FC<TournamentSetupProps> = ({ onCancel, onTournamen
 		- Sends tournament_id to backend
 	*/
 
-	const handleStartTournament = async () => {
-		const payload: StartTournamentPayload = {
-			tournament_id: tournament.tournament_id,
-		};
+	// const handleStartTournament = async () => {
+	// 	const payload: StartTournamentPayload = {
+	// 		tournament_id: tournament.tournament_id,
+	// 	};
 
+	// 	try {
+	// 		setLoading(true);
+	// 		const data: StartTournamentResponse = await apiFetch(
+	// 		API_PROTOCOL.START_TOURNAMENT.path,
+	// 		{
+	// 			method: API_PROTOCOL.START_TOURNAMENT.method,
+	// 			headers: { "Content-Type": "application/json" },
+	// 			body: JSON.stringify(payload),
+	// 		}
+	// 		);
+	const handleStartTournament = async () => {
 		try {
 			setLoading(true);
-			const data: StartTournamentResponse = await apiFetch(
-			API_PROTOCOL.START_TOURNAMENT.path,
-			{
+			const url = API_PROTOCOL.START_TOURNAMENT.path.replace(
+				":id", String(tournament.tournament_id)
+			);
+			const data: StartTournamentResponse = await apiFetch(url, {
 				method: API_PROTOCOL.START_TOURNAMENT.method,
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify(payload),
-			}
-			);
-
+			});
 			console.log("lets looky at the data sent ", data);
 			if (data.status === "OK" && data.tournament) {
 				setTournament(data.tournament);
 				await refreshSession(); 
 				if (onTournamentStarted)
 					onTournamentStarted();
-			} else {
+				} else {
 					console.error("Tournament start error:", data.error);
-			}
-
+				}
 		console.log("Tournament object from backend:", tournament);
 		} catch (err: any) {
 			if (err.sessionExpired) return;

@@ -111,8 +111,7 @@ module.exports = async function tournamentRoutes(fastify, options) {
 		const {db} = options;
 		const {role} = request.body || {};
 		const token = request.cookies?.auth_token;
-		if (!token) return reply.code(401).send({ status: 'ERROR', error: 'Not authenticated' });
-		let userId; 
+		if (!token) return reply.code(401).send({ status: 'ERROR', error: 'Not authenticated' }); 
 		try { userId = getUserIdFromToken(token); }
 		catch { return reply.code(401).send({ status: 'ERROR', error: 'Invalid auth token' }); }
 		const tid = Number(request.body?.tournament_id);
@@ -130,6 +129,7 @@ module.exports = async function tournamentRoutes(fastify, options) {
 		try { userId = getUserIdFromToken(token); }
 		catch { return reply.code(401).send({ status: 'ERROR', error: 'Invalid auth token' }); }
 		const tid = Number(request.body?.tournament_id);
+		// const tid = Number(request.params.id);
 		if (!Number.isInteger(tid)) return reply.code(400).send({ status: 'ERROR', error: 'Invalid tournament id' });
 		try
 		{

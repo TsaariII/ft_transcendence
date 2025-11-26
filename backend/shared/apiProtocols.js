@@ -105,7 +105,7 @@ const API_PROTOCOL = {
 	},
 
 	START_TOURNAMENT: {
-		path:'/api/tournament/start',
+		path:'/api/tournament/:id/start',
 		method: 'POST',
 	},
 

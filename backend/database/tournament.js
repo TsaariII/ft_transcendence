@@ -46,7 +46,7 @@ async function getTournamentById(db, tid) {
 async function getTournamentPlayers(db, tid) {
   const { all } = _wrap(db);
   return all(
-    `SELECT tp.user_id, tp.alias, tp.${ROLE_COL} AS role, tp.verified,
+    `SELECT tp.user_id, tp.alias, tp.${ROLE_COL} AS role, tp.status, tp.verified,
             u.username, u.avatar_file AS avatar
      FROM tournament_players tp
      JOIN users u ON u.id = tp.user_id
@@ -82,7 +82,7 @@ async function isRoleTaken(db, tid, role) {
 async function upsertHostAlias(db, tid, alias) {
   const { run } = _wrap(db);
   return run(
-    `UPDATE tournament_players SET alias = ?
+    `UPDATE tournament_players SET alias = ?, status = 'ready'
      WHERE tournament_id = ? AND ${ROLE_COL} = 1`, [alias, tid]
   );
 }
@@ -91,8 +91,8 @@ async function insertPlayer(db, tid, userId, alias, role) {
   const { run } = _wrap(db);
   
   return run(
-    `INSERT INTO tournament_players (tournament_id, user_id, alias, ${ROLE_COL}, verified)
-     VALUES (?, ?, ?, ?, 1)`, [tid, userId, alias, role]
+    `INSERT INTO tournament_players (tournament_id, user_id, alias, ${ROLE_COL}, status, verified)
+     VALUES (?, ?, ?, ?, 'ready', 1)`, [tid, userId, alias, role]
   );
 }
 
@@ -156,16 +156,14 @@ async function startTournament(db, tid) {
   });
 }
 
-function toTournamentPlayer(row, tournamentStatus, viewingUserId, fallbackRole) {
+function toTournamentPlayer(row, viewingUserId, fallbackRole) {
   if (!row) {
     return { username: '', alias: '', status: 'waiting', avatar: undefined, score: undefined, isSelf: false, isVerified: false, role: fallbackRole };
   }
-  const st = tournamentStatus === 'waiting' ? (row.verified ? 'ready' : 'waiting')
-          : tournamentStatus === 'ongoing' ? 'playing' : 'finished';
   return {
     username: row.username || '',
     alias: row.alias || '',
-    status: st,
+    status: row.status,
     avatar: row.avatar || undefined,
     score: undefined,
     isSelf: row.user_id === viewingUserId,
@@ -177,20 +175,18 @@ function toTournamentPlayer(row, tournamentStatus, viewingUserId, fallbackRole) 
 async function buildTournamentState(db, tid, viewingUserId) {
   const t = await getTournamentById(db, tid);
   if (!t) return null;
-
   const playersRows = await getTournamentPlayers(db, tid);
   const games = await getGamesForTournament(db, tid);
-
   const playersById = new Map(playersRows.map(r => [r.user_id, r]));
   const players = [1,2,3,4].map(n => toTournamentPlayer(
-    playersRows.find(r => r.role === n), t.status, viewingUserId, `player${n}`
+    playersRows.find(r => r.role === n), viewingUserId, `player${n}`
   ));
   const rounds = Math.max(0, ...games.map(g => g.round || 0));
   const bracket = rounds ? Array.from({length: rounds}, (_, i) => {
     const r = i + 1;
     return games.filter(g => g.round === r).map(g => {
-      const p1 = toTournamentPlayer(playersById.get(g.p1_id), t.status, viewingUserId, 'player1');
-      const p2 = toTournamentPlayer(playersById.get(g.p2_id), t.status, viewingUserId, 'player2');
+      const p1 = toTournamentPlayer(playersById.get(g.p1_id), viewingUserId, 'player1');
+      const p2 = toTournamentPlayer(playersById.get(g.p2_id), viewingUserId, 'player2');
       const score = (g.p1_score != null || g.p2_score != null) ? { player1: g.p1_score ?? 0, player2: g.p2_score ?? 0 } : undefined;
       const winner = g.winner_id ? (playersById.get(g.winner_id)?.username || '') : undefined;
       return { match_id: String(g.game_id), player1: p1, player2: p2, winner, score, status: ['pending','ongoing','finished'].includes((g.status||'').toLowerCase()) ? g.status : 'pending' };
