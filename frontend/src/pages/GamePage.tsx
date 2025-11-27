@@ -206,7 +206,7 @@ return (
 	<CenteredContainer>
 		{/* Mode selection */}
 		{!selectedMode && (
-		<div className="w-full max-w-lg sketch-border rounded-xl p-8 text-white shadow-2xl">
+		<div className="w-full max-w-lg sketch-border rounded-xl p-8 bg-[#D54751] text-white shadow-2xl">
 		<ChooseGameMode
 			onSelectMode={handleModeSelect}
 			/>

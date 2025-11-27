@@ -16,25 +16,57 @@ return (
 	>
 		<Link
 			to="/"
-			className=" font-hand text-lg px-3 py-1 rounded hover:text-indigo-400 transition-colors"
+			className="font-cupcake text-[#FFFCC7] text-2xl tracking-wider"
+              style={{ textShadow: `
+                  -3px 0 #000,
+                  3px 0 #000,
+                  0 3px #000,
+                  0 -3px #000,
+                  3px 3px #59322B,
+                 -3px -3px #59322B`
+               }}
 		>
 			{t("nav.home")}
 		</Link>
 		<Link
 			to="/game"
-			className="font-hand text-lg px-3 py-1 rounded hover:text-indigo-400 transition-colors"
+			className="font-cupcake text-[#FFFCC7] text-2xl tracking-wider"
+              style={{ textShadow: `
+                  -3px 0 #000,
+                  3px 0 #000,
+                  0 3px #000,
+                  0 -3px #000,
+                  3px 3px #59322B,
+                 -3px -3px #59322B`
+               }}
 		>
 			{t("nav.game")}
 		</Link>
 		<Link
 			to="/tournament"
-			className="font-hand text-lg px-3 py-1 rounded hover:text-indigo-400 transition-colors"
+			className="font-cupcake text-[#FFFCC7] text-2xl tracking-wider"
+              style={{ textShadow: `
+                  -3px 0 #000,
+                  3px 0 #000,
+                  0 3px #000,
+                  0 -3px #000,
+                  3px 3px #59322B,
+                 -3px -3px #59322B`
+               }}
 		>
 			{t("nav.tournament")}
 		</Link>
 		<Link
 			to="/friends"
-			className="font-hand text-lg px-3 py-1 rounded hover:text-indigo-400 transition-colors"
+			className="font-cupcake text-[#FFFCC7] text-2xl tracking-wider"
+              style={{ textShadow: `
+                  -3px 0 #000,
+                  3px 0 #000,
+                  0 3px #000,
+                  0 -3px #000,
+                  3px 3px #59322B,
+                 -3px -3px #59322B`
+               }}
 		>
 			{t("nav.friends")}
 		</Link>
@@ -42,19 +74,43 @@ return (
 		<div className="ml-auto flex gap-4">
 			<Link
 				to="/profile"
-				className="font-hand text-lg px-3 py-1 rounded hover:text-indigo-400 transition-colors"
+				className="font-cupcake text-[#FFFCC7] text-2xl tracking-wider"
+              style={{ textShadow: `
+                  -3px 0 #000,
+                  3px 0 #000,
+                  0 3px #000,
+                  0 -3px #000,
+                  3px 3px #59322B,
+                 -3px -3px #59322B`
+               }}
 			>
 				{t("nav.profile")}
 			</Link>
 			<Link
 				to="/settings"
-				className="font-hand text-lg px-3 py-1 rounded hover:text-indigo-400 transition-colors"
+				className="font-cupcake text-[#FFFCC7] text-2xl tracking-wider"
+              style={{ textShadow: `
+                  -3px 0 #000,
+                  3px 0 #000,
+                  0 3px #000,
+                  0 -3px #000,
+                  3px 3px #59322B,
+                 -3px -3px #59322B`
+               }}
 			>
 				{t("nav.settings")}
 			</Link>
 			<Link
 				to="/exit"
-				className="font-hand text-lg px-3 py-1 rounded hover:text-indigo-400 transition-colors"
+				className="font-cupcake text-[#FFFCC7] text-2xl tracking-wider"
+              style={{ textShadow: `
+                  -3px 0 #000,
+                  3px 0 #000,
+                  0 3px #000,
+                  0 -3px #000,
+                  3px 3px #59322B,
+                 -3px -3px #59322B`
+               }}
 			>
 				{t("nav.exit")}
 			</Link>

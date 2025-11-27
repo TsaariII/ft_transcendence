@@ -252,7 +252,7 @@ const HomePage: React.FC = () => {
 				</div>
 			)}
 
-			<h1 className="text-5xl font-heading">{t("home.title")}</h1>
+			
 
 			{!isLoggedIn && (
 				<div className="flex gap-4">

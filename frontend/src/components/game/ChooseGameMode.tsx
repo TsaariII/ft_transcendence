@@ -15,7 +15,15 @@ const ChooseGameMode: React.FC<ChooseGameModeProps> = ({ onSelectMode }) => {
 
 return (
 	<div className="flex flex-col items-center space-y-4">
-	<h2 className="font-hand text-4xl text-teal-700 dark:text-teal-300 mb-4">
+	<h2 className="font-cupcake text-[#FFFCC7] text-3xl tracking-wider"
+              style={{ textShadow: `
+                  -3px 0 #000,
+                  3px 0 #000,
+                  0 3px #000,
+                  0 -3px #000,
+                  3px 3px #59322B,
+                 -3px -3px #59322B`
+               }}>
 		{t("game.mode.title")}
 	</h2>
 	<button
