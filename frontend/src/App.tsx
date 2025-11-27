@@ -48,7 +48,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 	return (
 		<div className="relative h-full">
 			{/* Repeating Background */}
-			{/*<div
+			<div
 				className="fixed inset-0"
 				style={{
 					backgroundImage: `url(${collection})`,
@@ -57,9 +57,9 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 					backgroundPosition: "top left",   // optional start position
 					backgroundAttachment: "fixed",    // stays fixed while scrolling
 					backgroundBlendMode: "overlay",   // optional overlay
-					backgroundColor: "rgba(66, 65, 65, 0.4)",
+					backgroundColor: "rgba(77, 163, 148)",
 				}}
-			/> */}
+			/>
 
 			{/* Foreground content */}
 			<div className="relative z-10 flex flex-col h-full p-6">
