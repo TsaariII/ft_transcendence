@@ -44,37 +44,55 @@ function initPlayer(ws, token) {
 }
 //once both players have connected front end sends yes and we start the game
 function attachPlayerToGame(ws, session) {
-	ws.playerId = session.id;
+	ws.playerId = session.playerId || session.id;
+  if (!ws.playerId || !session.gameId)
+  {
+    ws.send(JSON.stringify('Invalid session data'));
+    ws.close;
+    return;
+  }
 	ws.gameId = session.gameId;
-
 	const game = getGame(ws.gameId);
-	//if (!game) return false; throw, make sure its being caught
-	console.log('player id from token', ws.playerId);
-    const player = game.players.get(ws.playerId);
-	if (!player) {
-		console.log("Player not found in game, player id", player.playerId,'player itesle', player);
+	if (!game)
+  {
+    ws.send(JSON.stringify('Game not found for game ID'));
+    ws.close; return; }
+  const player = game.players.get(ws.playerId);
+	if (!player)
+  {
 		ws.send(JSON.stringify({ error: 'Player not found in game' }));
 		ws.close();
 		return;
 	}
 	ws.player = player
-	console.log("Attached player to ws:", ws.player);
 	player.ws = ws;
 	player.ready = 'true';
 	return true;
 }
 
-function getGameContext(ws, data, playerinit) {
-    if (!playerinit) return undefined;
-
-	const gameId = ws ? ws.gameId || data.gameId : data.gameId;
+function getGameContext(ws, data)
+{
+  const gameId = ws ? ws.gameId || data.gameId : data.gameId;
+  if (!gameId) return undefined;
 	const game = getGame(gameId);
-    if (!game) return undefined;
-
-    return {
-        game,
-        gameState: game.payload
-    };
+  if (!game) return undefined;
+  return {
+    game,
+    gameState: game.payload
+  };
 }
 module.exports = {handleGreet, startLoop, initPlayer, getGameContext}
+
+// function getGameContext(ws, data, playerinit) {
+//   if (!playerinit) return undefined;
+// 	const gameId = ws ? ws.gameId || data.gameId : data.gameId;
+// 	const game = getGame(gameId);
+//     if (!game) return undefined;
+
+//     return {
+//         game,
+//         gameState: game.payload
+//     };
+// }
+// module.exports = {handleGreet, startLoop, initPlayer, getGameContext}
 

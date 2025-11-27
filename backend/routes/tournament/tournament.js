@@ -12,7 +12,8 @@ const {
   upsertHostAlias,
   markOngoingIfFull,
   cancelTournament,
-  closeTournament
+  closeTournament,
+  startTournamentMatch
 } = require('../../database/tournament.js'); // adjust path
 const { getUserIdFromToken } = require('@security'); // adjust path
 
@@ -146,17 +147,17 @@ module.exports = async function tournamentRoutes(fastify, options) {
 		const { db } = options;
 		const token = request.cookies?.auth_token;
 		if (!token) return reply.code(401).send({ status: 'ERROR', error: 'Not authenticated' });
-
 		let userId; try { userId = getUserIdFromToken(token); }
 		catch { return reply.code(401).send({ status: 'ERROR', error: 'Invalid auth token' }); }
-
 		const active = await getActiveTournamentForUser(db, userId);
   		if (!active) return reply.code(404).send({ status: 'ERROR', error: 'No active tournament' });
-
-		try {
+		try
+		{
 			await cancelTournament(db, active.id, userId);
 			return reply.send({ status: 'OK', tournament: null });
-		} catch (err) {
+		}
+		catch (err)
+		{
 			request.log.error({ err, tid }, 'CANCEL_TOURNAMENT failed');
 			return reply.code(err.statusCode || 500).send({ status: 'ERROR', error: err.message || 'Failed to cancel tournament' });
 		}
@@ -183,4 +184,26 @@ module.exports = async function tournamentRoutes(fastify, options) {
 	// 		});
 	// 	}
 	// });
+	fastify.post(API_PROTOCOL.START_TOURNAMENT_MATCH.path, async (request, reply) => {
+		const {db} = options;
+		const token = request.cookies?.auth_token;
+		if (!token) return reply.code(401).send({ status: 'ERROR', error: 'Not authenticated' });
+		let userId; try { userId = getUserIdFromToken(token); }
+		catch { return reply.code(401).send({ status: 'ERROR', error: 'Invalid auth token' }); }
+		const tid = Number(request.body?.tournament_id);
+		if (!Number.isInteger(tid)) return reply.code(400).send({ status: 'ERROR', error: 'Invalid tournament id' });
+		const matchId = Number(request.body?.match_id);
+		if (!Number.isInteger(matchId)) return reply.code(400).send({ status: 'ERROR', error: 'Invalid match id' });
+		try
+		{
+			await startTournamentMatch(db, tid, matchId, userId);
+			const state = await buildTournamentState(db, tid, userId);
+			return reply.send({status: 'OK', tournament: state});
+		}
+		catch (err)
+		{
+			request.log.error({err, tid, matchId}, 'START_TOURNAMENT_MATCH failed');
+			return reply.code(err.statusCode || 500).send({status: 'ERROR', error: err.message || 'Failed to start match'});
+		}
+	});
 }

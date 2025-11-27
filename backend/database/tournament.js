@@ -290,6 +290,31 @@ async function closeTournament(db, tid, userId)
   });
 }
 
+function startTournamentMatch(db, tid, matchId, hostId)
+{
+  const w =_wrap(db);
+  return w.tx(async ({get, run}) => {
+    const t = await get(`SELECT id, status FROM tournaments WHERE id = ?`, [tid]);
+    if (!t) {const e = new Error('Tournament not found'); e.statusCode = 404; throw e;}
+    if (t.status !== 'ongoing') { const e = new Error('Tournament is not ongoing'); e.statusCode = 409; throw e; }
+    const host = await get(
+      `SELECT user_id FROM tournament_players WHERE tournament_id = ? AND ${ROLE_COL} = 1`, [tid]
+    );
+    if (!host || host.user_id !== hostId) { const e = new Error('Only host can start game'); e.statusCode = 403; throw e; }
+    const game = await get(
+      `SELECT id, status FROM games WHERE id = ? AND tournament_id = ?`, [matchId, tid]
+    );
+    if (!game) { const e = new Error('Match not found'); e.statusCode = 404; throw e; }
+    if (game.status === 'finished') { const e = new Error('Match already finished'); e.statusCode = 409; throw e; }
+    const twoMatches = await get(
+      `SELECT id FROM games WHERE tournament_id = ? AMD status = 'ongoing'`
+    );
+    if (twoMatches && twoMatches.id !== game.id) { const e = new Error('Another match already ongoing'); e.statusCode = 409; throw e; }
+    await run(`UPDATE games SET status = 'ongoing' WHERE id = ?`, [game.id]);
+    return true;
+  });
+}
+
 module.exports = {
   _wrap,
   ROLE_COL,
@@ -309,5 +334,6 @@ module.exports = {
   createTournamentWithOwner,
   markOngoingIfFull,
   cancelTournament,
-  closeTournament
+  closeTournament,
+  startTournamentMatch
 };
