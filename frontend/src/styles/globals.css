@@ -30,6 +30,14 @@ body, html, #root {
 	font-style: normal;
 }
 
+@font-face {
+	font-family: 'Cupcake';
+	src: url('/fonts/Bungee-Regular.ttf') format('truetype');
+	font-weight: 400;
+	font-style: normal;
+}
+
+
 .sketch-border {
 padding: 0.7rem 0.7rem;
 	margin: 0 0.5rem;

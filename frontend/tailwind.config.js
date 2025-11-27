@@ -10,7 +10,8 @@ module.exports = {
       fontFamily: {
         hand: ['Doodle', 'cursive'],
         heading: ['Heading'],
-        body: ['Body']
+        body: ['Body'],
+        cupcake: ['Cupcake']
       },
     },
   },
