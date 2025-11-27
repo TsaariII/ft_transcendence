@@ -26,41 +26,45 @@ export function ArcadeFrame({ children }: ArcadeFrameProps) {
       <div className="relative" style={{ maxWidth: '1400px', width: '100%' }}>
         {/* Top title */}
         <div 
-          className="relative mx-auto mb-4 p-6 border-4 border-white bg-black"
+          className="relative mx-auto mb-4 p-6 border-4 border-[#FFFCC7] bg-[#D54751]"
           style={{
             width: '85%',
             borderRadius: '40px 80px 80px 40px',
-            boxShadow: '4px 6px 0 rgba(255,255,255,0.6)',
+            boxShadow: '4px 6px 0 rgba(89,50,43, 0.9)',
             transform: 'rotate(-0.4deg)',
           }}
         >
           <div className="text-center">
-            <div className="font-body text-[#84A59D] text-5xl tracking-wider" style={{ textShadow: '0 0 20px rgba(255,170,85,0.5)' }}>
+            <div 
+              className="font-cupcake text-[#FFFCC7] text-5xl tracking-wider"
+              style={{ textShadow: `
+                  -3px 0 #000,
+                  3px 0 #000,
+                  0 3px #000,
+                  0 -3px #000,
+                  3px 3px #59322B,
+                 -3px -3px #59322B`
+               }}>
               PONG
             </div>
-            {/* Decorative bulbs */}
-            <div className="absolute top-10 left-10 w-4 h-4 bg-[#ff5555] rounded-full power-light" style={{ boxShadow: '0 0 10px #ff5555' }}></div>
-            <div className="absolute top-10 right-10 w-4 h-4 bg-[#55ffaa] rounded-full power-light" style={{ boxShadow: '0 0 10px #55ffaa', animationDelay: '1s' }}></div>
-            <div className="absolute top-10 left-32 w-4 h-4 bg-[#55aaff] rounded-full power-light" style={{ boxShadow: '0 0 10px #55aaff', animationDelay: '0.5s' }}></div>
-            <div className="absolute top-10 right-32 w-4 h-4 bg-[#ff55aa] rounded-full power-light" style={{ boxShadow: '0 0 10px #ff55aa', animationDelay: '1.5s' }}></div>
           </div>
         </div>
 
         {/* Main screen bezel */}
         <div 
-          className="relative p-8 border-8 border-white bg-[#1a1a1a]"
+          className="relative p-8 border-8 border-[#FFFCC7] bg-[#D54751]"
           style={{
             borderRadius: '45px 50px 48px 52px',
-            boxShadow: 'inset 0 0 30px rgba(0,0,0,0.8), 8px 10px 0 rgba(255,255,255,0.7)',
+            boxShadow: 'inset 0 0 30px rgba(0,0,0,0.8), 8px 10px 0 rgba(89,50,43,0.9)',
             transform: 'rotate(-0.3deg)',
           }}
         >
           {/* Screen inner bezel */}
           <div 
-            className="relative border-6 border-[#333] bg-black p-8 overflow-hidden"
+            className="relative border-6 border-[#333] bg-[#] p-8 overflow-hidden"
             style={{
               borderRadius: '35px 40px 38px 42px',
-              boxShadow: 'inset 0 0 50px rgba(85,255,170,0.1)',
+              boxShadow: 'inset 0 0 50px rgba(255,252,199,0.8)',
               minHeight: '600px',
             }}
           >
@@ -93,7 +97,7 @@ export function ArcadeFrame({ children }: ArcadeFrameProps) {
 
         {/* Bottom control panel */}
         <div 
-          className="relative mx-auto mt-4 p-4 border-4 border-white bg-black"
+          className="relative mx-auto mt-4 p-4 border-4 border-white bg-[#D54751]"
           style={{
             width: '90%',
             borderRadius: '25px 30px 35px 28px',
