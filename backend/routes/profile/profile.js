@@ -52,60 +52,42 @@ async function getUser(fastify, options) {
   };
 
   fastify.get(API_PROTOCOL.GET_PROFILE.path, {}, async (request, reply) => {
-    const token = request.cookies?.auth_token;
-    if (!token) return reply.code(401).send({ error: 'Invalid auth token' });
-    let userId;
-    try { userId = secure.getUserIdFromToken(token);}
-	catch { return reply.code(401).send({ error: 'Invalid auth token' }); }
-	console.log("PROFILE userId from token:", userId, typeof userId);
-    try {
-      // 1) base user row
-      const profile = await DBget.fetchUser(userId);
-
-      // 2) friends + match history
-      const [friendsRows, historyRows] = await Promise.all([
-        DBget.getFriendsForPlayer(userId),
-        DBget.getMatchHistory(userId)
-      ]);
-
-      // 3) tournament state (use the DAL; do NOT rely on a non-existent users.active_tournament_id)
-      const active = await getActiveTournamentForUser(db, userId);
-      const tournament = active
-        ? await buildTournamentState(db, active.id, userId)
-        : null;
-
-      // 4) final payload (keep keys your UI uses)
-      const payload = {
-        user_id: userId,
-        username: profile.username,
-        avatarFile: profile.avatar_file || undefined,
-        twoFactor: !!profile.mfa_enabled,
-        rank: profile.rank ?? 0,
-        score: profile.score ?? 0,
-        victories: profile.wins ?? 0,
-        losses: profile.losses ?? 0,
-        totalMatches: profile.total_games ?? 0,
-        tournamentWins: undefined, // not in schema
-        friends: friendsRows.map(toFriend),
-        matchHistory: historyRows.map(toMatch),
-
-        // Give the frontend exactly what it expects:
-        // either a full TournamentState or null (so it knows to show "Create/Join")
-        tournament: tournament,
-
-        language: profile.language || 'en'
-      };
-
-      return reply.code(200).send(payload);
-    }
+	const userId = request.userId;
+	if (!userId) return reply.code(401).send({error: 'Authentication required'});
+	try
+	{
+		const profile = await DBget.fetchUser(userId);
+		const [friendsRows, matchHistoryRows] = await Promise.all([
+			DBget.getFriendsForPlayer(userId),
+			DBget.getMatchHistory(userId)
+		]);
+		const active = await getActiveTournamentForUser(db, userId);
+		const tournament = active ? await buildTournamentState(db, active.id, userId) : null;
+		const payload = {
+			user_id: userId,
+			username: profile.username,
+			avatarFile: profile.avatar_file || undefined,
+			twoFactor: !!profile.mfa_enabled,
+			rank: profile.rank ?? 0,
+			victories: profile.wins ?? 0,
+			losses: profile.losses ?? 0,
+			totalMatches: profile.total_games ?? 0,
+			tournamentWins: undefined,
+			friends: friendsRows.map(toFriend),
+			matchHistory: matchHistoryRows.map(toMatch),
+			tournament,
+			language: profile.language || 'en'
+		};
+		return reply.code(200).send(payload);
+	}
 	catch (err)
 	{
 		if (err && err.error === 'User not found')
-			return reply.code(404).send({error: 'User not found'})
-		if (err && err.error === 'DB error getMatchHistory')
-			return reply.code(500).send({error: 'Failed to load match history'});
-		return reply.code(500).send({ error: 'Failed to fetch profile' });
-    }
+			return reply.code(404).send({error: 'User not found'});
+		if (err && err.error === 'Failed to fetch match history')
+			return reply.code(500).send({error: 'Failed to fetch match history'});
+		return reply.code(500).send({error: 'Failed to fetch profile'});
+	}
   });
 }
 

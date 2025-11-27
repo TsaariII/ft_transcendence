@@ -56,6 +56,7 @@ CREATE TABLE IF NOT EXISTS games
     winner_id TEXT,
     round INTEGER,
     bracket_pos INTEGER,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     status TEXT NOT NULL DEFAULT 'pending'
         CHECK (status IN ('pending', 'ongoing', 'finished')),
     FOREIGN KEY (tournament_id) REFERENCES tournaments(id) ON DELETE CASCADE,

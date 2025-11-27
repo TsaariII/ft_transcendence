@@ -60,7 +60,7 @@ async function authHook(fastify, options) {
 				const mapped = UNAUTHORIZED(result.error);
 				return reply.code(mapped.code).send({error: mapped.message});
 			}
-			const mapped = UNAUTHORIZED('DEFAUL_AUTH');
+			const mapped = UNAUTHORIZED('DEFAULT_AUTH');
 			return reply.code(mapped.code).send({error: mapped.message});
 		}
 		catch (err)
