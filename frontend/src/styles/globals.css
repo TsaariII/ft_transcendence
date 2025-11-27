@@ -35,10 +35,10 @@ padding: 0.7rem 0.7rem;
 	margin: 0 0.5rem;
 	border: 2px solid;
 	
-	border-top-left-radius: var(--tl-x, 100px) var(--tl-y, 10px);
-	border-top-right-radius: var(--tr-x, 10px) var(--tr-y, 100px);
-	border-bottom-right-radius: var(--br-x, 100px) var(--br-y, 10px);
-	border-bottom-left-radius: var(--bl-x, 10px) var(--bl-y, 105px);
+	border-top-left-radius: var(--tl-x, 20px) var(--tl-y, 8px);
+	border-top-right-radius: var(--tr-x, 12px) var(--tr-y, 22px);
+	border-bottom-right-radius: var(--br-x, 25px) var(--br-y, 10px);
+	border-bottom-left-radius: var(--bl-x, 10px) var(--bl-y, 23px);
 	
 	box-shadow: 1px 1px 0px currentColor, -1px -1px 0px currentColor;
 	transition: all 0.2s ease;
