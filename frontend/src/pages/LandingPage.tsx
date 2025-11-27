@@ -290,8 +290,8 @@ const HomePage: React.FC = () => {
 						{/* Game */}
 						<DoodleButton
 							imageSrc={arcade}
-							width="w-44"
-							height="h-44"
+							width="w-56"
+							height="h-56"
 							onClick={() => navigate("/game")}
 							rotate="-rotate-2"
 							borderRadius="rounded-[25px_15px_28px_18px]"
@@ -303,9 +303,8 @@ const HomePage: React.FC = () => {
 
 						<DoodleButton
 							icon={<Trophy strokeWidth={0.4} className="w-44 h-44 stroke-white" />}
-							hoverStrokeClass="stroke-[#61bfbf]"
-							width="w-44"
-							height="h-44"
+							width="w-56"
+							height="h-56"
 							onClick={() => navigate("/tournament")}
 							rotate="rotate-1.5"
 							borderRadius="rounded-[18px_28px_15px_22px]"
@@ -331,8 +330,8 @@ const HomePage: React.FC = () => {
 
 						<DoodleButton
 							imageSrc={podium}
-							width="w-44"
-							height="h-44"
+							width="w-56"
+							height="h-56"
 							onClick={() => navigate("/leaderboard")}
 							rotate="-rotate-1"
 							borderRadius="rounded-[15px_24px_18px_20px]"
@@ -341,20 +340,6 @@ const HomePage: React.FC = () => {
 							strokeWidth={1.5}
 							animationDuration={200}
 						/>
-						{/* 
-						<DoodleButton
-							icon={<SettingsIcon strokeWidth={1} className="w-44 h-44 stroke-white" />}
-							hoverStrokeClass="stroke-[#bfbfe3]"
-							width="w-44"
-							height="h-44"
-							onClick={() => navigate("/settings")}
-							rotate="-rotate-1.5"
-							borderRadius="rounded-[20px_16px_22px_14px]"
-							hoverText="Settings"
-							strokeColor="#61bfbf"
-							strokeWidth={1.5}
-							animationDuration={200}
-						/>*/}
 				</div>
 			)}
 	<Modal

@@ -23,13 +23,13 @@ export function ArcadeFrame({ children }: ArcadeFrameProps) {
       `}} />
 
       {/* Arcade Cabinet */}
-      <div className="relative" style={{ maxWidth: '1400px', width: '100%' }}>
+      <div className="relative" style={{ maxWidth: '2200px', width: '100%' }}>
         {/* Top title */}
         <div 
           className="relative mx-auto mb-4 p-6 border-4 border-[#FFFCC7] bg-[#D54751]"
           style={{
             width: '85%',
-            borderRadius: '40px 80px 80px 40px',
+            borderRadius: '60px 60px 60px 60px',
             boxShadow: '4px 6px 0 rgba(89,50,43, 0.9)',
             transform: 'rotate(-0.4deg)',
           }}
@@ -100,7 +100,7 @@ export function ArcadeFrame({ children }: ArcadeFrameProps) {
           className="relative mx-auto mt-4 p-4 border-4 border-white bg-[#D54751]"
           style={{
             width: '90%',
-            borderRadius: '25px 30px 35px 28px',
+            borderRadius: '60px 60px 60px 60px',
             boxShadow: '4px 5px 0 rgba(255,255,255,0.6)',
           }}
         >
@@ -129,7 +129,7 @@ export function ArcadeFrame({ children }: ArcadeFrameProps) {
                   className="w-12 h-12 rounded-full border-3 border-white bg-[#ff5555]"
                   style={{ 
                     boxShadow: 'inset 0 -4px 8px rgba(0,0,0,0.3), 0 2px 4px rgba(255,255,255,0.3)',
-                    borderRadius: '48% 52% 50% 50%'
+                    borderRadius: '50% 48% 52% 50%'
                   }}
                 />
               </div>
