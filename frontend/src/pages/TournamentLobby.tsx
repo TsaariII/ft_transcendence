@@ -5,6 +5,7 @@ import TournamentSetup from "../components/tournament/TournamentSetup";
 import GameSettings from "../components/game/GameSettings";
 import { TBD_PLAYER } from "../../shared/constants";
 import CenteredContainer from "../components/layout/CenteredContainer";
+import { ArcadeFrame } from "../components/layout/ArcadeFrame";
 import type { TournamentState, Match } from "../types/tournament";
 import Button from "../components/ui/Button";
 import { API_PROTOCOL } from "../../shared/api-protocols";
@@ -283,6 +284,7 @@ const TournamentLobby: React.FC = () => {
 		tournament.bracket.length > 0;
 
 	return (
+		<ArcadeFrame>
 		<CenteredContainer>
 			<div className="flex justify-center px-6 py-6">
 				{!showSettingsModal && !currentGame && (
@@ -386,6 +388,7 @@ const TournamentLobby: React.FC = () => {
 				)}
 			</div>
 		</CenteredContainer>
+		</ArcadeFrame>
 	);
 };
 

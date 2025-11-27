@@ -14,6 +14,7 @@ import arcade from "../assets/doodles/arcade.png";
 import podium from "../assets/doodles/podium.png";
 import TrophyIcon from "../assets/doodles/trophy.svg?react";
 import ArcadeIcon from "../assets/doodles/arcade.svg?react";
+import { ArcadeFrame } from "../components/layout/ArcadeFrame";
 
 const setServerLang = (code: "en" | "fi" | "sv") => localStorage.setItem("serverLang", code);
 
@@ -240,19 +241,10 @@ const HomePage: React.FC = () => {
 
 	return (
 		<>
-		{/* Animated PONG text }
-		<div className="absolute top-16 left-0 w-full flex justify-center z-10">
-			<AnimatedText
-			text={t("home.title")}
-			strokeColor="white"
-			strokeWidth={3}
-			className="max-w-[800px]"
-			/>
-		</div> */}
-
+		<ArcadeFrame>
 		<CenteredContainer> 
 		{/* Semi-transparent card wrapper for Home page content */}
-		<div className="w-full max-w-md sketch-border bg-[#dce4e5] rounded-xl p-8 text-black shadow-2xl flex flex-col items-center space-y-8">
+		<div className="w-full max-w-md rounded-xl p-8 text-white flex flex-col items-center space-y-20">
 			{/* Language flags */}
 			{!isLoggedIn && (
 				<div className="w-full flex justify-end">
@@ -406,7 +398,8 @@ const HomePage: React.FC = () => {
 			</div>
 		</div>
 	)}
-	</CenteredContainer> 
+	</CenteredContainer>
+	</ArcadeFrame>
 	</>
 );
 };
