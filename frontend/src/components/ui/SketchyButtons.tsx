@@ -39,7 +39,7 @@ const SketchyButton: React.FC<SketchyButtonProps> = ({
 			rx="6"
 			ry="8"
 			fill={fillColor}
-			stroke="black"
+			stroke="white"
 			strokeWidth="1.75"
 		/>
 	);
@@ -82,7 +82,7 @@ const SketchyButton: React.FC<SketchyButtonProps> = ({
 				<path
 					d="M 3 9 L 3 30 Q 3 37 18 37 L 90 37"
 					fill="none"
-					stroke="black"
+					stroke="white"
 					strokeWidth="1.25"
 					strokeLinecap="round"
 				/>
@@ -110,7 +110,7 @@ const SketchyButton: React.FC<SketchyButtonProps> = ({
 						rx="6"
 						ry="8"
 						fill="none"
-						stroke="black"
+						stroke="white"
 						strokeWidth="1.25"
 					/>
 				</svg>
@@ -132,7 +132,7 @@ const SketchyButton: React.FC<SketchyButtonProps> = ({
 					<path
 						d="M 3 8 L 3 30 Q 3 37 18 37 L 90 37"
 						fill="none"
-						stroke="black"
+						stroke="white"
 						strokeWidth="1.25"
 						strokeLinecap="round"
 					/>
