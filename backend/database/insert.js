@@ -37,45 +37,77 @@ function insertUser({ username, password, score = 0, status = 'online', avatarFi
   });
 }
 
-
-function insertFriend(friendId, userId) {
-	flog.info({ function: 'insertFRiend' }, 'inserting friend');
-//	flog.debug({ function: 'insertFRiend', friend: friendId, user: userId }, 'checking ids');
-
+function insertFriend(friendId, userId)
+{
+  if (!friendId || !userId)
+    return Promise.reject({error: 'Invalid friend parameters'});
+  if (friendId === userId)
+    return Promise.reject({error: 'Cannot add yourself as a friend'});
   return new Promise((resolve, reject) => {
     db.serialize(() => {
       db.run(
-        `INSERT INTO friends (user_id, friend_id) VALUES (?, ?)`,
-        [userId, friendId],
-        function (err) {
-          if (err) {
-			//flog.warn({ function: 'insertFRiend', error: err }, 'what error');
-
-            return reject({ error: 'Failed to add friend', details: err });
-          } else {	
-                db.all(
-              `SELECT * FROM friends WHERE user_id = ?`,
-              [userId],
-              (err2, rows) => {
-                if (err2) {
-                  flog.error({ function: 'insertFriend', error: err2 }, 'Error fetching friends after insert');
-                } else {
-                  flog.info({ function: 'insertFriend', friends: rows }, 'Current friends for user');
-                }
-				return resolve({ message: 'friend added' }); // Now safe to use in registerUser
-              }
-            );
-          }
-        }
+        `INSERT OR IGNORE INTO friends (user_id, friend_id, status)
+         VALUES (?, ?, 'accepted')`, [userId, friendId],
+         function (err) {
+          if (err)
+            return reject({error: 'Failed to add friend', details: err});
+          db.run(
+            `INSERT OR IGNORE INTO friends (user_id, friend_id, status)
+             VALUES (?, ?, 'accepted')`, [friendId, userId],
+             function (err2) {
+              if (err2)
+                return reject({error: 'Failed to add reverse friend', details: err2});
+             }
+          )
+          db.all(
+            `SELECT * FROM friends WHERE user_id = ?`, [userId],
+            (err3, rows) => {
+              return resolve({message: 'Friend added'});
+            }
+          );
+         }
       );
     });
   });
 }
 
+// function insertFriend(friendId, userId) {
+// 	flog.info({ function: 'insertFRiend' }, 'inserting friend');
+// //	flog.debug({ function: 'insertFRiend', friend: friendId, user: userId }, 'checking ids');
+
+//   return new Promise((resolve, reject) => {
+//     db.serialize(() => {
+//       db.run(
+//         `INSERT INTO friends (user_id, friend_id) VALUES (?, ?)`,
+//         [userId, friendId],
+//         function (err) {
+//           if (err) {
+// 			//flog.warn({ function: 'insertFRiend', error: err }, 'what error');
+
+//             return reject({ error: 'Failed to add friend', details: err });
+//           } else {	
+//                 db.all(
+//               `SELECT * FROM friends WHERE user_id = ?`,
+//               [userId],
+//               (err2, rows) => {
+//                 if (err2) {
+//                   flog.error({ function: 'insertFriend', error: err2 }, 'Error fetching friends after insert');
+//                 } else {
+//                   flog.info({ function: 'insertFriend', friends: rows }, 'Current friends for user');
+//                 }
+// 				return resolve({ message: 'friend added' }); // Now safe to use in registerUser
+//               }
+//             );
+//           }
+//         }
+//       );
+//     });
+//   });
+// }
+
 
 module.exports = {
 	insertUser,
 	insertFriend,
-	// loginUser
 };
 

@@ -33,20 +33,35 @@ function deleteUserById(id) {
   });
 }
 
-function deleteFriendById(userId, friendId) {
+function deleteFriendById(userId, friendId)
+{
   return new Promise((resolve, reject) => {
-	flog.debug({fucntion: 'deleteFreindById', user: userId, friend: friendId}, 'checking id');
     db.run(
-      'DELETE FROM friends WHERE user_id = ? AND friend_id = ?',
-      [userId,friendId],
-      function onDone(err) {
-        if (err) return reject(err);
-        // this.changes is provided by sqlite3 and tells how many rows were affected
-        resolve(this.changes);
-      }
+      `DELETE FROM friends
+      WHERE (user_id = ? AND friend_id ?)
+        OR (user_id = ? AND friend_id = ?)`, [userId, friendId, friendId, userId],
+        function (err) {
+          if (err) return reject(err);
+          resolve(this.changes);
+        }
     );
   });
 }
+
+// function deleteFriendById(userId, friendId) {
+//   return new Promise((resolve, reject) => {
+// 	flog.debug({fucntion: 'deleteFreindById', user: userId, friend: friendId}, 'checking id');
+//     db.run(
+//       'DELETE FROM friends WHERE user_id = ? AND friend_id = ?',
+//       [userId,friendId],
+//       function onDone(err) {
+//         if (err) return reject(err);
+//         // this.changes is provided by sqlite3 and tells how many rows were affected
+//         resolve(this.changes);
+//       }
+//     );
+//   });
+// }
 
 
 /**
