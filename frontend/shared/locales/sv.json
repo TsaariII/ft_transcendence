@@ -115,6 +115,7 @@
   "game.status.receivedResult": "Spelresultat mottaget: ",
   "game.status.ended": "Spelet avslutades!",
   "game.mode.title": "Välj spelläge",
+  "game.mode.text": "Välj din motståndare",
   "game.mode.guest": "Gästspelare",
   "game.mode.loginSecond": "Inloggad andra spelare",
   "game.mode.ai": "AI-motståndare",

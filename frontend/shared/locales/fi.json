@@ -113,6 +113,7 @@
   "game.status.receivedResult": "Pelitulos vastaanotettu: ",
   "game.status.ended": "Peli päättyi!",
   "game.mode.title": "Valitse pelitila",
+  "game.mode.text": "Valitse vastustaja",
   "game.mode.guest": "Vieraspelaaja",
   "game.mode.loginSecond": "Kirjautunut toinen pelaaja",
   "game.mode.ai": "Tekoälyvastustaja",

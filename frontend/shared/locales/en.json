@@ -115,6 +115,7 @@
   "game.status.receivedResult": "Received game result: ",
   "game.status.ended": "Game ended!",
   "game.mode.title": "Choose game mode",
+  "game.mode.text": "Select your opponent",
   "game.mode.guest": "Guest player",
   "game.mode.loginSecond": "Logged-in second player",
   "game.mode.ai": "AI opponent",
