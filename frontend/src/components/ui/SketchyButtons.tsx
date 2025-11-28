@@ -13,11 +13,14 @@ const SketchyButton: React.FC<SketchyButtonProps> = ({
 	children,
 	variant = "striped",
 	className = "",
-	bg = "white",
-	hoverBg = "gray-200",
+	bg = "#ffffff",
+	hoverBg = "#e5e5e5",
 	onClick,
 }) => {
 	const [isHovered, setIsHovered] = useState(false);
+
+	// Fill color depends on hover
+	const fillColor = isHovered ? hoverBg : bg;
 
 	const baseStyles = `
 		relative inline-flex items-center justify-center px-6 py-3
@@ -25,9 +28,6 @@ const SketchyButton: React.FC<SketchyButtonProps> = ({
 		font-body text-sm
 		${className}
 	`;
-
-	// Fill color depends on hover
-	const fillColor = isHovered ? hoverBg : bg;
 
 	// Common rectangle for all variants
 	const baseRect = (
@@ -43,6 +43,29 @@ const SketchyButton: React.FC<SketchyButtonProps> = ({
 			strokeWidth="1.75"
 		/>
 	);
+
+	if (variant === "shadow") {
+		return (
+			<button
+				onClick={onClick}
+				className={baseStyles}
+				onMouseEnter={() => setIsHovered(true)}
+				onMouseLeave={() => setIsHovered(false)}
+				style={{
+					background: fillColor,
+					borderRadius: "10px",
+					boxShadow: `
+						2px 2px 0px 0px #000,
+						4px 4px 0px 0px #000,
+						-1px -1px 0px 0px #000 inset
+					`,
+					border: "2px solid #FFFCC7",
+				}}
+			>
+				{children}
+			</button>
+		);
+	}
 
 	if (variant === "striped") {
 		return (

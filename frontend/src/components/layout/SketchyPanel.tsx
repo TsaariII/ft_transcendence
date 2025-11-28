@@ -3,66 +3,49 @@ import React from "react";
 interface SketchyPanelProps {
   children?: React.ReactNode;
   className?: string;
-  bg?: string;     // panel fill color
-  stroke?: string; // border stroke color
+  bg?: string;     // fill color
+  stroke?: string; // border color
+  padding?: string;
+  borderRadius?: string; // e.g., "12px"
 }
 
 const SketchyPanel: React.FC<SketchyPanelProps> = ({
   children,
   className = "",
   bg = "white",
-  stroke = "white",
+  stroke = "#000",
+  padding = "1rem",
+  borderRadius = "12px",
 }) => {
   return (
-    <div className={`relative ${className}`}>
-      {/* SVG Border & Sketchy Lines */}
+    <div className={`relative ${className}`} style={{ padding }}>
+      {/* SVG overlay for sketchy border */}
       <svg
         className="absolute inset-0 w-full h-full pointer-events-none"
-        viewBox="0 0 100 100"
-        preserveAspectRatio="none"
+        style={{ overflow: "visible" }}
       >
-        {/* Base Hand-drawn Border */}
-        <rect
-          x="5"
-          y="5"
-          width="90"
-          height="90"
-          rx="12"
-          ry="18"
-          fill={bg}
-          stroke={stroke}
-          strokeWidth="2.3"
-          strokeLinecap="round"
-        />
-
-        {/* Slightly imperfect inner line */}
-        <rect
-          x="8"
-          y="8"
-          width="84"
-          height="84"
-          rx="10"
-          ry="14"
-          fill="none"
-          stroke={stroke}
-          strokeWidth="1.4"
-          strokeDasharray="3 5 2 4"
-          opacity="0.65"
-        />
-
-        {/* 3D sketch shadow */}
-        <path
-          d="M 5 30 L 5 85 Q 5 95 22 95 L 95 95"
-          fill="none"
-          stroke={stroke}
-          strokeWidth="2"
-          strokeLinecap="round"
-          opacity="0.9"
-        />
+        {/* multiple slightly offset rectangles for sketchy look */}
+        {[0, 1, 2].map((i) => (
+          <rect
+            key={i}
+            x={2 + i}
+            y={2 + i}
+            width={`calc(100% - ${4 + i * 2}px)`}
+            height={`calc(100% - ${4 + i * 2}px)`}
+            rx={borderRadius}
+            ry={borderRadius}
+            fill={i === 0 ? bg : "none"}
+            stroke={stroke}
+            strokeWidth={i === 0 ? 2 : 1.5}
+            strokeLinecap="round"
+            strokeDasharray={i === 0 ? undefined : "4 2"}
+            opacity={i === 0 ? 1 : 0.6 - i * 0.15}
+          />
+        ))}
       </svg>
 
       {/* Panel content */}
-      <div className="relative z-10 p-4">
+      <div className="relative z-10">
         {children}
       </div>
     </div>

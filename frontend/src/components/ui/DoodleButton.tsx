@@ -7,6 +7,7 @@ interface DoodleBoxProps {
 	onClick?: () => void;
 	width?: string; // tailwind width class e.g., "w-32"
 	height?: string; // tailwind height class e.g., "h-32"
+	scale?: string;
 	rotate?: string; // tailwind rotate class e.g., "rotate-2"
 	borderRadius?: string; // tailwind rounded class or custom e.g., "rounded-xl"
 	hoverText?: string; // text to animate on hover
@@ -21,6 +22,7 @@ const DoodleBox: React.FC<DoodleBoxProps> = ({
 	onClick,
 	width = "w-56",
 	height = "h-56",
+	scale = "",
 	rotate = "rotate-0",
 	borderRadius = "rounded-xl",
 	hoverText,
@@ -35,7 +37,7 @@ const DoodleBox: React.FC<DoodleBoxProps> = ({
 			onClick={onClick}
 			onMouseEnter={() => setIsHovered(true)}
 			onMouseLeave={() => setIsHovered(false)}
-			className={`group ${width} ${height} p-0 ${borderRadius} ${rotate}
+			className={`group ${width} ${height} p-0 ${borderRadius} ${rotate} ${scale}
 				flex flex-col items-center justify-center`}
 			>
 			{imageSrc && (
