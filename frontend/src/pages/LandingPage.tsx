@@ -12,8 +12,9 @@ import DoodleButton from "../components/ui/DoodleButton";
 import SketchyButton from "../components/ui/SketchyButtons";
 import arcade from "../assets/doodles/arcade.png";
 import podium from "../assets/doodles/podium.png";
-import TrophyIcon from "../assets/doodles/trophy.svg?react";
-import ArcadeIcon from "../assets/doodles/arcade.svg?react";
+import trophy2 from "../assets/doodles/trophy2.png";
+import telly from "../assets/doodles/telly.png";
+import collection from "../assets/doodles/collection.png";
 import { ArcadeFrame } from "../components/layout/ArcadeFrame";
 
 const setServerLang = (code: "en" | "fi" | "sv") => localStorage.setItem("serverLang", code);
@@ -53,7 +54,9 @@ const LanguageToggle: React.FC<{ compact?: boolean }> = ({ compact = true }) => 
 			type="button"
 			onClick={() => changeLang(code)}
 			aria-label={label}
-			className="inline-flex items-center gap-2 px-2 py-1 rounded-md bg-gray-800 hover:bg-gray-700 border border-gray-700"
+			className="inline-flex items-center gap-2 px-2 py-1 rounded-md bg-[#FFFCC7]
+				hover:bg-[#3F839C] border-2 border-black font-hand text-black
+				shadow-[4px_4px_0_0_#000]"
 		>
 			<span className="text-xl">{flag}</span>
 			{!compact && <span className="text-sm">{label}</span>}
@@ -242,69 +245,63 @@ const HomePage: React.FC = () => {
 	return (
 		<>
 		<ArcadeFrame>
-		<CenteredContainer> 
-		{/* Semi-transparent card wrapper for Home page content */}
-		<div className="w-full max-w-md rounded-xl p-8 text-white flex flex-col items-center space-y-20">
-			{/* Language flags */}
-			{!isLoggedIn && (
-				<div className="w-full flex justify-end">
-					<LanguageToggle compact />
+			<CenteredContainer> 
+				{/* Semi-transparent card wrapper for Home page content */}
+				<div className="w-full max-w-md p-8 text-white flex flex-col items-center space-y-20">
+					{/* Language flags */}
+					{!isLoggedIn && (
+						<div className="w-full flex justify-end">
+							<LanguageToggle compact />
+						</div>
+					)}
+
+					<img
+						src={collection}
+					/>
+
+					{!isLoggedIn && (
+						<div className="flex gap-10 font-cupcake sm:text-xl md:text-3xl text-[#FFFCC7]">
+							<button
+								className="hover:text-[#3F839C]"
+								style={{ textShadow: `
+									-3px 0 #000,
+									3px 0 #000,
+									0 3px #000,
+									0 -3px #000`}}
+								onClick={() => {
+									setModalMode("register");
+									setIsModalOpen(true);
+								}}
+							>
+								{t("home.cta.register")}
+							</button>
+
+							<button
+								className="hover:text-[#3F839C]"
+								style={{ textShadow: `
+									-3px 0 #000,
+									3px 0 #000,
+									0 3px #000,
+									0 -3px #000`}}
+								onClick={() => {
+									setModalMode("login");
+									setIsModalOpen(true);
+								}}
+							>
+								{t("home.cta.login")}
+							</button>
+						</div>
+					)}
 				</div>
-			)}
-
-			
-
-			{!isLoggedIn && (
-				<div className="flex gap-4">
-					<SketchyButton
-						variant="striped"
-						bg="#D9897A"
-						hoverBg="#C8553E"
-						onClick={() => {
-							setModalMode("register");
-							setIsModalOpen(true);
-						}}
-					>
-						{t("home.cta.register")}
-					</SketchyButton>
-
-					<SketchyButton
-						variant="striped"
-						bg="#D9897A"
-						hoverBg="#C8553E"
-						className="transition-colors"
-						onClick={() => {
-							setModalMode("login");
-							setIsModalOpen(true);
-						}}
-					>
-						{t("home.cta.login")}
-					</SketchyButton>
-				</div>
-			)}
-		</div>
-		
-			{isLoggedIn && (
-				<div className="w-full max-w-2xl mx-auto mt-12 grid grid-cols-2 md:grid-cols-3 gap-8 p-4 bg-transparent">
-
-						{/* Game */}
+				
+				{isLoggedIn && (
+					<div className="max-w-4xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 p-4">
+						{/* Tournament */}
 						<DoodleButton
-							imageSrc={arcade}
+							imageSrc={trophy2}
 							width="w-56"
 							height="h-56"
-							onClick={() => navigate("/game")}
-							rotate="-rotate-2"
-							borderRadius="rounded-[25px_15px_28px_18px]"
-							hoverText="Pong"
-							strokeColor="#61bfbf"
-							strokeWidth={1.5}
-							animationDuration={200}
-						/>
-
-						<DoodleButton
-							icon={<Trophy strokeWidth={0.4} className="w-44 h-44 stroke-white" />}
-							width="w-56"
-							height="h-56"
+							scale="scale-90"
 							onClick={() => navigate("/tournament")}
 							rotate="rotate-1.5"
 							borderRadius="rounded-[18px_28px_15px_22px]"
@@ -313,21 +310,22 @@ const HomePage: React.FC = () => {
 							strokeWidth={1.5}
 							animationDuration={200}
 						/>
-						{/*
-						<DoodleButton
-							icon={<Users strokeWidth={1} className="w-44 h-44 stroke-white" />}
-							hoverStrokeClass="stroke-[#ffb7bb]"
-							width="w-44"
-							height="h-44"
-							onClick={() => navigate("/friends")}
-							rotate="-rotate-1"
-							borderRadius="rounded-[22px_12px_26px_16px]"
-							hoverText="Friends"
+
+						{/* Game */}
+						<DoodleButton	
+							imageSrc={arcade}
+							width="w-56"
+							height="h-56"
+							scale="scale-150"
+							onClick={() => navigate("/game")}
+							rotate="-rotate-2"
+							borderRadius="rounded-[25px_15px_28px_18px]"
+							hoverText="Pong"
 							strokeColor="#61bfbf"
 							strokeWidth={1.5}
 							animationDuration={200}
-						/>*/}
-
+						/>
+						{/* Leaderboard */}
 						<DoodleButton
 							imageSrc={podium}
 							width="w-56"
@@ -340,50 +338,50 @@ const HomePage: React.FC = () => {
 							strokeWidth={1.5}
 							animationDuration={200}
 						/>
+					</div>
+				)}
+			<Modal
+				isOpen={isModalOpen}
+				onClose={() => {
+					setIsModalOpen(false);
+					setFormError(null);
+					setInlineErrors({});
+				}}
+				onFormSubmit={handleSubmit}
+				mode={modalMode}
+				error={formError}
+				inlineErrors={inlineErrors}
+			/>
+			{is2faStep && (
+				<div className="fixed inset-0 bg-black/60 flex justify-center items-center z-50">
+					<div className="w-full max-w-md bg-gray-900/90 border border-gray-700 rounded-xl p-6 text-white shadow-2xl">
+						<h2 className="text-2xl font-bold mb-2">{t("home.2fa.title")}</h2>
+						<p className="text-sm text-gray-300 mb-4">{t("home.2fa.instructions")}</p>
+						<input
+							type="text"
+							value={otp}
+							onChange={(e) => setOtp(e.target.value)}
+							className="w-full p-3 border border-gray-700 bg-gray-900 rounded-md text-center text-2xl tracking-widest focus:outline-none focus:ring-2 focus:ring-blue-600"
+							maxLength={6}
+							placeholder="123456"
+						/>
+						<button
+							onClick={handle2faVerifySubmit}
+							className="w-full mt-4 px-6 py-3 bg-green-600 text-white rounded hover:bg-green-700 transition"
+							
+						>
+							{t("home.2fa.verify")}
+						</button>
+						<button
+							onClick={() => setIs2faStep(false)}
+							className="w-full mt-2 px-6 py-3 bg-gray-700 text-white rounded hover:bg-gray-600 transition"
+							>
+							{t("common.cancel")}
+						</button>
+					</div>
 				</div>
 			)}
-	<Modal
-		isOpen={isModalOpen}
-		onClose={() => {
-			setIsModalOpen(false);
-			setFormError(null);
-			setInlineErrors({});
-		}}
-		onFormSubmit={handleSubmit}
-		mode={modalMode}
-		error={formError}
-		inlineErrors={inlineErrors}
-	/>
-	{is2faStep && (
-		<div className="fixed inset-0 bg-black/60 flex justify-center items-center z-50">
-			<div className="w-full max-w-md bg-gray-900/90 border border-gray-700 rounded-xl p-6 text-white shadow-2xl">
-				<h2 className="text-2xl font-bold mb-2">{t("home.2fa.title")}</h2>
-				<p className="text-sm text-gray-300 mb-4">{t("home.2fa.instructions")}</p>
-				<input
-					type="text"
-					value={otp}
-					onChange={(e) => setOtp(e.target.value)}
-					className="w-full p-3 border border-gray-700 bg-gray-900 rounded-md text-center text-2xl tracking-widest focus:outline-none focus:ring-2 focus:ring-blue-600"
-					maxLength={6}
-					placeholder="123456"
-				/>
-				<button
-					onClick={handle2faVerifySubmit}
-					className="w-full mt-4 px-6 py-3 bg-green-600 text-white rounded hover:bg-green-700 transition"
-					
-				>
-					{t("home.2fa.verify")}
-				</button>
-				<button
-					onClick={() => setIs2faStep(false)}
-					className="w-full mt-2 px-6 py-3 bg-gray-700 text-white rounded hover:bg-gray-600 transition"
-					>
-					{t("common.cancel")}
-				</button>
-			</div>
-		</div>
-	)}
-	</CenteredContainer>
+		</CenteredContainer>
 	</ArcadeFrame>
 	</>
 );
