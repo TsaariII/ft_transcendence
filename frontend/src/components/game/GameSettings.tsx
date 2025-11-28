@@ -22,7 +22,7 @@ const [powerUp, setPowerUp] = useState(false);
 
 return (
 	<div className="max-w-xl mx-auto p-6 bg-gray-800 text-white rounded-lg shadow-lg flex flex-col space-y-4">
-	<h2 className="text-2xl font-bold text-teal-400 text-center">{t("game.settings.title")}</h2>
+	<h2 className="font-hand text-4xl font-bold text-teal-400 text-center">{t("game.settings.title")}</h2>
 
 	<div>
 		<label>{t("game.settings.ballSpeed")}: {ballSpeed}</label>

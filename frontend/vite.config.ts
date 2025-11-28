@@ -1,15 +1,16 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import svgr from "vite-plugin-svgr";
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), svgr()],
 
   server: {
     open: true,
     port: 5173,
     host: '0.0.0.0',
     proxy: {
-      '/api': 'https://backend:3000',
+      '/api': 'http://backend:3000',  // NOTE! change back to https!!!!! 
     },
   },
 

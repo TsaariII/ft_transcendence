@@ -8,6 +8,7 @@ import { StartTournamentPayload, StartTournamentResponse, RemovePlayerPayload, R
 import Button from "../ui/Button";
 import { useApiFetch } from "../../utils/apiFetch";
 import { useTranslation } from "../../shared/Translation";
+import SketchyButton from "../../components/ui/SketchyButtons";
 
 
 interface TournamentSetupProps {
@@ -142,7 +143,7 @@ const TournamentSetup: React.FC<TournamentSetupProps> = ({ onCancel, onTournamen
 			<div className="mt-3 space-y-6">
 				{setupInProgress && (
 				<div>
-					<p className="text-gray-300 mb-4 ml-8">{t("tournament.players")}</p>
+					<p className="font-body text-2xl text-gray-300 mb-4 ml-8">{t("tournament.players")}</p>
 
 					<PlayerList
 						tournament={tournament}
@@ -152,12 +153,21 @@ const TournamentSetup: React.FC<TournamentSetupProps> = ({ onCancel, onTournamen
 				</div>
 				)}
 
-				<div className="flex gap-6 mt-6 ml-7">
-					<Button onClick={onCancel} disabled={loading}>
+				<div className="flex gap-8 mt-6 ml-7">
+					<SketchyButton
+						variant="double-line"
+						bg="#61bfbf"
+						hoverBg="#C8553E"
+						className="text-xl px-6 py-3 rounded-lg w-64" 
+						onClick={onCancel} disabled={loading}>
 						{t("tournament.cancel")}
-					</Button>
+					</SketchyButton>
 
-					<Button
+					<SketchyButton
+						variant="double-line"
+						bg="#9991cdff"
+						hoverBg="#C8553E"
+						className="text-xl px-6 py-3 rounded-lg w-64" 
 						onClick={handleStartTournament}
 						disabled={!tournamentCanStart || loading || aliasChanged}
 					>
@@ -166,7 +176,7 @@ const TournamentSetup: React.FC<TournamentSetupProps> = ({ onCancel, onTournamen
 							: tournament.can_start
 							? t("tournament.start")
 							: t("tournament.start")}
-					</Button>
+					</SketchyButton>
 				</div>
 			</div>
 	);

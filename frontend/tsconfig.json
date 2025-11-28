@@ -9,7 +9,13 @@
     "moduleResolution": "Node",
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "types": ["vite/client", "some-other-global-lib"]
+    "types": [
+		"react",
+		"react-dom",
+		"vite/client",
+		"some-other-global-lib",
+		"vite-plugin-svgr/client"
+	]
   },
   "include": ["src"]
 }

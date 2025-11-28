@@ -15,6 +15,7 @@ import CenteredContainer from "../components/layout/CenteredContainer";
 import MiniLogin from "../components/game/MiniLogin";
 import { useTranslation } from "../shared/Translation";
 import { useApiFetch } from "../utils/apiFetch"
+import { ArcadeFrame } from "../components/layout/ArcadeFrame";
 
 type GameMode = "guest" | "login" | "ai";
 //	const { isLoggedIn, loading, refreshSession, tournament, setTournament } = useAuth();
@@ -201,10 +202,11 @@ const ControlsBox = () => (
 );
 
 return (
+	<ArcadeFrame>
 	<CenteredContainer>
 		{/* Mode selection */}
 		{!selectedMode && (
-		<div className="w-full max-w-lg bg-gray-900/90 rounded-xl p-8 text-white shadow-2xl">
+		<div className="w-full max-w-lg sketch-border rounded-xl p-8 bg-[#D54751] text-white shadow-2xl">
 		<ChooseGameMode
 			onSelectMode={handleModeSelect}
 			/>
@@ -327,6 +329,7 @@ return (
 	</div>
 	)}
 	</CenteredContainer>
+	</ArcadeFrame>
 );
 };
 

@@ -6,6 +6,8 @@ import { useAuth } from "../../context/AuthContext";
 import Button from "../ui/Button";
 import { useApiFetch } from "../../utils/apiFetch";
 import { useTranslation } from "../../shared/Translation";
+import { useRandomBorderRadius } from "../../hooks/useRandomBorderRadius";
+import SketchyButton from "../../components/ui/SketchyButtons";
 
 // Username: must start with letter, 6-12 chars, letters, numbers, underscore allowed
 const USERNAME_REGEX = /^[a-zA-Z][a-zA-Z0-9_]{5,11}$/;
@@ -296,6 +298,10 @@ const PlayerList: React.FC<PlayerListProps> = ({
 
 		const data = formData[role] || { username: "", password: "", alias: "" };
 		const fieldErrs = errors[role] || {};
+
+		//const userRef = useRandomBorderRadius<HTMLButtonElement>();
+		//const passRef = useRandomBorderRadius<HTMLButtonElement>();
+		//const aliasRef = useRandomBorderRadius<HTMLButtonElement>();
 	
 	return (
 		<div
@@ -311,7 +317,7 @@ const PlayerList: React.FC<PlayerListProps> = ({
 					)}
 				</span>
 			
-				<div className="flex flex-col sm:flex-row flex-wrap w-full gap-2 items-stretch sm:items-center">
+				<div className="flex flex-col sm:flex-row flex-wrap w-full gap-2 items-stretch sm:items-center font-body text-lg">
 					{/* Username */}
 					<input
 						type="text"
@@ -319,7 +325,7 @@ const PlayerList: React.FC<PlayerListProps> = ({
 						disabled={player.isSelf || isPlayerReady}
 						value={player.isSelf || isPlayerReady ? player.username : data.username}
 						onChange={(e) => updateField(role, "username", e.target.value)}
-						className={`p-2 border border-gray-700 rounded flex-1 min-w-0 w-full sm:w-auto
+						className={`bg-[#eeeee4] p-2 border-4 border-black rounded flex-1 min-w-0 w-full sm:w-auto
 							${fieldErrs.username ? "border-red-500" : "border-gray-300"}
 							${player.isSelf || isPlayerReady
 							? `${isPlayerReady ? "text-indigo-400" : "text-gray-400"} bg-gray-900 cursor-not-allowed`
@@ -334,7 +340,7 @@ const PlayerList: React.FC<PlayerListProps> = ({
 						disabled={player.isSelf || isPlayerReady}
 						value={player.isSelf || isPlayerReady ? "********" : data.password}
 						onChange={(e) => updateField(role, "password", e.target.value)}
-						className={`p-2 border border-gray-700 rounded flex-1 min-w-0 w-full sm:w-auto
+						className={`bg-[#eeeee4] p-2 border-4 border-black rounded flex-1 min-w-0 w-full sm:w-auto
 							${fieldErrs.password ? "border-red-500" : "border-gray-300"}
 							${player.isSelf || isPlayerReady
 							? `${isPlayerReady ? "text-indigo-400" : "text-gray-400"} bg-gray-900 cursor-not-allowed`
@@ -353,7 +359,7 @@ const PlayerList: React.FC<PlayerListProps> = ({
 							: data.alias || player.alias || ""
 						}
 						onChange={(e) => updateField(role, "alias", e.target.value)}
-						className={`p-2 border border-gray-700 rounded flex-1 min-w-0 w-full sm:w-auto 
+						className={`bg-[#eeeee4] p-2 border-4 border border-black rounded flex-1 min-w-0 w-full sm:w-auto
 							${fieldErrs.alias ? "border-red-500" : "border-gray-300"}
 							${isAliasLocked
 							? "bg-gray-900 cursor-not-allowed"
@@ -365,20 +371,23 @@ const PlayerList: React.FC<PlayerListProps> = ({
 
 					{/* Action Buttons (Other players) */}
 					{!player.isSelf && !isPlayerReady && (
-						<Button
+						<SketchyButton
+							variant="striped"
+							bg="#D9897A"
+							hoverBg="#C8553E"
 							onClick={() => handleAddPlayer(role, player)}
 							disabled={isCurrentlyLoading}
-							className="min-w-[6.3rem]"
+							className="flex-1 min-w-0 w-full sm:w-auto min-w-[6.3rem]"
 							>
 								{isCurrentlyLoading ? t("tournament.adding") : t("tournament.addPlayer")}
-						</Button>
+						</SketchyButton>
 					)}
 
 					{!player.isSelf && isPlayerReady && (
 						<Button
 							onClick={() => handleRemovePlayer(role)}
 							disabled={isCurrentlyLoading}
-							className="min-w-[6.3rem]"
+							className="sketch-border p-2 border border-gray-700 rounded flex-1 min-w-0 w-full sm:w-auto min-w-[6.3rem]"
 							>
 								{t("common.remove")}
 						</Button>
@@ -388,7 +397,10 @@ const PlayerList: React.FC<PlayerListProps> = ({
 					{player.isSelf && (
 						<div className="flex items-center gap-2">
 							{/* Set/Edit Alias button */}
-							<Button
+							<SketchyButton
+								variant="striped"
+								bg="#D9897A"
+								hoverBg="#C8553E"
 								onClick={() => {
 									if (isPlayerReady && !isEditingAlias) {
 										setIsEditingAlias(true);
@@ -400,7 +412,7 @@ const PlayerList: React.FC<PlayerListProps> = ({
 								}}
 								// Check completion against the dedicated logic now
 								disabled={isCurrentlyLoading}
-								className="min-w-[6.3rem]"
+								className="flex-1 min-w-0 w-full sm:w-auto min-w-[6.3rem]"
 								>
 								{isCurrentlyLoading
 								? t("common.saving")
@@ -409,7 +421,7 @@ const PlayerList: React.FC<PlayerListProps> = ({
 									: (isEditingAlias  || aliasChanged)
 										? t("tournament.saveAlias")
 										: t("tournament.editAlias")}
-							</Button>
+							</SketchyButton>
 						</div>
 					)}
 					</div>

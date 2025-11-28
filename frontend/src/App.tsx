@@ -19,7 +19,7 @@ import Friends from "./pages/Friends";
 import Profile from "./pages/ProfilePage";
 import SettingsPage from "./pages/SettingsPage";
 import ProtectedRoute from "./components/layout/ProtectedRoute";
-import background from "./assets/background.png";
+import collection from "./assets/doodles/collection.png";
 import Exit from "./pages/Exit";
 import NotFound from "./pages/NotFound";
 
@@ -39,43 +39,43 @@ import { useAuth } from "./context/AuthContext";
 // - Shows the Navbar unless user is on the LandingPage ("/")
 // - Wraps page content inside <main>
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-const location = useLocation();
-const { isLoggedIn } = useAuth(); // get login status
+	const location = useLocation();
+	const { isLoggedIn } = useAuth(); // get login status
 
-// Show navbar if user is logged in OR if not on landing page.
-const showNavbar = isLoggedIn || location.pathname !== "/";
+	// Show navbar if user is logged in OR if not on landing page.
+	const showNavbar = isLoggedIn || location.pathname !== "/";
 
-return (
-        <div className="relative h-full"> {/* CHANGE MIN-H-SCREEN TO H-FULL */}
-            {/* Background (unchanged) */}
-            <div
-                className="fixed inset-0 bg-black/50"
-                style={{
-                    backgroundImage: `url(${background})`,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                    backgroundAttachment: "fixed",
-                }}
-            />
+	return (
+		<div className="relative h-full">
+			{/* Repeating Background */}
+			<div
+				className="fixed inset-0"
+				style={{
+					backgroundImage: `url(${collection})`,
+					backgroundRepeat: "repeat",       // repeat the image
+					backgroundSize: "175px 175px",           // keeps original size
+					backgroundPosition: "top left",   // optional start position
+					backgroundAttachment: "fixed",    // stays fixed while scrolling
+					backgroundBlendMode: "overlay",   // optional overlay
+					backgroundColor: "rgba(17, 60, 67)",
+				}}
+			/>
 
-            {/* Foreground content: h-full is now 100% of viewport height */}
-            <div className="relative z-10 flex flex-col h-full p-6"> {/* CHANGE MIN-H-SCREEN TO H-FULL */}
+			{/* Foreground content */}
+			<div className="relative z-10 flex flex-col h-full p-6">
+				{showNavbar && (
+					<div className="mb-6">
+						<div className="rounded-xl overflow-hidden shadow-lg">
+							<Navbar />
+						</div>
+					</div>
+				)}
 
-                {showNavbar && (
-                    <div className="mb-6">
-                        <div className="rounded-xl overflow-hidden shadow-lg">
-                            <Navbar />
-                        </div>
-                    </div>
-                )}
-                
-                {/* Main area: MUST GROW to push the remaining space to the content */}
-                <main className="flex-grow py-0"> 
-                    {children}
-                </main>
-            </div>
-        </div>
-    );
+				{/* Main content area */}
+				<main className="flex-grow py-0">{children}</main>
+			</div>
+		</div>
+	);
 };
 
 //Protected routes means user must be logged in to access these routes
@@ -92,7 +92,7 @@ const protectedRoutes = [
 // - Defines all application routes and maps them to page components
 export default function App() {
   return (
-    <AuthProvider>
+	<AuthProvider>
 		<Router>
 			<TranslationProvider>
 				<LanguageSync />
