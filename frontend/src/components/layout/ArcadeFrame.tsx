@@ -23,7 +23,7 @@ export function ArcadeFrame({ children }: ArcadeFrameProps) {
       `}} />
 
       {/* Arcade Cabinet */}
-      <div className="relative" style={{ maxWidth: '2200px', width: '100%' }}>
+      <div className="relative" style={{ maxWidth: '1600px', width: '100%' }}>
         {/* Top title */}
         <div 
           className="relative mx-auto mb-4 p-6 border-4 border-[#FFFCC7] bg-[#D54751]"

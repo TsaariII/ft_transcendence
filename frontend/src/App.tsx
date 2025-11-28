@@ -53,11 +53,11 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 				style={{
 					backgroundImage: `url(${collection})`,
 					backgroundRepeat: "repeat",       // repeat the image
-					backgroundSize: "150px 150px",           // keeps original size
+					backgroundSize: "175px 175px",           // keeps original size
 					backgroundPosition: "top left",   // optional start position
 					backgroundAttachment: "fixed",    // stays fixed while scrolling
 					backgroundBlendMode: "overlay",   // optional overlay
-					backgroundColor: "rgba(77, 163, 148)",
+					backgroundColor: "rgba(17, 60, 67)",
 				}}
 			/>
 
