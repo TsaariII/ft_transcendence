@@ -1,6 +1,10 @@
 import React from "react";
 import { useTranslation } from "../../shared/Translation";
-import { useRandomBorderRadius } from "../../hooks/useRandomBorderRadius";
+import SketchyPanel from "../layout/SketchyPanel";
+import DoodleButton from "../ui/DoodleButton";
+import robot from "../../assets/doodles/robot.png";
+import suitcase from "../../assets/doodles/suitcase.png";
+import lock from "../../assets/doodles/lock.png";
 
 interface ChooseGameModeProps {
 onSelectMode: (mode: "guest" | "login" | "ai") => void;
@@ -9,46 +13,52 @@ onSelectMode: (mode: "guest" | "login" | "ai") => void;
 const ChooseGameMode: React.FC<ChooseGameModeProps> = ({ onSelectMode }) => {
 	const { t } = useTranslation();
 
-	const guestRef = useRandomBorderRadius<HTMLButtonElement>();
-	const loginRef = useRandomBorderRadius<HTMLButtonElement>();
-	const aiRef = useRandomBorderRadius<HTMLButtonElement>();
-
-return (
-	<div className="flex flex-col items-center space-y-4">
-	<h2 className="font-cupcake text-[#FFFCC7] text-3xl tracking-wider"
-              style={{ textShadow: `
-                  -3px 0 #000,
-                  3px 0 #000,
-                  0 3px #000,
-                  0 -3px #000,
-                  3px 3px #59322B,
-                 -3px -3px #59322B`
-               }}>
-		{t("game.mode.title")}
-	</h2>
-	<button
-		ref={guestRef}
-		className="sketch-border font-hand text-lg px-6 py-3 hover:bg-[#61bfbf] text-white font-semibold rounded-lg w-64"
-		onClick={() => onSelectMode("guest")}
-	>
-		{t("game.mode.guest")}
-	</button>
-	<button
-		ref={loginRef}
-		className="sketch-border font-hand text-lg px-6 py-3 hover:bg-[#ffb7bb] text-white font-semibold rounded-lg w-64"
-		onClick={() => onSelectMode("login")}
-	>
-		{t("game.mode.loginSecond")}
-	</button>
-	<button
-		ref={aiRef}
-		className="sketch-border font-hand text-lg px-6 py-3 hover:bg-[#bfbfe3] text-white font-semibold rounded-lg w-64"
-		onClick={() => onSelectMode("ai")}
-	>
-		{t("game.mode.ai")}
-	</button>
-	</div>
-);
+	return (
+		<div className="w-full text-white items-center">
+			{/* Heading text */}
+			<h2 className="text-4xl font-hand mb-6 text-center">
+				{t("game.mode.text")}
+			</h2>
+		<div className="p-4 grid grid-cols-1 md:grid-cols-3 gap-12">
+				<DoodleButton
+					imageSrc={suitcase}
+					width="w-56"
+					height="h-56"
+					scale="scale-150"
+					hoverText={t("game.mode.guest")}
+					strokeColor="#61bfbf"
+					strokeWidth={1.5}
+					animationDuration={200}
+					onClick={() => onSelectMode("guest")}
+				>
+				</DoodleButton>
+				<DoodleButton
+					imageSrc={lock}
+					width="w-56"
+					height="h-56"
+					scale="scale-150"
+					hoverText={t("game.mode.loginSecond")}
+					strokeColor="#61bfbf"
+					strokeWidth={1.5}
+					animationDuration={200}
+					onClick={() => onSelectMode("login")}
+				>
+				</DoodleButton>
+				<DoodleButton
+					imageSrc={robot}
+					width="w-56"
+					height="h-56"
+					scale="scale-125"
+					hoverText={t("game.mode.ai")}
+					strokeColor="#61bfbf"
+					strokeWidth={1.5}
+					animationDuration={200}
+					onClick={() => onSelectMode("ai")}
+				>
+				</DoodleButton>
+			</div>
+		</div>
+	);
 };
 
 export default ChooseGameMode;
