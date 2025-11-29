@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { useTranslation } from "../../shared/Translation";
+import SketchyButton from "../ui/SketchyButtons";
+import SketchyPanel from "../layout/SketchyPanel";
 
 interface MiniLoginProps {
 		gameId:string;
@@ -79,63 +81,97 @@ const MiniLogin: React.FC<MiniLoginProps> = ({gameId, onLoginSuccess, onCancel }
 	};
 
 	return (
-		<div className="w-full max-w-md bg-gray-900/90 rounded-xl p-6 text-white shadow-lg">
-			<h2 className="text-teal-400 text-2xl font-bold mb-2 text-center">{t("auth.loginAsPlayer2")}</h2>
-			<form onSubmit={handleSubmit} className="flex flex-col space-y-4">
-				{/* Username */}
-				<div>
-					<input
-						type="text"
-						placeholder={t("auth.username")}
-						value={username}
-						onChange={(e) => setUsername(e.target.value)}
-						className={`w-full rounded-md border border-gray-700 bg-gray-800/60 px-3 py-2 placeholder-gray-400
-						${errors.username ? "border-red-500" : "border-gray-700"}
-						focus:outline-none focus:ring-2 focus:ring-blue-500`}
-					/>
-					{errors.username && (
-						<p className="text-xs text-red-400 mt-1">{errors.username}</p>
-					)}
-				</div>
-				
-				{/* Password */}
-				<div>
-					<input
-						type="password"
-						placeholder={t("auth.password")}
-						value={password}
-						onChange={(e) => setPassword(e.target.value)}
-						className={`w-full rounded-md border border-gray-700 bg-gray-800/60 px-3 py-2 placeholder-gray-400 
-							${errors.password ? "border-red-500" : "border-gray-700"}
-							focus:outline-none focus:ring-2 focus:ring-blue-500`}
-					/>
-					{errors.password && (
-						<p className="text-xs text-red-400 mt-1">{errors.password}</p>
-					)}
-				</div>
-				
-				{/* Backend error */}
-				{errors.general && (
-					<div className="text-red-400 text-sm">{errors.general}</div>
-				)}
+		<div className="fixed inset-0 z-50 flex items-center justify-center">
+			<div
+				className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+				onClick={onCancel}
+			/>
+			<SketchyPanel
+				className="relative w-[90%] max-w-[22rem] sm:max-w-[24rem] md:max-w-[28rem] lg:max-w-[32rem] 
+						xl:max-w-[34rem] min-h-[20rem] sm:min-h-[22rem] md:min-h-[24rem] lg:min-h-[26rem]"
+				bg="#6C0E42"
+				stroke="#FFFCC7"
+				padding="0.25rem"
+				borderRadius="20px"
+			>
+				<div className="text-[#FFFCC7]">
+					<div className="px-12 pt-16">
+						<h2 className="font-cupcake text-4xl text-center"
+							style={{
+								textShadow: `
+								-3px 0 #000,
+								3px 0 #000,
+								0 3px #000,
+								0 -3px #000`,
+							}}
+						>
+							{t("auth.loginAsPlayer2")}
+						</h2>
+					</div>
 
-				<div className="flex justify-between items-center">
-					<button
-						type="submit"
-						disabled={loading}
-						className="px-6 py-2 bg-indigo-600 rounded hover:bg-indigo-700 transition"
-					>
-						{loading ? t("auth.loggingIn") : t("auth.logIn")}
-					</button>
-					<button
-						type="button"
-						onClick={onCancel}
-						className="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600 transition"
-					>
-						{t("common.cancel")}
-					</button>
+					<form className="pl-12 pr-14 pb-10 pt-12 space-y-6 text-2xl" onSubmit={handleSubmit}>
+						{/* Username */}
+						<div>
+							<input
+								type="text"
+								placeholder={t("auth.placeholder.username")}
+								value={username}
+								onChange={(e) => setUsername(e.target.value)}
+								className="w-full h-[4rem] sketch-border border-[#FFFCC7] font-body
+										bg-gray-800/60 px-3 py-2 placeholder-gray-400 focus:outline-none
+										focus:ring-4 focus:ring-[#3F839C]"
+								required
+							/>
+							{errors.username && (
+								<p className="text-lg text-[#FFFCC7] mt-3 pl-2">{errors.username}</p>
+							)}
+						</div>
+
+						{/* Password */}
+						<div>
+							<input
+								type="password"
+								placeholder={t("auth.placeholder.password")}
+								value={password}
+								onChange={(e) => setPassword(e.target.value)}
+								className="w-full h-[4rem] sketch-border border-[#FFFCC7] font-body
+										bg-gray-800/60 px-3 py-2 placeholder-gray-400 focus:outline-none
+										focus:ring-4 focus:ring-[#3F839C]"
+								required
+							/>
+							{errors.password && (
+								<p className="text-lg text-[#FFFCC7] mt-3 pl-2">{errors.password}</p>
+							)}
+						</div>
+
+						{/* Backend error */}
+						{error && <p className="text-lg text-[#FFFCC7] mt-3 pl-2">{error}</p>}
+
+						{/* Buttons */}
+						<div className="flex justify-between items-center pl-8 pr-8 pt-10">
+							<SketchyButton
+								variant="shadow"
+								className="text-xl"
+								bg="#7C5483"
+								hoverBg="#3A1C4B"
+								type="button"
+								onClick={onCancel}
+							>
+								{t("common.close")}
+							</SketchyButton>
+							<SketchyButton
+								variant="shadow"
+								className="text-xl"
+								bg="#3F839C"
+								hoverBg="#125a74"
+								type="submit"
+							>
+								{loading ? t("auth.loggingIn") : t("auth.logIn")}
+							</SketchyButton>
+						</div>
+					</form>
 				</div>
-			</form>
+			</SketchyPanel>
 		</div>
 	);
 };
