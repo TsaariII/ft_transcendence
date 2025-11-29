@@ -6,6 +6,7 @@ interface AnimatedTextProps {
 	strokeWidth?: number;
 	duration?: number;
 	className?: string;
+	fontSize?: string;
 }
 
 export default function AnimatedText({
@@ -14,6 +15,7 @@ export default function AnimatedText({
 	strokeWidth = 2,
 	duration = 2000,
 	className = "",
+	fontSize = "text-xl",
 }: AnimatedTextProps) {
 	if (!text) return null;
 
@@ -21,7 +23,7 @@ export default function AnimatedText({
 	const letterDuration = duration / letters.length;
 
 	return (
-		<div className={`flex justify-center ${className} font-hand text-xl`}
+		<div className={`flex justify-center ${className} font-hand ${fontSize}`}
 			style={{ whiteSpace: "pre" }}
 		>
 			{letters.map((char, i) => (

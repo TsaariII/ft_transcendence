@@ -3,14 +3,15 @@ import AnimatedText from "../layout/AnimatedText";
 
 interface DoodleBoxProps {
 	icon?: React.ReactNode; // icon component or image
-	imageSrc?: string; // optional imported image
+	imageSrc?: string; // imported image
 	onClick?: () => void;
 	width?: string; // tailwind width class e.g., "w-32"
 	height?: string; // tailwind height class e.g., "h-32"
 	scale?: string;
 	rotate?: string; // tailwind rotate class e.g., "rotate-2"
-	borderRadius?: string; // tailwind rounded class or custom e.g., "rounded-xl"
+	borderRadius?: string; // tailwind rounded class or custom
 	hoverText?: string; // text to animate on hover
+	hoverTextSize?: string;
 	strokeColor?: string; // color of the animated text stroke
 	strokeWidth?: number;
 	animationDuration?: number; // duration of the text animation
@@ -26,6 +27,7 @@ const DoodleBox: React.FC<DoodleBoxProps> = ({
 	rotate = "rotate-0",
 	borderRadius = "rounded-xl",
 	hoverText,
+	hoverTextSize = "text-2xl",
 	strokeColor = "yellow",
 	strokeWidth = 2,
 	animationDuration = 2000,
@@ -51,12 +53,13 @@ const DoodleBox: React.FC<DoodleBoxProps> = ({
 
 			{/* Show AnimatedText on hover */}
 			{hoverText && isHovered && (
-				<div className="mt-2 w-full">
+				<div className="w-full">
 					<AnimatedText
 						text={hoverText}
 						strokeColor={strokeColor}
 						strokeWidth={strokeWidth}
 						duration={animationDuration}
+						fontSize={hoverTextSize}
 						className="w-full"
 					/>
 				</div>
