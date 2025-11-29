@@ -5,6 +5,7 @@ import TournamentSetup from "../components/tournament/TournamentSetup";
 import GameSettings from "../components/game/GameSettings";
 import { TBD_PLAYER } from "../../shared/constants";
 import CenteredContainer from "../components/layout/CenteredContainer";
+import SketchyButton from "../components/ui/SketchyButtons";
 import { ArcadeFrame } from "../components/layout/ArcadeFrame";
 import type { TournamentState, Match } from "../types/tournament";
 import Button from "../components/ui/Button";
@@ -15,6 +16,7 @@ import { CreateTournamentPayload,
 		TournamentResetPayload,
 		} from "../../shared/payloads";
 import { useTranslation } from "../shared/Translation";
+import tournamentPodium from "../assets/doodles/tournamentPodium.png"
 
 const TournamentLobby: React.FC = () => {
 	const { t, lang } = useTranslation();
@@ -284,110 +286,120 @@ const TournamentLobby: React.FC = () => {
 		tournament.bracket.length > 0;
 
 	return (
-		<ArcadeFrame>
-		<CenteredContainer>
-			<div className="flex justify-center px-6 py-6">
-				{!showSettingsModal && !currentGame && (
-				<div className="w-full max-w-4xl sketch-border p-6 text-4xl text-black">
-					<TournamentHeader />
+		<ArcadeFrame title={t("tournament.title")}>
+			<CenteredContainer>
+				<div className="flex justify-center px-6">
+					{!showSettingsModal && !currentGame && (
+					<div className="w-full max-w-4xl">
+						{/* Start New Tournament Button - Shown when no tournament exists */}
+						{!tournament && (
+							<>
+							<img
+								src={tournamentPodium}
+								className="mx-auto w-80 mb-6 mt-8"
+							/>
+							<div className="pb-6 font-cupcake sm:text-xl md:text-3xl text-[#FFFCC7]">
+								<button
+									className="hover:text-[#3F839C]"
+									style={{ textShadow: `
+										-3px 0 #000,
+										3px 0 #000,
+										0 3px #000,
+										0 -3px #000`}}
+									onClick={handleCreateTournament}
+								>
+									{t("tournament.startNew")}
+								</button>
+							</div>
+							</>
+						)}
 
-					{/* Start New Tournament Button - Shown when no tournament exists */}
-					{!tournament && (
-						<div className="flex justify-center mt-8">
-							<button  onClick={handleCreateTournament}
-							className="sketch-border font-hand text-lg px-6 py-3 hover:bg-[#61bfbf] text-white font-semibold rounded-lg w-64"
-							>
-								{t("tournament.startNew")}
-							</button>
-						</div>
-					)}
+						{/* Tournament Setup - Shown when tournament status is "waiting" */}
+						{setupInProgress && (
+							<TournamentSetup
+								onCancel={handleCancelTournament}
+								onTournamentStarted={() => {}} 
+							/>
+						)}
 
-					{/* Tournament Setup - Shown when tournament status is "waiting" */}
-					{setupInProgress && (
-						<TournamentSetup
-							onCancel={handleCancelTournament}
-							onTournamentStarted={() => {}} 
-						/>
-					)}
-
-					{/* Tournament Bracket - Shown when tournament status is "ongoing" */}
-					{bracketVisible &&(
-						<TournamentBracket
-							onStartMatch={handleStartTournamentGame}
-							onCancel={handleCancelTournament}
-							onClose={closeTournament}
-						/>
-					)}
-				</div>
-			)}
-
-					{/* Game settings */}
-					{showSettingsModal && (
-						<div className="w-full max-w-lg bg-gray-900/90 rounded-xl p-8 text-white shadow-2xl">
-						<GameSettings
-							onConfirm={handleSettingsConfirm}
-							onBack={() => {
-								setShowSettingsModal(false);
-								setCurrentGame(null);
-							}}
-						/>
+						{/* Tournament Bracket - Shown when tournament status is "ongoing" */}
+						{bracketVisible &&(
+							<TournamentBracket
+								onStartMatch={handleStartTournamentGame}
+								onCancel={handleCancelTournament}
+								onClose={closeTournament}
+							/>
+						)}
 					</div>
-					)}
+				)}
 
-					{/* Start Game button */}
-					{currentGame && gameSettings && !gameStarted && (
-						<div className="w-full max-w-lg bg-gray-900/90 rounded-xl p-8 text-white shadow-2xl flex flex-col items-center space-y-4">
-							<button
-								onClick={() => startTournamentGame(currentGame!)}
-								className="px-10 py-4 text-xl font-bold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors"
-							>
-								{t("game.action.start")}
-							</button>
-							<button
-								onClick={() => { setGameSettings(null);
+						{/* Game settings */}
+						{showSettingsModal && (
+							<div className="w-full max-w-lg bg-gray-900/90 rounded-xl p-8 text-white shadow-2xl">
+							<GameSettings
+								onConfirm={handleSettingsConfirm}
+								onBack={() => {
+									setShowSettingsModal(false);
 									setCurrentGame(null);
 								}}
-									className="px-6 py-2 text-sm font-medium text-gray-800 bg-gray-300 rounded-lg hover:bg-gray-400 transition-colors"
-							>
-								{t("game.action.back")}
-							</button>
+							/>
 						</div>
-					)}
+						)}
 
-					
-				{/* Pong Game Iframe*/}
-				{currentGame && activeGameId && player1Token && gameSettings &&(
-				<div
-					className="
-						relative
-						bg-gray-900 p-4 rounded-xl shadow-2xl shadow-gray-700/80
-						mx-auto flex justify-center items-center
-						min-w-[900px] min-h-[600px]
-					"
-					>
+						{/* Start Game button */}
+						{currentGame && gameSettings && !gameStarted && (
+							<div className="w-full max-w-lg bg-gray-900/90 rounded-xl p-8 text-white shadow-2xl flex flex-col items-center space-y-4">
+								<button
+									onClick={() => startTournamentGame(currentGame!)}
+									className="px-10 py-4 text-xl font-bold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors"
+								>
+									{t("game.action.start")}
+								</button>
+								<button
+									onClick={() => { setGameSettings(null);
+										setCurrentGame(null);
+									}}
+										className="px-6 py-2 text-sm font-medium text-gray-800 bg-gray-300 rounded-lg hover:bg-gray-400 transition-colors"
+								>
+									{t("game.action.back")}
+								</button>
+							</div>
+						)}
+
+						
+					{/* Pong Game Iframe*/}
+					{currentGame && activeGameId && player1Token && gameSettings &&(
 					<div
-						className="relative overflow-hidden"
-						style={{
-						width: "100%",
-						maxWidth: "1280px",
-						aspectRatio: "16 / 9",
-						}}
-					>
-						<iframe
+						className="
+							relative
+							bg-gray-900 p-4 rounded-xl shadow-2xl shadow-gray-700/80
+							mx-auto flex justify-center items-center
+							min-w-[900px] min-h-[600px]
+						"
+						>
+						<div
+							className="relative overflow-hidden"
+							style={{
+							width: "100%",
+							maxWidth: "1280px",
+							aspectRatio: "16 / 9",
+							}}
+						>
+							<iframe
 
-							ref={iframeRef}
-							// Attach the focus handler to the iframe's onLoad event
-							onLoad={handleIframeLoad} 
-							src={`https://localhost:4004/pong_game/index.html?gameId=${activeGameId}&player1Token=${player1Token}&player2Token=${player2Token}&gameSettings=${encodeURIComponent(JSON.stringify(gameSettings))}&lang=${encodeURIComponent(lang)}`}
-							// The iframe is absolutely positioned to fill the responsive container
-							className="absolute inset-0 w-full h-full border-none rounded-lg"
-							scrolling="no"
-						/>
+								ref={iframeRef}
+								// Attach the focus handler to the iframe's onLoad event
+								onLoad={handleIframeLoad} 
+								src={`https://localhost:4004/pong_game/index.html?gameId=${activeGameId}&player1Token=${player1Token}&player2Token=${player2Token}&gameSettings=${encodeURIComponent(JSON.stringify(gameSettings))}&lang=${encodeURIComponent(lang)}`}
+								// The iframe is absolutely positioned to fill the responsive container
+								className="absolute inset-0 w-full h-full border-none rounded-lg"
+								scrolling="no"
+							/>
+						</div>
 					</div>
+					)}
 				</div>
-				)}
-			</div>
-		</CenteredContainer>
+			</CenteredContainer>
 		</ArcadeFrame>
 	);
 };

@@ -132,10 +132,10 @@ const TournamentSetup: React.FC<TournamentSetupProps> = ({ onCancel, onTournamen
 			allPlayersReady;
 
 	return (
-			<div className="mt-3 space-y-6">
+			<div className="mt-3 space-y-24">
 				{setupInProgress && (
 				<div>
-					<p className="font-body text-2xl text-gray-300 mb-4 ml-8">{t("tournament.players")}</p>
+					<p className="font-hand text-4xl text-[#FFFCC7] mb-16 ml-8">{t("tournament.players")}</p>
 
 					<PlayerList
 						tournament={tournament}
@@ -145,20 +145,20 @@ const TournamentSetup: React.FC<TournamentSetupProps> = ({ onCancel, onTournamen
 				</div>
 				)}
 
-				<div className="flex gap-8 mt-6 ml-7">
+				<div className="flex gap-24 mt-6 ml-7">
 					<SketchyButton
-						variant="double-line"
-						bg="#61bfbf"
-						hoverBg="#C8553E"
+						variant="shadow"
+						bg="#7C5483"
+						hoverBg="#3A1C4B"
 						className="text-xl px-6 py-3 rounded-lg w-64" 
 						onClick={onCancel} disabled={loading}>
 						{t("tournament.cancel")}
 					</SketchyButton>
 
 					<SketchyButton
-						variant="double-line"
-						bg="#9991cdff"
-						hoverBg="#C8553E"
+						variant="shadow"
+						bg="#3F839f"
+						hoverBg="#125a74"
 						className="text-xl px-6 py-3 rounded-lg w-64" 
 						onClick={handleStartTournament}
 						disabled={!tournamentCanStart || loading || aliasChanged}

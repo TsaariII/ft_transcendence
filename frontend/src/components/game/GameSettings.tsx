@@ -22,7 +22,7 @@ const GameSettings: React.FC<GameSettingsProps> = ({ onConfirm, onBack }) => {
 	const [powerUp, setPowerUp] = useState(false);
 
 	return (
-		<div className="max-w-xl mx-auto p-6 font-body text-lg text-white flex flex-col space-y-4">
+		<div className="max-w-xl mx-auto p-4 font-body text-lg text-white flex flex-col space-y-4">
 			<div>
 				<label>{t("game.settings.ballSpeed")}: {ballSpeed}</label>
 					<input
@@ -111,20 +111,20 @@ const GameSettings: React.FC<GameSettingsProps> = ({ onConfirm, onBack }) => {
 			<div className="flex justify-between mt-4">
 				{onBack && (
 				<SketchyButton
-					variant="striped"
-					bg="#D9897A"
-					hoverBg="#C8553E"
-					className="text-xl px-6 py-3 w-32" 
+					variant="shadow"
+					bg="#7C5483"
+					hoverBg="#3A1C4B"
+					className="text-xl w-32"
 					onClick={onBack}
 				>
 					{t("game.action.back")}
 				</SketchyButton>
 				)}
 				<SketchyButton
-					variant="striped"
-					bg="#D9897A"
-					hoverBg="#C8553E"
-					className="text-xl px-6 py-3 w-32" 
+					variant="shadow"
+					bg="#3F839C"
+					hoverBg="#125a74"
+					className="text-xl w-32" 
 					onClick={() =>
 						onConfirm({ ballSpeed, paddleSize, paddleSpeed, maxScore, powerUp })
 					}
