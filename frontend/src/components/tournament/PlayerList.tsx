@@ -305,7 +305,7 @@ const PlayerList: React.FC<PlayerListProps> = ({
 		<div
 			key={role}
 			className="flex flex-col gap-1">
-			< div className="flex items-start gap-2">
+			< div className="mt-2 flex items-start gap-2">
 			 {/* ✔ icon */}
 				<span className="w-5 h-5 flex-shrink-0 flex items-center justify-center mt-3">
 					{isPlayerReady && (
@@ -323,11 +323,12 @@ const PlayerList: React.FC<PlayerListProps> = ({
 						disabled={player.isSelf || isPlayerReady}
 						value={player.isSelf || isPlayerReady ? player.username : data.username}
 						onChange={(e) => updateField(role, "username", e.target.value)}
-						className={`bg-[#eeeee4] p-2 border-4 border-black rounded flex-1 min-w-0 w-full sm:w-auto
+						className={`w-full h-[3.5rem] sketch-border px-3 py-2 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-[#3F839C]
+							p-2 flex-1 min-w-0 w-full sm:w-auto
 							${fieldErrs.username ? "border-red-500" : "border-gray-300"}
 							${player.isSelf || isPlayerReady
-							? `${isPlayerReady ? "text-indigo-400" : "text-gray-400"} bg-gray-900 cursor-not-allowed`
-							: "bg-gray-900 text-white"
+							? `${isPlayerReady ? "text-indigo-400" : "text-gray-400"} bg-[#300D42] cursor-not-allowed`
+							: "bg-[#300D42] text-white"
 						}`}
 					/>
 
@@ -338,11 +339,13 @@ const PlayerList: React.FC<PlayerListProps> = ({
 						disabled={player.isSelf || isPlayerReady}
 						value={player.isSelf || isPlayerReady ? "********" : data.password}
 						onChange={(e) => updateField(role, "password", e.target.value)}
-						className={`bg-[#eeeee4] p-2 border-4 border-black rounded flex-1 min-w-0 w-full sm:w-auto
+						className={`w-full h-[3.5rem] sketch-border border-[#FFFCC7] bg-gray-800/60 px-3 py-2
+							placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-[#3F839C]
+							p-2 flex-1 min-w-0 w-full sm:w-auto
 							${fieldErrs.password ? "border-red-500" : "border-gray-300"}
 							${player.isSelf || isPlayerReady
-							? `${isPlayerReady ? "text-indigo-400" : "text-gray-400"} bg-gray-900 cursor-not-allowed`
-							: "bg-gray-900 text-white"
+							? `${isPlayerReady ? "text-indigo-400" : "text-gray-400"} bg-[#300D42] cursor-not-allowed`
+							: "bg-[#300D42] text-white"
 						}`}
 					/>
 
@@ -357,11 +360,13 @@ const PlayerList: React.FC<PlayerListProps> = ({
 							: data.alias || player.alias || ""
 						}
 						onChange={(e) => updateField(role, "alias", e.target.value)}
-						className={`bg-[#eeeee4] p-2 border-4 border border-black rounded flex-1 min-w-0 w-full sm:w-auto
+						className={`w-full h-[3.5rem] sketch-border border-[#FFFCC7] px-3 py-2
+							placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-[#3F839C]
+							p-2 flex-1 min-w-0 w-full sm:w-auto
 							${fieldErrs.alias ? "border-red-500" : "border-gray-300"}
 							${isAliasLocked
-							? "bg-gray-900 cursor-not-allowed"
-							: "bg-gray-900"
+							? "bg-[#300D42] cursor-not-allowed"
+							: "bg-[#300D42]"
 							}
 							${isPlayerReady ? "text-indigo-400" : "text-white"}
 						`}
@@ -370,12 +375,12 @@ const PlayerList: React.FC<PlayerListProps> = ({
 					{/* Action Buttons (Other players) */}
 					{!player.isSelf && !isPlayerReady && (
 						<SketchyButton
-							variant="striped"
+							variant="shadow"
 							bg="#D9897A"
 							hoverBg="#C8553E"
 							onClick={() => handleAddPlayer(role, player)}
 							disabled={isCurrentlyLoading}
-							className="flex-1 min-w-0 w-full sm:w-auto min-w-[6.3rem]"
+						
 							>
 								{isCurrentlyLoading ? t("tournament.adding") : t("tournament.addPlayer")}
 						</SketchyButton>
@@ -396,7 +401,7 @@ const PlayerList: React.FC<PlayerListProps> = ({
 						<div className="flex items-center gap-2">
 							{/* Set/Edit Alias button */}
 							<SketchyButton
-								variant="striped"
+								variant="shadow"
 								bg="#D9897A"
 								hoverBg="#C8553E"
 								onClick={() => {
@@ -410,7 +415,6 @@ const PlayerList: React.FC<PlayerListProps> = ({
 								}}
 								// Check completion against the dedicated logic now
 								disabled={isCurrentlyLoading}
-								className="flex-1 min-w-0 w-full sm:w-auto min-w-[6.3rem]"
 								>
 								{isCurrentlyLoading
 								? t("common.saving")
