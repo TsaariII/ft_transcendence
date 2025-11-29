@@ -2,7 +2,7 @@ import React, { useState } from "react";
 
 interface SketchyButtonProps {
 	children: React.ReactNode;
-	variant?: "striped" | "double-line" | "3d";
+	variant?: "striped" | "double-line" | "3d" | "shadow";
 	className?: string;
 	bg?: string;        // base fill color
 	hoverBg?: string;   // hover fill color
@@ -23,7 +23,7 @@ const SketchyButton: React.FC<SketchyButtonProps> = ({
 	const fillColor = isHovered ? hoverBg : bg;
 
 	const baseStyles = `
-		relative inline-flex items-center justify-center px-6 py-3
+		relative inline-flex items-center justify-center px-6 py-2
 		font-medium cursor-pointer transition-transform active:scale-95
 		font-body text-sm
 		${className}
@@ -53,13 +53,13 @@ const SketchyButton: React.FC<SketchyButtonProps> = ({
 				onMouseLeave={() => setIsHovered(false)}
 				style={{
 					background: fillColor,
-					borderRadius: "10px",
+					borderRadius: "12px",
 					boxShadow: `
-						2px 2px 0px 0px #000,
-						4px 4px 0px 0px #000,
-						-1px -1px 0px 0px #000 inset
+						2px 2px 0px 0px #412f2c,
+						4px 4px 0px 0px #412f2c,
+						-1px -1px 0px 0px #412f2c inset
 					`,
-					border: "2px solid #FFFCC7",
+					border: "3px solid #FFFCC7",
 				}}
 			>
 				{children}
