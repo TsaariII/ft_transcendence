@@ -255,42 +255,43 @@ const HomePage: React.FC = () => {
 						</div>
 					)}
 
-					<img
-						src={collection}
-					/>
-
 					{!isLoggedIn && (
-						<div className="flex gap-10 font-cupcake sm:text-xl md:text-3xl text-[#FFFCC7]">
-							<button
-								className="hover:text-[#3F839C]"
-								style={{ textShadow: `
-									-3px 0 #000,
-									3px 0 #000,
-									0 3px #000,
-									0 -3px #000`}}
-								onClick={() => {
-									setModalMode("register");
-									setIsModalOpen(true);
-								}}
-							>
-								{t("home.cta.register")}
-							</button>
+						<>
+							<img
+								src={collection}
+							/>
+							<div className="flex gap-10 font-cupcake sm:text-xl md:text-3xl text-[#FFFCC7]">
+								<button
+									className="hover:text-[#3F839C]"
+									style={{ textShadow: `
+										-3px 0 #000,
+										3px 0 #000,
+										0 3px #000,
+										0 -3px #000`}}
+									onClick={() => {
+										setModalMode("register");
+										setIsModalOpen(true);
+									}}
+								>
+									{t("home.cta.register")}
+								</button>
 
-							<button
-								className="hover:text-[#3F839C]"
-								style={{ textShadow: `
-									-3px 0 #000,
-									3px 0 #000,
-									0 3px #000,
-									0 -3px #000`}}
-								onClick={() => {
-									setModalMode("login");
-									setIsModalOpen(true);
-								}}
-							>
-								{t("home.cta.login")}
-							</button>
-						</div>
+								<button
+									className="hover:text-[#3F839C]"
+									style={{ textShadow: `
+										-3px 0 #000,
+										3px 0 #000,
+										0 3px #000,
+										0 -3px #000`}}
+									onClick={() => {
+										setModalMode("login");
+										setIsModalOpen(true);
+									}}
+								>
+									{t("home.cta.login")}
+								</button>
+							</div>
+						 </>
 					)}
 				</div>
 				
@@ -301,13 +302,11 @@ const HomePage: React.FC = () => {
 							imageSrc={trophy2}
 							width="w-56"
 							height="h-56"
-							scale="scale-90"
+							scale="scale-80"
 							onClick={() => navigate("/tournament")}
-							rotate="rotate-1.5"
-							borderRadius="rounded-[18px_28px_15px_22px]"
-							hoverText="Tournament"
+							hoverText={t("home.icon.tournament")}
+							hoverTextSize="text-3xl"
 							strokeColor="#61bfbf"
-							strokeWidth={1.5}
 							animationDuration={200}
 						/>
 
@@ -318,11 +317,9 @@ const HomePage: React.FC = () => {
 							height="h-56"
 							scale="scale-150"
 							onClick={() => navigate("/game")}
-							rotate="-rotate-2"
-							borderRadius="rounded-[25px_15px_28px_18px]"
-							hoverText="Pong"
+							hoverText={t("home.icon.pong")}
+							hoverTextSize="text-2xl"
 							strokeColor="#61bfbf"
-							strokeWidth={1.5}
 							animationDuration={200}
 						/>
 						{/* Leaderboard */}
@@ -331,11 +328,9 @@ const HomePage: React.FC = () => {
 							width="w-56"
 							height="h-56"
 							onClick={() => navigate("/leaderboard")}
-							rotate="-rotate-1"
-							borderRadius="rounded-[15px_24px_18px_20px]"
-							hoverText="Leaderboard"
+							hoverText={t("home.icon.leaderboard")}
+							hoverTextSize="text-3xl"
 							strokeColor="#61bfbf"
-							strokeWidth={1.5}
 							animationDuration={200}
 						/>
 					</div>
