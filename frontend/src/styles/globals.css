@@ -41,12 +41,12 @@ body, html, #root {
 .sketch-border {
 padding: 0.7rem 0.7rem;
 	margin: 0 0.5rem;
-	border: 2px solid;
+	border: 1px solid;
 	
-	border-top-left-radius: var(--tl-x, 20px) var(--tl-y, 8px);
-	border-top-right-radius: var(--tr-x, 12px) var(--tr-y, 22px);
-	border-bottom-right-radius: var(--br-x, 25px) var(--br-y, 10px);
-	border-bottom-left-radius: var(--bl-x, 10px) var(--bl-y, 23px);
+	border-top-left-radius: var(--tl-x, 7px) var(--tl-y, 10px);
+	border-top-right-radius: var(--tr-x, 11px) var(--tr-y, 8px);
+	border-bottom-right-radius: var(--br-x, 10px) var(--br-y, 7px);
+	border-bottom-left-radius: var(--bl-x, 7px) var(--bl-y, 10px);
 	
 	box-shadow: 1px 1px 0px currentColor, -1px -1px 0px currentColor;
 	transition: all 0.2s ease;
