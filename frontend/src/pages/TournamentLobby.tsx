@@ -6,6 +6,7 @@ import GameSettings from "../components/game/GameSettings";
 import { TBD_PLAYER } from "../../shared/constants";
 import CenteredContainer from "../components/layout/CenteredContainer";
 import SketchyButton from "../components/ui/SketchyButtons";
+import DoodleButton from "../components/ui/DoodleButton";
 import { ArcadeFrame } from "../components/layout/ArcadeFrame";
 import type { TournamentState, Match } from "../types/tournament";
 import Button from "../components/ui/Button";
@@ -288,38 +289,34 @@ const TournamentLobby: React.FC = () => {
 	return (
 		<ArcadeFrame title={t("tournament.title")}>
 			<CenteredContainer>
-				<div className="flex justify-center px-6">
+				<div className="flex justify-center px-6 w-full">
 					{!showSettingsModal && !currentGame && (
-					<div className="w-full max-w-4xl">
+					<div className="w-full max-w-4xl flex justify-center">
 						{/* Start New Tournament Button - Shown when no tournament exists */}
 						{!tournament && (
-							<>
-							<img
-								src={tournamentPodium}
-								className="mx-auto w-80 mb-6 mt-8"
+						<div className="mt-28">
+							<DoodleButton
+								imageSrc={tournamentPodium}
+								width="w-80"
+								height="h-80"
+								hoverText={t("tournament.startNew")}
+								hoverTextSize="text-3xl"
+								strokeColor="#61bfbf"
+								strokeWidth={1.5}
+								animationDuration={200}
+								onClick={handleCreateTournament}
 							/>
-							<div className="pb-6 font-cupcake sm:text-xl md:text-3xl text-[#FFFCC7]">
-								<button
-									className="hover:text-[#3F839C]"
-									style={{ textShadow: `
-										-3px 0 #000,
-										3px 0 #000,
-										0 3px #000,
-										0 -3px #000`}}
-									onClick={handleCreateTournament}
-								>
-									{t("tournament.startNew")}
-								</button>
-							</div>
-							</>
+						</div>
 						)}
 
 						{/* Tournament Setup - Shown when tournament status is "waiting" */}
 						{setupInProgress && (
+						<div className="w-full max-w-4xl min-w-0">
 							<TournamentSetup
 								onCancel={handleCancelTournament}
 								onTournamentStarted={() => {}} 
 							/>
+						</div>
 						)}
 
 						{/* Tournament Bracket - Shown when tournament status is "ongoing" */}
