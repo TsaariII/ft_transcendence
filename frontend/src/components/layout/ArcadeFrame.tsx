@@ -87,43 +87,6 @@ export function ArcadeFrame({ children, title = "PONG" }: ArcadeFrameProps) {
 				</div>
 			</div>
 		</div>
-
-		{/* Bottom control panel
-		<div
-			className="relative mx-auto mt-4 p-4 border-4 border-[#FFFCC7] bg-[#6C0E42]"
-			style={{
-				width: '90%',
-				borderRadius: '60px 60px 60px 60px',
-				boxShadow: '4px 5px 0 rgba(89,50,43,0.8)',
-			}}
-		>
-			{/* Buttons
-			<div className="flex flex-col items-center gap-2">
-				<div className="flex gap-4">
-					<div
-						className="w-12 h-12 rounded-full border-3 border-white bg-[#55ffaa]"
-						style={{ 
-							boxShadow: 'inset 0 -4px 8px rgba(0,0,0,0.3), 0 2px 4px rgba(255,255,255,0.3)',
-							borderRadius: '50% 48% 52% 50%'
-						}}
-					/>
-					<div
-						className="w-12 h-12 rounded-full border-3 border-white bg-[#ff5555]"
-						style={{
-							boxShadow: 'inset 0 -4px 8px rgba(0,0,0,0.3), 0 2px 4px rgba(255,255,255,0.3)',
-							borderRadius: '50% 48% 52% 50%'
-						}}
-					/>
-					<div
-						className="w-12 h-12 rounded-full border-3 border-white bg-[#55ffaa]"
-						style={{
-							boxShadow: 'inset 0 -4px 8px rgba(0,0,0,0.3), 0 2px 4px rgba(255,255,255,0.3)',
-							borderRadius: '50% 48% 52% 50%'
-						}}
-					/>
-				</div>
-			</div>
-		</div> */}
 	</div>
 	</div>
 	);
