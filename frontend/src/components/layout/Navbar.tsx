@@ -16,7 +16,7 @@ const Navbar: React.FC = () => {
 		>
 			<Link
 				to="/"
-				className="p-2 font-cupcake text-[#FFFCC7] text-xl tracking-wider"
+				className="p-2 font-cupcake text-[#FFFCC7] text-lg tracking-wider"
 				style={{ textShadow: `
 					-3px 0 #000,
 					3px 0 #000`
@@ -26,7 +26,7 @@ const Navbar: React.FC = () => {
 			</Link>
 			<Link
 				to="/game"
-				className="p-2 font-cupcake text-xl tracking-wider"
+				className="p-1 font-cupcake text-lg tracking-wider"
 				style={{ textShadow: `
 					-3px 0 #000,
 					3px 0 #000`
@@ -36,7 +36,7 @@ const Navbar: React.FC = () => {
 			</Link>
 			<Link
 				to="/tournament"
-				className="p-2 font-cupcake text-xl tracking-wider"
+				className="p-1 font-cupcake text-lg tracking-wider"
 				style={{ textShadow: `
 					-3px 0 #000,
 					3px 0 #000`
@@ -46,7 +46,7 @@ const Navbar: React.FC = () => {
 			</Link>
 			<Link
 				to="/friends"
-				className="p-2 font-cupcake text-xl tracking-wider"
+				className="p-1 font-cupcake text-lg tracking-wider"
 				style={{ textShadow: `
 					-3px 0 #000,
 					3px 0 #000`
@@ -58,7 +58,7 @@ const Navbar: React.FC = () => {
 			<div className="ml-auto flex gap-4">
 				<Link
 					to="/profile"
-					className="p-2 font-cupcake text-xl tracking-wider"
+					className="p-1 font-cupcake text-lg tracking-wider"
 					style={{ textShadow: `
 						-3px 0 #000,
 						3px 0 #000`
@@ -68,7 +68,7 @@ const Navbar: React.FC = () => {
 				</Link>
 				<Link
 					to="/settings"
-					className="p-2 font-cupcake text-xl tracking-wider"
+					className="p-1 font-cupcake text-lg tracking-wider"
 					style={{ textShadow: `
 						-3px 0 #000,
 						3px 0 #000`
@@ -78,7 +78,7 @@ const Navbar: React.FC = () => {
 				</Link>
 				<Link
 					to="/exit"
-					className="p-2 font-cupcake text-xl tracking-wider"
+					className="p-1 font-cupcake text-lg tracking-wider"
 					style={{ textShadow: `
 						-3px 0 #000,
 						3px 0 #000`
