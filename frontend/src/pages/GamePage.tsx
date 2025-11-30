@@ -17,7 +17,8 @@ import { useTranslation } from "../shared/Translation";
 import { useApiFetch } from "../utils/apiFetch"
 import { ArcadeFrame } from "../components/layout/ArcadeFrame";
 import SketchyButton from "../components/ui/SketchyButtons";
-import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight } from "lucide-react";
+import { FaArrowUp, FaArrowDown } from "react-icons/fa";
+import { FaCircle } from "react-icons/fa6";
 
 type GameMode = "guest" | "login" | "ai";
 //	const { isLoggedIn, loading, refreshSession, tournament, setTournament } = useAuth();
@@ -195,32 +196,40 @@ const Game: React.FC = () => {
 	);
 
 	const ControlsBox = () => (
-	<div className="text-2xl font-body text-gray-200 text-center">
+	<div className="text-xl font-body text-center">
 		<h3 className="font-semibold mb-4 text-3xl">{t("game.controls.title")}</h3>
 
-		{/* Movement Controls */}
-		<div className="mb-4">
-		<ul className="space-y-2 list-none p-0">
-			<li className="flex items-center justify-center gap-2">
-			<span className="font-medium">{t("game.controls.leftLabel")}:</span>
-			<Key>W</Key> {t("game.controls.up")} / <Key>S</Key> {t("game.controls.down")}
-			</li>
-			<li className="flex items-center justify-center gap-2">
-			<span className="font-medium">{t("game.controls.rightLabel")}:</span>
-			<ArrowUp className="w-5 h-5" /> {t("game.controls.up")} / <ArrowDown className="w-5 h-5" /> {t("game.controls.down")}
-			</li>
-		</ul>
-		</div>
-
-		{/* Power-up Controls */}
-		<div>
-		<h4 className="font-semibold mb-2">{t("game.controls.powerup.title")}</h4>
-		<ul className="space-y-2 list-none p-0">
-			<li className="flex items-center justify-center gap-2">
-			<Key>🟣</Key>
-			{t("game.controls.powerup.desc")}
-			</li>
-		</ul>
+		<div className="grid grid-cols-1 sm:grid-cols-2 gap-16 mt-10">
+			{/* LEFT COLUMN */}
+			<div className="space-y-6 mb-4">
+				<h4 className="font-semibold mb-8 text-2xl">{t("game.controls.keys")}</h4>
+				{/* Left Controls */}
+				<div>
+					<span className="font-medium">{t("game.controls.leftLabel")}</span>
+					<div className="flex items-center justify-center gap-4 mt-2">
+						<Key>W</Key> {t("game.controls.up")} <Key>S</Key> {t("game.controls.down")}
+					</div>
+				</div>
+				{/* Right Controls */}
+				<div>
+					<span className="font-medium">{t("game.controls.rightLabel")}</span>
+					<div className="flex items-center justify-center gap-4 mt-2">
+						<FaArrowUp className="w-5 h-5 flex-shrink-0"/> {t("game.controls.up")}
+						<FaArrowDown className="w-5 h-5 flex-shrink-0" /> {t("game.controls.down")}
+					</div>
+				</div>
+			</div>
+			{/* RIGHT COLUMN */}
+			<div className="space-y-6 ">
+				<h4 className="font-semibold mb-8 text-2xl">{t("game.controls.powerup.title")}</h4>
+					<div className="flex justify-center mb-2">
+						<FaCircle className="text-purple-400 w-5 h-5" />
+					</div>
+					<li className="flex items-center justify-center">
+						{t("game.controls.powerup.desc")}
+					</li>
+				
+			</div>
 		</div>
 	</div>
 	);
@@ -256,7 +265,7 @@ const Game: React.FC = () => {
 
 				{/* Game settings modal */}
 				{selectedMode && gameId && !showMiniLogin && !gameSettings && !gameStarted && (
-					<div className="w-full max-w-lg p-8 text-white">
+					<div className="w-full max-w-2xl p-8 text-white">
 						<GameSettings
 							onConfirm={(settings) => setGameSettings(settings)}
 							onBack={() => {
@@ -270,7 +279,7 @@ const Game: React.FC = () => {
 
 				{/* Start Game button */}
 				{selectedMode && gameId && gameSettings && !gameStarted && (
-				<div className="w-full max-w-2xl p-8 text-white flex flex-col items-center space-y-4">
+				<div className="w-full max-w-4xl p-8 text-white flex flex-col items-center space-y-4">
 					<div className="p-4 text-center">
 						<ControlsBox />
 					</div>
