@@ -133,13 +133,14 @@
   "auth.password": "Salasana",
   "auth.logIn": "Kirjaudu",
   "auth.loggingIn": "Kirjaudutaan...",
-  "game.controls.title": "Ohjaimet",
+  "game.controls.title": "Näin pelaat",
+  "game.controls.keys": "Näppäimet",
   "game.controls.leftLabel": "Vasen pelaaja (Pelaaja 1)",
   "game.controls.rightLabel": "Oikea pelaaja (Pelaaja 2)",
   "game.controls.up": "ylös",
   "game.controls.down": "alas",
   "game.controls.powerup.title": "Tehoste:",
-  "game.controls.powerup.desc": "nopeuttaa palloa hetkellisesti.",
+  "game.controls.powerup.desc": "osuma nopeuttaa palloa väliaikaisesti",
 
 
   "tournament.loading": "Ladataan turnaustietoja...",
