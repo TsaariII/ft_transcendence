@@ -8,6 +8,7 @@ import { useApiFetch } from "../../utils/apiFetch";
 import { useTranslation } from "../../shared/Translation";
 import { useRandomBorderRadius } from "../../hooks/useRandomBorderRadius";
 import SketchyButton from "../../components/ui/SketchyButtons";
+import { TbCircleNumber1Filled, TbCircleNumber2Filled, TbCircleNumber3Filled, TbCircleNumber4Filled } from "react-icons/tb"
 
 // Username: must start with letter, 6-12 chars, letters, numbers, underscore allowed
 const USERNAME_REGEX = /^[a-zA-Z][a-zA-Z0-9_]{5,11}$/;
@@ -52,6 +53,12 @@ const PlayerList: React.FC<PlayerListProps> = ({
 	const [tempAlias, setTempAlias] = useState('');
 	const apiFetch = useApiFetch();
 
+	const numberIcons = [
+		TbCircleNumber1Filled,
+		TbCircleNumber2Filled,
+		TbCircleNumber3Filled,
+		TbCircleNumber4Filled,
+	];
 
 	const self = tournament.players.find(p => p.isSelf);
 	const backendAlias = self?.alias ?? "";
@@ -278,7 +285,7 @@ const PlayerList: React.FC<PlayerListProps> = ({
 	
 	// Helper to determine if a player's fields are locked in the UI
 	// Uses backend status === "ready" as the indicator that the backend considers the player ready
-	const renderPlayers = tournament.players.map((player) => {
+	const renderPlayers = tournament.players.map((player, idx) => {
 		const role = player.role;
 		const isCurrentlyLoading = loading === role;
 
@@ -297,25 +304,28 @@ const PlayerList: React.FC<PlayerListProps> = ({
 		const data = formData[role] || { username: "", password: "", alias: "" };
 		const fieldErrs = errors[role] || {};
 
-		//const userRef = useRandomBorderRadius<HTMLButtonElement>();
-		//const passRef = useRandomBorderRadius<HTMLButtonElement>();
-		//const aliasRef = useRandomBorderRadius<HTMLButtonElement>();
+		// Colors for Edit vs Save Alias button
+		const isEditMode =
+			isEditingAlias || (!isPlayerReady && player.alias) || aliasChanged;
+
+		const buttonBg = isEditMode ? "#fffcc2" : "#fffcc2";          // normal fill
+		const buttonHoverBg = isEditMode ? "#6ee7b7a0" : "#ce71608a";     // hover fill
+		const buttonBorderColor = isEditMode ? "#6ee7b7" : "#cd877aff"; // border
+
+		const NumberIcon = numberIcons[idx];
 	
 	return (
 		<div
 			key={role}
 			className="flex flex-col gap-1">
-			< div className="mt-2 flex items-start gap-2">
-			 {/* ✔ icon */}
-				<span className="w-5 h-5 flex-shrink-0 flex items-center justify-center mt-3">
-					{isPlayerReady && (
-						<span className="w-4 h-4 rounded-full bg-cyan-400 text-white text-[0.4rem] font-bold flex items-center justify-center">
-							✔
-						</span>
-					)}
+			< div className="mt-2 flex items-start gap-2 min-w-0">
+			 	{/* Number icon */}
+				<span className="w-6 h-6 flex-shrink-0 flex items-center justify-center mt-3">
+					<NumberIcon className={`w-6 h-6 transition-colors duration-200 ${isPlayerReady ? "text-[#6ee7b7]" : "text-[#b088a3]"}`} />
 				</span>
-			
-				<div className="flex flex-col sm:flex-row flex-wrap w-full gap-2 items-stretch sm:items-center font-body text-lg">
+
+				<div className="flex flex-col lg:flex-row gap-3
+							min-w-0 font-body text-lg">
 					{/* Username */}
 					<input
 						type="text"
@@ -323,13 +333,20 @@ const PlayerList: React.FC<PlayerListProps> = ({
 						disabled={player.isSelf || isPlayerReady}
 						value={player.isSelf || isPlayerReady ? player.username : data.username}
 						onChange={(e) => updateField(role, "username", e.target.value)}
-						className={`w-full h-[3.5rem] sketch-border px-3 py-2 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-[#3F839C]
-							p-2 flex-1 min-w-0 w-full sm:w-auto
-							${fieldErrs.username ? "border-red-500" : "border-gray-300"}
+						className={`flex-grow flex-shrink md:min-w-[150px] xl:min-w-[220px] lg-flex-1
+							h-[3rem]
+							sketch-border px-3 py-2
+							focus:outline-none
+							transition-all duration-200
+							${fieldErrs.username
+								? "border-2 border-[#ff6b9d]"
+								: " border-2 border-[#d4a5c3]"}
 							${player.isSelf || isPlayerReady
-							? `${isPlayerReady ? "text-indigo-400" : "text-gray-400"} bg-[#300D42] cursor-not-allowed`
-							: "bg-[#300D42] text-white"
-						}`}
+								? "bg-[#5a0c37] text-[#b088a3] cursor-not-allowed"
+								: "bg-[#4a0a2e] text-[#fffcc7] placeholder-[#b088a3] focus:ring-4 focus:ring-[#f472b6] focus:border-[#f0c4e0]"
+							}
+							${isPlayerReady && "border-[#6ee7b7] text-[#6ee7b7]"}
+						`}
 					/>
 
 					{/* Password */}
@@ -339,14 +356,20 @@ const PlayerList: React.FC<PlayerListProps> = ({
 						disabled={player.isSelf || isPlayerReady}
 						value={player.isSelf || isPlayerReady ? "********" : data.password}
 						onChange={(e) => updateField(role, "password", e.target.value)}
-						className={`w-full h-[3.5rem] sketch-border border-[#FFFCC7] bg-gray-800/60 px-3 py-2
-							placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-[#3F839C]
-							p-2 flex-1 min-w-0 w-full sm:w-auto
-							${fieldErrs.password ? "border-red-500" : "border-gray-300"}
+						className={`flex-grow flex-shrink min-w-[150px] xl:min-w-[220px] lg-flex-1
+							h-[3rem]
+							sketch-border px-3 py-2
+							focus:outline-none
+							transition-all duration-200
+							${fieldErrs.password
+								? "border-2 border-[#ff6b9d]"
+								: "border-2 border-[#d4a5c3]"}
 							${player.isSelf || isPlayerReady
-							? `${isPlayerReady ? "text-indigo-400" : "text-gray-400"} bg-[#300D42] cursor-not-allowed`
-							: "bg-[#300D42] text-white"
-						}`}
+								? "bg-[#5a0c37] text-[#b088a3] cursor-not-allowed"
+								: "bg-[#4a0a2e] text-[#fffcc7] placeholder-[#b088a3] focus:ring-4 focus:ring-[#f472b6] focus:border-[#f0c4e0]"
+							}
+							${isPlayerReady && "border-[#6ee7b7] text-[#6ee7b7]"}
+						`}
 					/>
 
 					{/* Alias */}
@@ -360,85 +383,97 @@ const PlayerList: React.FC<PlayerListProps> = ({
 							: data.alias || player.alias || ""
 						}
 						onChange={(e) => updateField(role, "alias", e.target.value)}
-						className={`w-full h-[3.5rem] sketch-border border-[#FFFCC7] px-3 py-2
-							placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-[#3F839C]
-							p-2 flex-1 min-w-0 w-full sm:w-auto
-							${fieldErrs.alias ? "border-red-500" : "border-gray-300"}
+						className={`flex-grow flex-shrink min-w-[150px] xl:min-w-[220px] lg-flex-1
+							h-[3rem]
+							sketch-border px-3 py-2
+							focus:outline-none
+							transition-all duration-200
+							${fieldErrs.alias
+								? "border-2 border-[#ff6b9d]"
+								: "border-2 border-[#d4a5c3]"}
 							${isAliasLocked
-							? "bg-[#300D42] cursor-not-allowed"
-							: "bg-[#300D42]"
+								? "bg-[#5a0c37] text-[#b088a3] cursor-not-allowed"
+								: "bg-[#4a0a2e] text-[#fffcc7] placeholder-[#b088a3] focus:ring-4 focus:ring-[#f472b6] focus:border-[#f0c4e0]"
 							}
-							${isPlayerReady ? "text-indigo-400" : "text-white"}
+							${isPlayerReady && "border-[#6ee7b7] text-[#6ee7b7]"}
 						`}
-						/>
-
-					{/* Action Buttons (Other players) */}
-					{!player.isSelf && !isPlayerReady && (
-						<SketchyButton
-							variant="shadow"
-							bg="#D9897A"
-							hoverBg="#C8553E"
-							onClick={() => handleAddPlayer(role, player)}
-							disabled={isCurrentlyLoading}
-						
-							>
-								{isCurrentlyLoading ? t("tournament.adding") : t("tournament.addPlayer")}
-						</SketchyButton>
-					)}
-
-					{!player.isSelf && isPlayerReady && (
-						<Button
-							onClick={() => handleRemovePlayer(role)}
-							disabled={isCurrentlyLoading}
-							className="sketch-border p-2 border border-gray-700 rounded flex-1 min-w-0 w-full sm:w-auto min-w-[6.3rem]"
-							>
-								{t("common.remove")}
-						</Button>
-					)}
-
-					{/* Action Buttons (Player1) */}
-					{player.isSelf && (
-						<div className="flex items-center gap-2">
-							{/* Set/Edit Alias button */}
+					/>
+					<div className="min-w-0 w-full text-black md:w-30">
+						{/* Action Buttons (Other players) */}
+						{!player.isSelf && !isPlayerReady && (
 							<SketchyButton
 								variant="shadow"
-								bg="#D9897A"
-								hoverBg="#C8553E"
-								onClick={() => {
-									if (isPlayerReady && !isEditingAlias) {
-										setIsEditingAlias(true);
-										setTempAlias(player.alias || "");
-									} else {
-										// Save Alias
-										handleAddPlayer(role, player);
-									}
-								}}
-								// Check completion against the dedicated logic now
+								bg="#fffcc2"
+								hoverBg="#6ee7b7a6"
+								borderColor="#6ee7b7"
+								className="px-[1rem]"
+								onClick={() => handleAddPlayer(role, player)}
 								disabled={isCurrentlyLoading}
-								>
-								{isCurrentlyLoading
-								? t("common.saving")
-								: !isPlayerReady
-									? t("tournament.setAlias")
-									: (isEditingAlias  || aliasChanged)
-										? t("tournament.saveAlias")
-										: t("tournament.editAlias")}
+							>
+								{isCurrentlyLoading ? t("tournament.adding") : t("tournament.addPlayer")}
 							</SketchyButton>
-						</div>
+						)}
+
+						{!player.isSelf && isPlayerReady && (
+							<SketchyButton
+								variant="shadow"
+								bg="#fffcc2"
+								hoverBg="#ce7160a1"
+								borderColor="#ce7160"
+								className="px-[1rem]"
+								onClick={() => handleRemovePlayer(role)}
+								disabled={isCurrentlyLoading}
+							>
+								{t("common.remove")}
+							</SketchyButton>
+						)}
+
+						{/* Action Buttons (Player1) */}
+						{player.isSelf && (
+							<div className="flex items-center gap-2">
+								{/* Set/Edit Alias button */}
+								<SketchyButton
+									variant="shadow"
+									bg={buttonBg}
+									hoverBg={buttonHoverBg}
+									borderColor={buttonBorderColor}
+									className="px-[1rem]"
+									onClick={() => {
+										if (isPlayerReady && !isEditingAlias) {
+											setIsEditingAlias(true);
+											setTempAlias(player.alias || "");
+										} else {
+											// Save Alias
+											handleAddPlayer(role, player);
+										}
+									}}
+									// Check completion against the dedicated logic now
+									disabled={isCurrentlyLoading}
+									>
+									{isCurrentlyLoading
+									? t("common.saving")
+									: !isPlayerReady
+										? t("tournament.setAlias")
+										: (isEditingAlias  || aliasChanged)
+											? t("tournament.saveAlias")
+											: t("tournament.editAlias")}
+								</SketchyButton>
+							</div>
 					)}
+					</div>
 					</div>
 				</div>
 				
 				{/* Inline field errors (shown only after clicking button) */}
-					<div className="text-red-500 text-sm mt-1 ml-[1.8rem] flex flex-col gap-0.5">
+					<div className="text-[#FFFCC7] text-sm mt-1 ml-[1.8rem] flex flex-col gap-0.5">
 						{fieldErrs.username && (
-							<div className="text-red-500 text-sm">{fieldErrs.username}</div>
+							<div className="text-[#FFFCC7] text-sm">{fieldErrs.username}</div>
 						)}
 						{fieldErrs.password && (
-							<div className="text-red-500 text-sm">{fieldErrs.password}</div>
+							<div className="text-[#FFFCC7]text-sm">{fieldErrs.password}</div>
 						)}
 						{fieldErrs.alias && (
-							<div className="text-red-500 text-sm">{fieldErrs.alias}</div>
+							<div className="text-[#FFFCC7] text-sm">{fieldErrs.alias}</div>
 						)}
 					</div>
 			</div>
