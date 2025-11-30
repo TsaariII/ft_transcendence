@@ -10,6 +10,7 @@ import { useTranslation } from "../shared/Translation";
 import { Gamepad2, Trophy, Users, ListOrdered, Settings as SettingsIcon } from "lucide-react";
 import DoodleButton from "../components/ui/DoodleButton";
 import SketchyButton from "../components/ui/SketchyButtons";
+import SketchyPanel from "../components/layout/SketchyPanel";
 import arcade from "../assets/doodles/arcade.png";
 import podium from "../assets/doodles/podium.png";
 import trophy2 from "../assets/doodles/trophy2.png";
@@ -245,8 +246,7 @@ const HomePage: React.FC = () => {
 	return (
 		<>
 		<ArcadeFrame>
-			<CenteredContainer> 
-				{/* Semi-transparent card wrapper for Home page content */}
+			<CenteredContainer>
 				<div className="w-full max-w-md p-8 text-white flex flex-col items-center space-y-20">
 					{/* Language flags */}
 					{!isLoggedIn && (
@@ -348,32 +348,54 @@ const HomePage: React.FC = () => {
 				inlineErrors={inlineErrors}
 			/>
 			{is2faStep && (
-				<div className="fixed inset-0 bg-black/60 flex justify-center items-center z-50">
-					<div className="w-full max-w-md bg-gray-900/90 border border-gray-700 rounded-xl p-6 text-white shadow-2xl">
-						<h2 className="text-2xl font-bold mb-2">{t("home.2fa.title")}</h2>
-						<p className="text-sm text-gray-300 mb-4">{t("home.2fa.instructions")}</p>
-						<input
-							type="text"
-							value={otp}
-							onChange={(e) => setOtp(e.target.value)}
-							className="w-full p-3 border border-gray-700 bg-gray-900 rounded-md text-center text-2xl tracking-widest focus:outline-none focus:ring-2 focus:ring-blue-600"
-							maxLength={6}
-							placeholder="123456"
-						/>
-						<button
-							onClick={handle2faVerifySubmit}
-							className="w-full mt-4 px-6 py-3 bg-green-600 text-white rounded hover:bg-green-700 transition"
-							
+			<div className="fixed inset-0 z-50 flex items-center justify-center">
+				<div
+					className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+				/>
+				<SketchyPanel
+						className="relative w-[90%] max-w-[22rem] sm:max-w-[24rem] md:max-w-[28rem] lg:max-w-[32rem] 
+									xl:max-w-[34rem] min-h-[20rem] sm:min-h-[22rem] md:min-h-[24rem] lg:min-h-[26rem]"
+						bg="#6C0E42"
+						stroke="#FFFCC7"
+						padding="0.25rem"
+						borderRadius="20px"
 						>
-							{t("home.2fa.verify")}
-						</button>
-						<button
-							onClick={() => setIs2faStep(false)}
-							className="w-full mt-2 px-6 py-3 bg-gray-700 text-white rounded hover:bg-gray-600 transition"
-							>
-							{t("common.cancel")}
-						</button>
-					</div>
+						<div className="text-[#FFFCC7]">
+							<div className="px-12 pt-12">
+								<h2 className="text-2xl font-bold mb-2">{t("home.2fa.title")}</h2>
+								<p className="text-sm text-gray-300 mb-4">{t("home.2fa.instructions")}</p>
+								<input
+									type="text"
+									value={otp}
+									onChange={(e) => setOtp(e.target.value)}
+									className="ml-14 mt-6 w-82 p-3 border border-gray-700 bg-gray-900 rounded-md text-center text-2xl tracking-widest focus:outline-none focus:ring-2 focus:ring-[#58d1b7]"
+									maxLength={6}
+									placeholder="123456"
+								/>
+								<SketchyButton
+									variant="shadow"
+									bg="#58d1b7d9"
+									hoverBg="#1ea58893"
+									borderColor="#1ea588"
+									onClick={handle2faVerifySubmit}
+									className="w-56 ml-24 mt-4 px-6 py-3 text-black"
+									
+								>
+									{t("home.2fa.verify")}
+								</SketchyButton>
+								<SketchyButton
+									variant="shadow"
+									bg="#fffcc7"
+									hoverBg="#ce71608a"
+									borderColor="#cd877aff"
+									onClick={() => setIs2faStep(false)}
+									className="w-56 ml-24 mt-2 px-6 py-3 text-black"
+									>
+									{t("common.cancel")}
+								</SketchyButton>
+							</div>
+						</div>
+					</SketchyPanel>
 				</div>
 			)}
 		</CenteredContainer>
