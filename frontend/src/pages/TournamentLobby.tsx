@@ -332,34 +332,42 @@ const TournamentLobby: React.FC = () => {
 
 						{/* Game settings */}
 						{showSettingsModal && (
-							<div className="w-full max-w-lg bg-gray-900/90 rounded-xl p-8 text-white shadow-2xl">
-							<GameSettings
-								onConfirm={handleSettingsConfirm}
-								onBack={() => {
-									setShowSettingsModal(false);
-									setCurrentGame(null);
-								}}
-							/>
-						</div>
+							<div className="w-full max-w-2xl p-8 text-white">
+								<GameSettings
+									onConfirm={handleSettingsConfirm}
+									onBack={() => {
+										setShowSettingsModal(false);
+										setCurrentGame(null);
+									}}
+								/>
+							</div>
 						)}
 
 						{/* Start Game button */}
 						{currentGame && gameSettings && !gameStarted && (
-							<div className="w-full max-w-lg bg-gray-900/90 rounded-xl p-8 text-white shadow-2xl flex flex-col items-center space-y-4">
-								<button
+							<div className="w-full max-w-lg p-8 text-black font-body flex flex-col items-center space-y-6">
+								<SketchyButton
+									variant="shadow"
+									bg="#6ee7b7"
+									hoverBg="#6ee7b7a6"
+									borderColor="#6ee7b7"
 									onClick={() => startTournamentGame(currentGame!)}
-									className="px-10 py-4 text-xl font-bold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors"
+									className="px-10 py-4 text-2xl"
 								>
 									{t("game.action.start")}
-								</button>
-								<button
+								</SketchyButton>
+								<SketchyButton
+									variant="shadow"
+									bg="#fffcc7"
+									hoverBg="#ce71608a"
+									borderColor="#cd877aff"
 									onClick={() => { setGameSettings(null);
 										setCurrentGame(null);
 									}}
-										className="px-6 py-2 text-sm font-medium text-gray-800 bg-gray-300 rounded-lg hover:bg-gray-400 transition-colors"
+										className="px-6 py-2 text-sm"
 								>
 									{t("game.action.back")}
-								</button>
+								</SketchyButton>
 							</div>
 						)}
 
