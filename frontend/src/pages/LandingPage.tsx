@@ -306,7 +306,7 @@ const HomePage: React.FC = () => {
 							onClick={() => navigate("/tournament")}
 							hoverText={t("home.icon.tournament")}
 							hoverTextSize="text-3xl"
-							strokeColor="#61bfbf"
+							strokeColor="#6ee7b7"
 							animationDuration={200}
 						/>
 
@@ -319,7 +319,7 @@ const HomePage: React.FC = () => {
 							onClick={() => navigate("/game")}
 							hoverText={t("home.icon.pong")}
 							hoverTextSize="text-2xl"
-							strokeColor="#61bfbf"
+							strokeColor="#6ee7b7"
 							animationDuration={200}
 						/>
 						{/* Leaderboard */}
@@ -330,7 +330,7 @@ const HomePage: React.FC = () => {
 							onClick={() => navigate("/leaderboard")}
 							hoverText={t("home.icon.leaderboard")}
 							hoverTextSize="text-3xl"
-							strokeColor="#61bfbf"
+							strokeColor="#6ee7b7"
 							animationDuration={200}
 						/>
 					</div>

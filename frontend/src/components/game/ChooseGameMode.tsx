@@ -26,7 +26,7 @@ const ChooseGameMode: React.FC<ChooseGameModeProps> = ({ onSelectMode }) => {
 					height="h-56"
 					scale="scale-150"
 					hoverText={t("game.mode.guest")}
-					strokeColor="#61bfbf"
+					strokeColor="#6ee7b7"
 					strokeWidth={1.5}
 					animationDuration={200}
 					onClick={() => onSelectMode("guest")}
@@ -38,7 +38,7 @@ const ChooseGameMode: React.FC<ChooseGameModeProps> = ({ onSelectMode }) => {
 					height="h-56"
 					scale="scale-150"
 					hoverText={t("game.mode.loginSecond")}
-					strokeColor="#61bfbf"
+					strokeColor="#6ee7b7"
 					strokeWidth={1.5}
 					animationDuration={200}
 					onClick={() => onSelectMode("login")}
@@ -50,7 +50,7 @@ const ChooseGameMode: React.FC<ChooseGameModeProps> = ({ onSelectMode }) => {
 					height="h-56"
 					scale="scale-125"
 					hoverText={t("game.mode.ai")}
-					strokeColor="#61bfbf"
+					strokeColor="#6ee7b7"
 					strokeWidth={1.5}
 					animationDuration={200}
 					onClick={() => onSelectMode("ai")}
