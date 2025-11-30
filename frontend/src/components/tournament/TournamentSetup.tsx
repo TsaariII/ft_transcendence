@@ -126,17 +126,11 @@ const TournamentSetup: React.FC<TournamentSetupProps> = ({ onCancel, onTournamen
 		const allPlayersReady =
 			tournament?.players?.every((player) => player.status === "ready") ?? false;
 
-	const tournamentCanStart =
-		tournament &&
-			tournament.status?.status === "ongoing" &&
-			allPlayersReady;
-
 	return (
-			<div className="mt-3 space-y-24">
+			<div className="mt-3 space-y-14">
 				{setupInProgress && (
-				<div>
-					<p className="font-hand text-4xl text-[#FFFCC7] mb-16 ml-8">{t("tournament.players")}</p>
-
+				<div className="w-full max-w-full">
+					<p className="font-hand text-4xl text-[#6ee7b7] mt-10 mb-8 ml-4">{t("tournament.players")}</p>
 					<PlayerList
 						tournament={tournament}
 						onRemovePlayer={handleRemovePlayer}
@@ -145,28 +139,29 @@ const TournamentSetup: React.FC<TournamentSetupProps> = ({ onCancel, onTournamen
 				</div>
 				)}
 
-				<div className="flex gap-24 mt-6 ml-7">
+				<div className="flex flex-col md:flex-row gap-6 md:gap-24 mt-6 ml-0 md:ml-7 px-4 md:px-0">
 					<SketchyButton
 						variant="shadow"
-						bg="#7C5483"
-						hoverBg="#3A1C4B"
-						className="text-xl px-6 py-3 rounded-lg w-64" 
-						onClick={onCancel} disabled={loading}>
+						bg="#fffcc7"
+						hoverBg="#ce71608a"
+						borderColor="#cd877aff"
+						className="text-black text-lg px-6 py-3 w-full md:w-48"
+						onClick={onCancel}
+						disabled={loading}>
 						{t("tournament.cancel")}
 					</SketchyButton>
 
 					<SketchyButton
 						variant="shadow"
-						bg="#3F839f"
-						hoverBg="#125a74"
-						className="text-xl px-6 py-3 rounded-lg w-64" 
+						bg={allPlayersReady ? "#6ee7b7" : "#9ecbbf"}
+						hoverBg={allPlayersReady ? "#1ea58893" : "#9ecbbf"} 
+						borderColor="#1ea588"
+						className="text-black text-lg px-6 py-3 w-full md:w-48"
+						disabled={!allPlayersReady || loading || aliasChanged}
 						onClick={handleStartTournament}
-						disabled={!tournamentCanStart || loading || aliasChanged}
 					>
-						{loading
+						{loading 
 							? t("common.processing")
-							: tournament.can_start
-							? t("tournament.start")
 							: t("tournament.start")}
 					</SketchyButton>
 				</div>
