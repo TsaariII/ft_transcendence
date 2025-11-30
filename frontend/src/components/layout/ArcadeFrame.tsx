@@ -9,11 +9,6 @@ export function ArcadeFrame({ children, title = "PONG" }: ArcadeFrameProps) {
 	return (
 		<div className="relative flex items-center justify-center min-h-screen w-full p-8">
 			<style dangerouslySetInnerHTML={{ __html: `
-				@keyframes blink {
-				0%, 50%, 100% { opacity: 1; }
-				25%, 75% { opacity: 0.3; }
-				}
-
 				@keyframes glow {
 				0%, 100% { opacity: 0.5; }
 				50% { opacity: 1; }
