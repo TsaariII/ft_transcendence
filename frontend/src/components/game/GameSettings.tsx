@@ -34,7 +34,7 @@ const GameSettings: React.FC<GameSettingsProps> = ({ onConfirm, onBack }) => {
 
 					{/* Ball Speed */}
 					<div>
-						<label className="flex items-center gap-4 font-bold pb-2">
+						<label className="flex items-center gap-4 pb-2">
 							<FaGauge/>
 							{t("game.settings.ballSpeed")}: {ballSpeed}
 						</label>
@@ -53,7 +53,7 @@ const GameSettings: React.FC<GameSettingsProps> = ({ onConfirm, onBack }) => {
 
 					{/* Paddle Size */}
 					<div>
-						<label className="flex items-center gap-4 font-bold pb-2">
+						<label className="flex items-center gap-4 pb-2">
 							<PiPingPongFill/>
 							{t("game.settings.paddleSize")}: {paddleSize}px
 						</label>
@@ -72,7 +72,7 @@ const GameSettings: React.FC<GameSettingsProps> = ({ onConfirm, onBack }) => {
 
 					{/* Paddle Speed */}
 					<div>
-						<label className="flex items-center gap-4 font-bold pb-2">
+						<label className="flex items-center gap-4 pb-2">
 							<FaRunning/>
 							{t("game.settings.paddleSpeed")}: {paddleSpeed}
 						</label>
@@ -95,7 +95,7 @@ const GameSettings: React.FC<GameSettingsProps> = ({ onConfirm, onBack }) => {
 
 					{/* Max Score */}
 					<div>
-						<label className="flex items-center gap-4 font-bold pb-2">
+						<label className="flex items-center gap-4 pb-2">
 							<MdOutlineSportsScore/>
 							{t("game.settings.maxScore")}: {maxScore}
 						</label>
@@ -121,7 +121,7 @@ const GameSettings: React.FC<GameSettingsProps> = ({ onConfirm, onBack }) => {
 
 					{/* Power Up */}
 					<div>
-						<label className="flex items-center gap-4 font-bold pb-2">
+						<label className="flex items-center gap-4 pb-2">
 							<FaStar/>
 							{t("game.settings.powerUp")}
 						</label>
@@ -143,14 +143,15 @@ const GameSettings: React.FC<GameSettingsProps> = ({ onConfirm, onBack }) => {
 					</div>
 				</div>
 			</div>
-			<div className="flex flex-col sm:flex-row gap-6 sm:gap-40 ml-10 mt-8 sm:mt-12 ">
+			<div className="flex flex-colsm:flex-row gap-6 sm:gap-40 ml-10 mt-8 sm:mt-12">
 					{/* Back button */}
 					{onBack && (
 						<SketchyButton
 							variant="shadow"
-							bg="#7C5483"
-							hoverBg="#3A1C4B"
-							className="text-xl w-32"
+							bg="#fffcc7"
+							hoverBg="#ce71608a"
+							borderColor="#cd877aff"
+							className="text-lg text-black w-32"
 							onClick={onBack}
 						>
 							{t("game.action.back")}
@@ -160,9 +161,10 @@ const GameSettings: React.FC<GameSettingsProps> = ({ onConfirm, onBack }) => {
 					{/* Confirm button */}
 					<SketchyButton
 						variant="shadow"
-						bg="#3F839C"
-						hoverBg="#125a74"
-						className="text-xl w-32" 
+						bg="#58d1b7d9"
+						hoverBg="#1ea58893"
+						borderColor="#1ea588"
+						className="text-lg text-black w-32" 
 						onClick={() =>
 							onConfirm({ ballSpeed, paddleSize, paddleSpeed, maxScore, powerUp })
 						}
