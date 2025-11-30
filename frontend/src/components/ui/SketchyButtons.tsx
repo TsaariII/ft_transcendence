@@ -6,7 +6,9 @@ interface SketchyButtonProps {
 	className?: string;
 	bg?: string;        // base fill color
 	hoverBg?: string;   // hover fill color
+	borderColor?: string;
 	onClick?: () => void;
+	disabled?: boolean;
 }
 
 const SketchyButton: React.FC<SketchyButtonProps> = ({
@@ -15,12 +17,13 @@ const SketchyButton: React.FC<SketchyButtonProps> = ({
 	className = "",
 	bg = "#ffffff",
 	hoverBg = "#e5e5e5",
+	borderColor = "#fffcc2",
 	onClick,
+	disabled = false,
 }) => {
 	const [isHovered, setIsHovered] = useState(false);
 
-	// Fill color depends on hover
-	const fillColor = isHovered ? hoverBg : bg;
+	const fillColor = disabled ? "#9ba4a252" : isHovered ? hoverBg : bg; // change fill if disabled
 
 	const baseStyles = `
 		relative inline-flex items-center justify-center px-6 py-2
@@ -28,6 +31,11 @@ const SketchyButton: React.FC<SketchyButtonProps> = ({
 		font-body text-sm
 		${className}
 	`;
+
+	const handleClick = () => {
+		if (disabled) return;  //  block click if disabled
+		if (onClick) onClick();
+	};
 
 	// Common rectangle for all variants
 	const baseRect = (
@@ -39,7 +47,7 @@ const SketchyButton: React.FC<SketchyButtonProps> = ({
 			rx="6"
 			ry="8"
 			fill={fillColor}
-			stroke="white"
+			stroke={borderColor}
 			strokeWidth="1.75"
 		/>
 	);
@@ -47,19 +55,20 @@ const SketchyButton: React.FC<SketchyButtonProps> = ({
 	if (variant === "shadow") {
 		return (
 			<button
-				onClick={onClick}
+				onClick={handleClick}
+				disabled={disabled}
 				className={baseStyles}
 				onMouseEnter={() => setIsHovered(true)}
 				onMouseLeave={() => setIsHovered(false)}
 				style={{
 					background: fillColor,
-					borderRadius: "12px",
-					boxShadow: `
-						2px 2px 0px 0px #412f2c,
-						4px 4px 0px 0px #412f2c,
-						-1px -1px 0px 0px #412f2c inset
-					`,
-					border: "3px solid #FFFCC7",
+					borderRadius: "22px",
+					boxShadow: disabled
+						? "none"
+						:	`2px 2px 0px 0px #412f2c,
+							4px 4px 0px 0px #412f2c,
+							-1px -1px 0px 0px #412f2c inset`,
+					border: `3px solid ${borderColor}`,
 				}}
 			>
 				{children}
@@ -72,7 +81,8 @@ const SketchyButton: React.FC<SketchyButtonProps> = ({
 			<button 
 				className={baseStyles}
 				style={{ outline: "none" }}
-				onClick={onClick}
+				onClick={handleClick}
+				disabled={disabled}  
 			>
 				<svg
 					className="absolute inset-0 w-full h-full"
@@ -118,7 +128,11 @@ const SketchyButton: React.FC<SketchyButtonProps> = ({
 
 	if (variant === "double-line") {
 		return (
-			<button className={baseStyles} style={{ outline: "none" }} onClick={onClick}>
+			<button
+				className={baseStyles}
+				style={{ outline: "none" }}
+				onClick={handleClick}
+				disabled={disabled}>
 				<svg
 					className="absolute inset-0 w-full h-full"
 					viewBox="0 0 100 40"
@@ -144,7 +158,11 @@ const SketchyButton: React.FC<SketchyButtonProps> = ({
 
 	if (variant === "3d") {
 		return (
-			<button className={baseStyles} style={{ outline: "none" }} onClick={onClick}>
+			<button
+				className={baseStyles}
+				style={{ outline: "none" }}
+				onClick={handleClick}
+				disabled={disabled}>
 				<svg
 					className="absolute inset-0 w-full h-full"
 					viewBox="0 0 100 40"
