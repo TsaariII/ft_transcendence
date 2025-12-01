@@ -69,16 +69,16 @@ const Modal: React.FC<ModalProps> = ({
 				className= "
 					relative 
 					w-[90%]
-					max-w-[22rem]    /* base max for mobile */
-					sm:max-w-[24rem] /* medium screens */
-					md:max-w-[28rem] /* larger screens */
-					lg:max-w-[32rem] /* desktop */
-					xl:max-w-[34rem] /* very large screens */
+					max-w-[18rem]    /* base max for mobile */
+					sm:max-w-[20rem] /* medium screens */
+					md:max-w-[24rem] /* larger screens */
+					lg:max-w-[28rem] /* desktop */
+					xl:max-w-[30rem] /* very large screens */
 
-					min-h-[20rem]
-					sm:min-h-[22rem]
-					md:min-h-[24rem]
-					lg:min-h-[26rem]
+					min-h-[18rem]
+					sm:min-h-[20rem]
+					md:min-h-[22rem]
+					lg:min-h-[24rem]
 				"
 				bg="#6C0E42"
 				stroke="#FFFCC7"
@@ -87,7 +87,7 @@ const Modal: React.FC<ModalProps> = ({
 			>
 				<div className="text-[#FFFCC7]">
 					<div className="px-12 pt-16">
-						<h2 className="font-cupcake text-4xl"
+						<h2 className="font-cupcake text-2xl"
 							style={{ textShadow: `
 										-3px 0 #000,
 										3px 0 #000,
@@ -95,7 +95,7 @@ const Modal: React.FC<ModalProps> = ({
 										0 -3px #000`}}>{title}
 						</h2>
 					</div>
-					<form className="pl-12 pr-14 pb-10 pt-12 space-y-6 text-2xl" onSubmit={handleSubmit}>
+					<form className="pl-12 pr-14 pb-10 pt-12 space-y-6" onSubmit={handleSubmit}>
 						{/* Username input */}
 						<div>
 							<input
@@ -103,8 +103,8 @@ const Modal: React.FC<ModalProps> = ({
 								placeholder={t("auth.placeholder.username")}
 								value={username}
 								onChange={(e) => setUsername(e.target.value)}
-								className="w-full h-[4rem] sketch-border border-[#FFFCC7] font-body bg-gray-800/60 
-										px-3 py-2 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-[#3F839C]"
+								className="w-full h-[3rem] sketch-border border-[#FFFCC7] font-body bg-gray-800/60 
+										px-3 py-2 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-[#58d1b7]"
 								required
 							/>
 						</div>
@@ -116,33 +116,35 @@ const Modal: React.FC<ModalProps> = ({
 							placeholder={t("auth.placeholder.password")}
 							value={password}
 							onChange={(e) => setPassword(e.target.value)}
-							className="w-full h-[4rem] sketch-border border-[#FFFCC7] font-body bg-gray-800/60 
-									px-2 py-2 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-[#3F839C]"
+							className="w-full h-[3rem] sketch-border border-[#FFFCC7] font-body bg-gray-800/60 
+									px-2 py-2 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-[#58d1b7]"
 							required
 						/>
 						{inlineErrors.username && (
-							<p className="text-lg text-[#FFFCC7] mt-3 pl-2">
+							<p className="text-sm sm:text-medium text-[#FFFCC7] mt-3 pl-2">
 								{inlineErrors.username}
 							</p>
 						)}
 						{inlineErrors.password && (
-							<p className="text-lg text-[#FFFCC7] mt-3 pl-2">
+							<p className="text-sm sm:text-medium text-[#FFFCC7] mt-3 pl-2">
 								{inlineErrors.password}
 							</p>
 						)}
 						{/* Backend error (only shown if no inline errors) */}
 							{!inlineErrors.username && !inlineErrors.password && error && (
-								<p className="text-lg text-[#FFFCC7] mt-3 pl-2">{error}</p>
+								<p className="text-sm sm:text-medium text-[#FFFCC7] mt-3 pl-2">{error}</p>
 							)}
 					</div>
 
 					{/* Submit and Close buttons */}
-					<div className="flex justify-between items-center pl-8 pr-8 pt-10">
+					<div className="flex justify-between items-center gap-4 text-black pl-4 pr-4 pt-10">
 						<SketchyButton
 							variant="shadow"
 							className="text-xl"
-							bg="#7C5483"
-							hoverBg="#3A1C4B"
+							bg="#b0605266"
+							hoverBg="#db786718"
+							borderColor="#ce71606d"
+							className="text-lg"
 							type="button"
 							onClick={onClose}
 						>
@@ -151,8 +153,10 @@ const Modal: React.FC<ModalProps> = ({
 						<SketchyButton
 							variant="shadow"
 							className="text-xl"
-							bg="#3F839C"
-							hoverBg="#125a74"
+							bg="#58d1b7d9"
+							hoverBg="#1ea58893"
+							borderColor="#1ea588"
+							className="text-lg"
 							type="submit"
 							>
 								{buttonText}

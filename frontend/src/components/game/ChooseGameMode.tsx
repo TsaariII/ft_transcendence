@@ -24,8 +24,9 @@ const ChooseGameMode: React.FC<ChooseGameModeProps> = ({ onSelectMode }) => {
 					imageSrc={suitcase}
 					width="w-56"
 					height="h-56"
-					scale="scale-150"
+					scale="scale-125"
 					hoverText={t("game.mode.guest")}
+					hoverTextSize = "text-2xl"
 					strokeColor="#6ee7b7"
 					strokeWidth={1.5}
 					animationDuration={200}
@@ -36,8 +37,8 @@ const ChooseGameMode: React.FC<ChooseGameModeProps> = ({ onSelectMode }) => {
 					imageSrc={lock}
 					width="w-56"
 					height="h-56"
-					scale="scale-150"
 					hoverText={t("game.mode.loginSecond")}
+					hoverTextSize = "text-3xl"
 					strokeColor="#6ee7b7"
 					strokeWidth={1.5}
 					animationDuration={200}

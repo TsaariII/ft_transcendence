@@ -61,8 +61,7 @@ const TournamentSetup: React.FC<TournamentSetupProps> = ({ onCancel, onTournamen
 		}
 		);
 
-		console.log("lets see return after remove player", data);
-		 if (data.status === "OK" && data.tournament) {
+		if (data.status === "OK" && data.tournament) {
 			setTournament(data.tournament);
 			} else {
 			console.error("Error removing player:", data.error);

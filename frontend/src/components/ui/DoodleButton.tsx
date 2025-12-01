@@ -39,17 +39,19 @@ const DoodleBox: React.FC<DoodleBoxProps> = ({
 			onClick={onClick}
 			onMouseEnter={() => setIsHovered(true)}
 			onMouseLeave={() => setIsHovered(false)}
-			className={`group ${width} ${height} p-0 ${borderRadius} ${rotate} ${scale}
+			className={`group p-0 ${borderRadius} ${rotate} ${scale}
 				flex flex-col items-center justify-center`}
 			>
-			{imageSrc && (
+			<div className={`${width} ${height} relative flex items-center justify-center`}>
+				{imageSrc && (
 				<img
-				src={imageSrc}
-				alt=""
-				className="w-full h-full object-cover"
+					src={imageSrc}
+					alt=""
+					className="w-full h-full object-cover"
 				/>
-			)}
-			{icon && React.isValidElement(icon) ? icon : icon}
+				)}
+				{icon && React.isValidElement(icon) ? icon : icon}
+			</div>
 
 			{/* Show AnimatedText on hover */}
 			{hoverText && isHovered && (

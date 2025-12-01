@@ -56,7 +56,7 @@ const LanguageToggle: React.FC<{ compact?: boolean }> = ({ compact = true }) => 
 			onClick={() => changeLang(code)}
 			aria-label={label}
 			className="inline-flex items-center gap-2 px-2 py-1 rounded-md bg-[#FFFCC7]
-				hover:bg-[#3F839C] border-2 border-black font-hand text-black
+				hover:bg-[#58d1b7] border-2 border-black font-hand text-black
 				shadow-[4px_4px_0_0_#000]"
 		>
 			<span className="text-xl">{flag}</span>
@@ -130,7 +130,7 @@ const HomePage: React.FC = () => {
 		setFormError(null);
 		setInlineErrors({});
 
-		let errors;
+		let errors: { username?: string; password?: string } = {};
 
 		if (modalMode === "register") {
 			errors = validateRegisterInput(data.username, data.password, t);
@@ -262,7 +262,7 @@ const HomePage: React.FC = () => {
 							/>
 							<div className="flex gap-10 font-cupcake sm:text-xl md:text-3xl text-[#FFFCC7]">
 								<button
-									className="hover:text-[#3F839C]"
+									className="hover:text-[#58d1b7]"
 									style={{ textShadow: `
 										-3px 0 #000,
 										3px 0 #000,
@@ -277,7 +277,7 @@ const HomePage: React.FC = () => {
 								</button>
 
 								<button
-									className="hover:text-[#3F839C]"
+									className="hover:text-[#58d1b7]"
 									style={{ textShadow: `
 										-3px 0 #000,
 										3px 0 #000,
@@ -360,40 +360,41 @@ const HomePage: React.FC = () => {
 						padding="0.25rem"
 						borderRadius="20px"
 						>
-						<div className="text-[#FFFCC7]">
-							<div className="px-12 pt-12">
-								<h2 className="text-2xl font-bold mb-2">{t("home.2fa.title")}</h2>
-								<p className="text-sm text-gray-300 mb-4">{t("home.2fa.instructions")}</p>
-								<input
-									type="text"
-									value={otp}
-									onChange={(e) => setOtp(e.target.value)}
-									className="ml-14 mt-6 w-82 p-3 border border-gray-700 bg-gray-900 rounded-md text-center text-2xl tracking-widest focus:outline-none focus:ring-2 focus:ring-[#58d1b7]"
-									maxLength={6}
-									placeholder="123456"
-								/>
-								<SketchyButton
-									variant="shadow"
-									bg="#58d1b7d9"
-									hoverBg="#1ea58893"
-									borderColor="#1ea588"
-									onClick={handle2faVerifySubmit}
-									className="w-56 ml-24 mt-4 px-6 py-3 text-black"
-									
+						 <div className="text-[#FFFCC7] flex flex-col items-center px-12 pt-12">
+							<h2 className="text-2xl font-bold mb-2">{t("home.2fa.title")}</h2>
+							<p className="pt-2 text-sm text-[#FFFCC7] mb-4">{t("home.2fa.instructions")}</p>
+								
+							<input
+								type="text"
+								value={otp}
+								onChange={(e) => setOtp(e.target.value)}
+								className="mt-2 lg:mt-6 mb-3 lg:mb-6 w-full max-w-[14rem] p-3 border border-gray-700 bg-gray-900 rounded-md
+									text-center text-2xl tracking-widest focus:outline-none focus:ring-2 focus:ring-[#58d1b7]"
+								maxLength={6}
+								placeholder="123456"
+							/>
+								
+							<SketchyButton
+								variant="shadow"
+								bg="#58d1b7d9"
+								hoverBg="#1ea58893"
+								borderColor="#1ea588"
+								onClick={handle2faVerifySubmit}
+								className="w-full max-w-[10rem] mt-2 px-6 py-3 text-black"
+							>
+								{t("home.2fa.verify")}
+								
+							</SketchyButton>
+							<SketchyButton
+								variant="shadow"
+								bg="#b0605266"
+								hoverBg="#db786718"
+								borderColor="#ce71606d"
+								onClick={() => setIs2faStep(false)}
+								className="w-full max-w-[10rem] mt-2 px-6 py-3 text-black"
 								>
-									{t("home.2fa.verify")}
-								</SketchyButton>
-								<SketchyButton
-									variant="shadow"
-									bg="#fffcc7"
-									hoverBg="#ce71608a"
-									borderColor="#cd877aff"
-									onClick={() => setIs2faStep(false)}
-									className="w-56 ml-24 mt-2 px-6 py-3 text-black"
-									>
-									{t("common.cancel")}
-								</SketchyButton>
-							</div>
+								{t("common.cancel")}
+							</SketchyButton>
 						</div>
 					</SketchyPanel>
 				</div>
