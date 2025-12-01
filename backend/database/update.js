@@ -55,7 +55,7 @@ function updateUsername(username, userId)
 				return resolve({
 					message: 'Username updated',
 					userId,
-					newUsername: score
+					newUsername: username
 				});
 			}
 		)

@@ -157,9 +157,9 @@ function handleMessage(ws, data)
 			if (player1Won && player1.type === 'login') winnerDbId = dbP1Id;
 			else if (!player1Won && player2.type === 'login') winnerDbId = dbP2Id;
 			const promises = [];
-			if (dbP1Id !== null)
+			if (dbP1Id !== null && dbP2Id !== null)
 				promises.push(updatePlayerGameStats(player1Won, id1));
-			if (dbP2Id !== null)
+			if (dbP2Id !== null && dbP2Id !== null)
 				promises.push(updatePlayerGameStats(!player1Won, id2));
 			promises.push(updateGameResult(gameId, {
 				p1_id: dbP1Id,

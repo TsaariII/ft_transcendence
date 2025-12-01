@@ -155,7 +155,7 @@ export const API_PROTOCOL = {
 
   CHANGE_AVATAR: {
 	  path: '/api/profile/avatar',
-	  method: 'POST',
+	  method: 'PATCH',
   },
 
   UPLOAD_AVATAR: {

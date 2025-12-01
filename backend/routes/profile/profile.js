@@ -76,7 +76,7 @@ async function profileRoutes(fastify, options)
 	});
 	fastify.patch(API_PROTOCOL.CHANGE_USERNAME.path, async (request, reply) => {
 		const {username} = request.body || {};
-		const userId = request.userId; //getUserIdFromToken(request.cookies.auth_token);
+		const userId = request.userId;
 		if (!userId)
 			return reply.code(401).send({status: 'ERROR', error: 'Invalid auth token'});
 		if (!username || typeof username !== 'string')
@@ -86,13 +86,12 @@ async function profileRoutes(fastify, options)
 			let isTaken = false;
 			try
 			{
-				const check = await DBget.checkUsernameAvailable(username);
+				const check = await DBget.checkUsernameAvailable(userId, username);
 				isTaken = !!check.taken;
 			}
 			catch (checkErr)
 			{
 				return reply.code(500).send({status: 'ERROR', error: 'Failed to validate username'});
-
 			}
 			if (isTaken)
 				return reply.code(500).send({status: 'ERROR', error: 'Username not available'});
@@ -114,7 +113,7 @@ async function profileRoutes(fastify, options)
 			return reply.code(400).send({status: 'ERROR', error: 'Missing password field'});
 		try
 		{
-			const check = await DBget.checkPasswordMatch(current_password);
+			const check = await DBget.checkPasswordMatch(userId, current_password);
 			if (!check && check.match !== true)
 				return reply.code(400).send({status: 'ERROR', error: 'Current password does not match'});
 			await DBupdate.updatePassword(new_password, userId);

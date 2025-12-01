@@ -109,10 +109,26 @@ async function fetchUserByUsername(username)
 }
 
 
-//needs some adjustment for clarity
-async function checkUsernameAvailable(username)
+async function checkUsernameAvailable(username, excludeUserId)
 {
   return new Promise((resolve, reject) => {
+    const sql = excludeUserId
+      ? 'SELECT id FROM users WHERE username = ? AND id != ?'
+      : 'SELECT id FROM users WHERE username = ?';
+    const params = excludeUserId ? [username, excludeUserId] : [username];
+
+    db.get(sql, params, (err, row) => {
+      if (err) {
+        return reject({ error: 'DB error checking username', details: err });
+      }
+      return resolve({ taken: !!row });
+    });
+  });
+}
+
+async function checkPasswordMatch(userId, password)
+{
+    return new Promise((resolve, reject) => {
     db.get(`SELECT password FROM users WHERE id = ?`, [userId], async (err, row) => {
       if (err)
         return reject({error: 'DB error password check'});
@@ -122,34 +138,22 @@ async function checkUsernameAvailable(username)
       {
         const ok = await bcrypt.compare(password, row.password);
         if (!ok)
-          return resolve({match: flase});
+          return resolve({match: false});
         return resolve({match: true});
       }
       catch (e) { return reject({error: 'Password check failed'}); }
     });
   });
 }
-
 // {
 //   return new Promise((resolve, reject) => {
-//     db.get('SELECT * FROM users WHERE username = ?', [username], (err, row) =>{
-//       if (err)
-//         reject({ error: 'DB error checking username' });
-// 			resolve({taken: !!row});
+//     db.get('SELECT * FROM users WHERE password = ?', [password], (err, row) => {
+//       if (err || !row)
+//         reject({ error: 'password does not match' });
+// 			resolve({ok: 'password match'});
 // 		});
 // 	});
 // }
-
-async function checkPasswordMatch(password)
-{
-  return new Promise((resolve, reject) => {
-    db.get('SELECT * FROM users WHERE password = ?', [password], (err, row) => {
-      if (err || !row)
-        reject({ error: 'password does not match' });
-			resolve({ok: 'password match'});
-		});
-	});
-}
 // mini example of checking player exists and password matches . 
 
 async function miniLogin(username, password)
