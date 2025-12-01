@@ -16,13 +16,15 @@ import avatar2 from "../assets/avatars/avatar2.png";
 import avatar3 from "../assets/avatars/avatar3.png";
 import avatar4 from "../assets/avatars/avatar4.png";
 import defaultAvatar from "../assets/avatars/default-avatar.png";
+import DoodleButton from "../components/ui/DoodleButton";
+import profile from "../assets/doodles/profile.png";
 
 const USERNAME_REGEX = /^[a-zA-Z][a-zA-Z0-9_]{5,11}$/;
 const PASSWORD_REGEX = /^[a-zA-Z0-9!@#$%^&*()_\-+=.]{8,16}$/;
 
 const availableAvatars = [defaultAvatar, avatar1, avatar2, avatar3, avatar4];
 
-type Row = "language" | "username" | "password" | "avatar" | "twofa" | null;
+type Row = "language" | "username" | "password" | "avatar" | "twofa" | "delete" | null;
 
 const SettingsPage: React.FC = () => {
 	const { t, setLang } = useTranslation();
@@ -313,6 +315,7 @@ const SettingsPage: React.FC = () => {
 			localStorage.setItem("serverLang", language);
 			setOpenRow(null);
 			await refreshSession();
+			setMsg(t("common.language.updated"));
 
 		} catch (e: any) {
 			if (e.sessionExpired) return; // let apiFetch handle redirect on 401
@@ -669,32 +672,167 @@ const SettingsPage: React.FC = () => {
 		}
 	}
 
-	const previewSrc = uploadPreview || selectedAvatar || currentAvatar || null;
+	const previewSrc = 
+		currentAvatar ??
+		uploadPreview ??
+		selectedAvatar ??
+		null;
 				
-	return (
-  <div className="flex justify-center px-6 py-6">
-	{/* Semi-transparent card for content */}
-	<div className="w-full max-w-4xl bg-gray-900/90 rounded-lg p-6 text-white">
-			<h1 className="text-3xl font-bold mb-4">{t("settings.title")}</h1>
+return (
+  <div className="flex flex-col items-center px-6 py-6">
+	{/* Settings header box */}
+	<div className="w-full max-w-5xl relative mx-auto mb-4 p-6 border-4 border-[#FFFCC7] bg-[#D54751]"
+          style={{
+            width: '85%',
+            borderRadius: '60px',
+            boxShadow: '4px 6px 0 rgba(89,50,43, 0.9)',
+            transform: 'rotate(-0.4deg)',
+          }}>
+			<div className="text-center">
+			<h1 className="font-cupcake text-[#FFFCC7] text-5xl tracking-wider"
+              style={{ textShadow: `
+                  -3px 0 #000,
+                  3px 0 #000,
+                  0 3px #000,
+                  0 -3px #000,
+                  3px 3px #59322B,
+                 -3px -3px #59322B`
+               }}
+			>
+				{t("settings.title")}
+			</h1>
+		</div>
+		</div>
+
+		{/* Main settings box */}
+		<div className="w-full flex flex-col relative z-0 mx-auto mb-4 px-1 p-6 border-4 border-[#FFFCC7] bg-[#D54751]"
+          style={{
+            width: '85%',
+            borderRadius: '60px',
+            boxShadow: '4px 6px 0 rgba(89,50,43, 0.9)',
+            transform: 'rotate(-0.4deg)',
+          }}>
 
 			{/* Inline status */}
-			{msg && <p className="mb-3 text-green-300">{msg}</p>}
-			{err && <p className="mb-3 text-red-300">{err}</p>}
+			{msg && <p className="text-center font-body mb-3 text-green-300">{msg}</p>}
+			{err && <p className="text-center font-body mb-3 text-red-300">{err}</p>}
 
-			{/* Account & profile actions */}
-			<section className ="bg-gray-800/50 rounded-lg border border-gray-700 divide-y divide-gray-700">
-				{/* Change Language row */}
-				<SettingButton
-					label={t("settings.title.language")}
+			{/* 3 x 2 doodle grid */}
+			<section className ="flex justify-center mb-20">
+				<div className="grid grid-cols-2 sm:grid-cols-3 gap-6 justify-items-center">
+				{/* Language row */}
+				<DoodleButton
+					imageSrc={profile}
+					width="w-44"
+					height="h-44"
+					rotate="-rotate-1"
+					borderRadius="rounded-[22px_18px_26px_18px]"
+					strokeColor="#FFFCC7"
+					strokeWidth={2}
+					animationDuration={200}
+					hoverText={t("settings.title.language")}
 					onClick={() => toggle("language")}
 				/>
+				{/* Username row */}
+				<DoodleButton
+					imageSrc={profile}
+					width="w-44"
+					height="h-44"
+					rotate="-rotate-1"
+					borderRadius="rounded-[22px_18px_26px_18px]"
+					strokeColor="#FFFCC7"
+					strokeWidth={2}
+					animationDuration={200}
+					hoverText={t("settings.title.username")}
+					onClick={() => toggle("username")}
+				/>
+				{/* Password row */}
+				<DoodleButton
+					imageSrc={profile}
+					width="w-44"
+					height="h-44"
+					rotate="-rotate-1"
+					borderRadius="rounded-[22px_18px_26px_18px]"
+					strokeColor="#FFFCC7"
+					strokeWidth={2}
+					animationDuration={200}
+					hoverText={t("settings.title.password")}
+					onClick={() => toggle("password")}
+				/>
+				{/* Avatar row */}
+				<DoodleButton
+					imageSrc={profile}
+					width="w-44"
+					height="h-44"
+					rotate="-rotate-1"
+					borderRadius="rounded-[22px_18px_26px_18px]"
+					strokeColor="#FFFCC7"
+					strokeWidth={2}
+					animationDuration={200}
+					hoverText={t("settings.title.avatar")}
+					onClick={() => toggle("avatar")}
+				/>
+				{/* 2FA row */}
+				<DoodleButton
+					imageSrc={profile}
+					width="w-44"
+					height="h-44"
+					rotate="-rotate-1"
+					borderRadius="rounded-[22px_18px_26px_18px]"
+					strokeColor="#FFFCC7"
+					strokeWidth={2}
+					animationDuration={200}
+					hoverText={t("settings.change2fa")}
+					onClick={() => toggle("twofa")}
+				/>
+				{/* Delete row */}
+				<DoodleButton
+					imageSrc={profile}
+					width="w-44"
+					height="h-44"
+					rotate="-rotate-1"
+					borderRadius="rounded-[22px_18px_26px_18px]"
+					strokeColor="#FFFCC7"
+					strokeWidth={2}
+					animationDuration={200}
+					hoverText={t("settings.title.delete")}
+					onClick={() => toggle("delete")}
+				/>
+			</div>
+		</section>
+
+		{openRow && (
+			<div
+				className="mt-2 mx-auto p-6 border-4 border-[#FFFCC7] bg-[#F56A5E]"
+				style={{
+					width: "90%",
+					borderRadius: "40px",
+					boxShadow: "4px 6px 0 rgba(89,50,43,0.9)",
+					transform: "rotate(-0.3deg)",
+				}}
+			>
+
+				{/* Language */}
 				{openRow === "language" && (
-					<div className="px-4 pt-3 pb-4">
-						<label className="block mb-2 text-sm">{t("settings.item.language")}</label>
+					<div className="w-full max-w-md">
+						<h2 
+							className="mb-6 font-cupcake text-[#FFFCC7] text-2xl tracking-wider"
+              				style={{ textShadow: `
+                  				-3px 0 #000,
+                  				3px 0 #000,
+                  				0 3px #000,
+                  				0 -3px #000,
+                  				3px 3px #59322B,
+                 				-3px -3px #59322B`
+               				}}
+						>
+							{t("settings.item.language")}
+						</h2>
+
 						<select
 							value={language}
 							onChange={(e) => setLanguage(e.target.value as "en" | "fi" | "sv")}
-							className="bg-gray-900 border border-gray-700 rounded px-2 py-1 text-sm"
+							className="font-hand mb-5 font-semibold bg-[#4DA394] border border-[#59322B] rounded px-2 py-1"
 						>
 							<option value="en">{t("lang.english")}</option>
 							<option value="fi">{t("lang.finnish")}</option>
@@ -707,43 +845,59 @@ const SettingsPage: React.FC = () => {
 					</div>
 				)}
 
-				{/* Change Username row */}
-				<SettingButton
-					label={t("settings.title.username")}
-					onClick={() => toggle("username")}
-				/>
+				{/* Username */}
 				{openRow === "username" && (
-					<div className="px-4 pt-3 pb-4">
-						<label className="block mb-2 text-sm">{t("settings.item.newUsername")}</label>
+					<div className="w-full">
+						<h2 
+							className="mb-6 font-cupcake text-[#FFFCC7] text-2xl tracking-wider"
+              				style={{ textShadow: `
+                  				-3px 0 #000,
+                  				3px 0 #000,
+                  				0 3px #000,
+                  				0 -3px #000,
+                  				3px 3px #59322B,
+                 				-3px -3px #59322B`
+               				}}
+						>
+							{t("settings.item.newUsername")}
+						</h2>
 						<input
 							type="text"
 							name="settings-username"
 							value={usernameInput}
 							onChange={(e) => setUsernameInput(e.target.value)}
-							className="bg-gray-900 border border-gray-700 rounded px-2 py-1 text-sm"
-							placeholder={t("settings.username.notice")}
+							className="mb-5 w-full max-w-xs font-body bg-[#4DA394] border border-[#59322B] rounded px-2 py-1 text-sm"
 							autoComplete="off"
 						/>
 						{/* Inline error shown under the input */}
 						{inlineErrors.username && (
-							<p className="text-red-400 text-xs mt-1">{inlineErrors.username}</p>
+							<p className="font-body text-[#59322B] text-xs mt-1">{inlineErrors.username}</p>
 						)}
 
-						<div className="mt-3 flex gap-2">
+						<div className="mt-3 flex flex-wrap gap-2">
 							<PrimaryTiny onClick={saveUsername} disabled={busy}>{t("common.save")}</PrimaryTiny>
 							<SecondaryTiny onClick={() => closeAndReset("username")} disabled={busy}>{t("common.cancel")}</SecondaryTiny>
 						</div>
 					</div>
 				)}
 
-				{/* Change Password row */}
-				<SettingButton
-					label={t("settings.title.password")}
-					onClick={() => toggle("password")}
-				/>
+				{/* Password */}
 				{openRow === "password" && (
-					<div className="px-4 pt-3 pb-4">
-						<label className="block mb-2 text-sm">{t("settings.item.passwordCurrent")}</label>
+					<div className="w-full">
+						<h2 
+							className="mb-6 font-cupcake text-[#FFFCC7] text-2xl tracking-wider"
+              				style={{ textShadow: `
+                  				-3px 0 #000,
+                  				3px 0 #000,
+                  				0 3px #000,
+                  				0 -3px #000,
+                  				3px 3px #59322B,
+                 				-3px -3px #59322B`
+               				}}
+						>
+							{t("settings.item.password")}
+						</h2>
+						<label className="font-hand text-[#59322B] block mb-2">{t("settings.item.passwordCurrent")}</label>
 						<input
 							type="password"
 							name="settings-current-password"
@@ -752,26 +906,25 @@ const SettingsPage: React.FC = () => {
 							onFocus={e => (e.currentTarget.readOnly = false)}
 							value={currentPassword}
 							onChange={(e) => setCurrentPassword(e.target.value)}
-							className="bg-gray-900 border border-gray-700 rounded px-2 py-1 text-sm"
+							className="w-full max-w-xs mb-5 font-body bg-[#4DA394] border border-[#59322B] rounded px-2 py-1 text-sm"
 						/>
-						<label className="block mt-3 mb-2 text-sm">{t("settings.item.passwordNew")}</label>
+						<label className="font-hand text-[#59322B] block mt-3 mb-2">{t("settings.item.passwordNew")}</label>
 						<input
 							type="password"
 							value={newPassword}
 							onChange={(e) => setNewPassword(e.target.value)}
-							className="bg-gray-900 border border-gray-700 rounded px-2 py-1 text-sm"
-							placeholder={t("settings.password.notice")}
+							className="w-full max-w-xs mb-5 font-body bg-[#4DA394] border border-[#59322B] rounded px-2 py-1 text-sm"
 						/>
-						<label className="block mt-3 mb-2 text-sm">{t("settings.item.passwordConfirm")}</label>
+						<label className="font-hand text-[#59322B] block mt-3 mb-2">{t("settings.item.passwordConfirm")}</label>
 						<input
 							type="password"
 							value={confirmNewPassword}
 							onChange={(e) => setConfirmNewPassword(e.target.value)}
-							className="bg-gray-900 border border-gray-700 rounded px-2 py-1 text-sm"
+							className="w-full max-w-xs mb-5 font-body bg-[#4DA394] border border-[#59322B] rounded px-2 py-1 text-sm"
 						/>
 						{/* Inline error shown under the input */}
 						{inlineErrors.password && (
-							<p className="text-red-400 text-xs mt-1">{inlineErrors.password}</p>
+							<p className="font-body text-[#59322B] text-xs mt-1">{inlineErrors.password}</p>
 						)}
 						<div className="mt-3 flex gap-2">
 							<PrimaryTiny onClick={savePassword} disabled={busy}>{t("common.save")}</PrimaryTiny>
@@ -780,70 +933,87 @@ const SettingsPage: React.FC = () => {
 					</div>
 				)}
 
-				{/* Change Avatar row */}
-				<SettingButton
-					label={t("settings.title.avatar")}
-					onClick={() => toggle("avatar")}
-				/>
+				{/* Avatar*/}
 				{openRow === "avatar" && (
-					<div className="px-4 pt-3 pb-4">
-						<label className="block mb-2 text-sm">{t("settings.item.avatarSelect")}</label>
+					<div className="w-full">
+						<h2 
+							className="mb-6 font-cupcake text-[#FFFCC7] text-2xl tracking-wider"
+              				style={{ textShadow: `
+                  				-3px 0 #000,
+                  				3px 0 #000,
+                  				0 3px #000,
+                  				0 -3px #000,
+                  				3px 3px #59322B,
+                 				-3px -3px #59322B`
+               				}}
+						>
+							{t("settings.item.avatarSelect")}
+						</h2>
 
-						<div className="mb-3">
-							<label className="block mb-1 text-sm">{t("settings.item.avatarCustomAvatar")}</label>
+						<div className="mb-5">
+							<label className="font-hand text-[#59322B] block mt-3 mb-5">{t("settings.item.avatarCustomAvatar")}</label>
 							<input
 								ref={fileInputRef}
 								type="file"
 								accept="image/png,image/jpeg,image/webp"
 								onChange={onPickFile}
-								className="text-sm"
+								className="w-full max-w-xs block bg-[#4DA394] border border-[#59322B] rounded font-body text-[#59322B] text-sm"
 							/>
 
-							<div className="mt-2 flex items-center gap-3">
-								{previewSrc ? (
+							<div className="mt-5 w-full max-w-xs block flex flex-wrap items-center gap-3 rounded-lg border-2 border-[#59322B] bg-[#4DA394] px-4 py-3">
+								{previewSrc ? ( 
+									<div className="w-16 h-16 rounded-full bg-[#4DA394] overflow-hidden flex items-center justify-center">
 									<img
 										src={previewSrc}
 										alt="Preview"
-										className="w-16 h-16 rounded-full border border-gray-700"
+										className="w-16 h-16 rounded-full object-cover"
 										onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }}
 									/>
+								</div>
 								) : (
-									<div className="w-16 h-16 rounded-full border border-gray-700" />
+									<div className="w-16 h-16 rounded-full bg-[#4DA394] border border-[#59322B]" />
 								)}
-								<button
-									type="button"
-									onClick={clearPickedFile}
-									className="px-3 py-1.5 text-sm rounded-md text-white bg-gray-700 hover:bg-gray-600"
-								>
-									{t("common.clear")}
-								</button>
 								<button
 									type="button"
 									onClick={uploadAvatarFile}
 									disabled={!uploadFile || uploadBusy}
 									className={
-										"px-3 py-1.5 text-sm rounded-md text-white " +
-										(uploadBusy ? "bg-blue-400 cursor-wait" : "bg-blue-600 hover:bg-blue-700")
+										"font-hand px-4 py-1.5 text-sm rounded-lg font-semibold  tracking-wide " +
+										(uploadBusy 
+											? "bg-[#F9B4A5] text-[#59322B] cursor-not-allowed" 
+											: "bg-[#FFFCC7] text-[#59322B] shadow-[3px_4px_0_#59322B] hover:translate-y-[1px] hover:shadow-[2px_3px_0_#59322B]")
 									}
 								>
 									{t("common.upload")}
 								</button>
+								<button
+									type="button"
+									onClick={clearPickedFile}
+									className={
+										"font-hand px-4 py-1.5 text-sm rounded-lg font-semibold  tracking-wide " +
+										(uploadBusy
+										 ? "bg-[#C04D57] text-[#FFFCC7] opacity-60 cursor-not-allowed"
+										 : "bg-[#C04D57] text-[#FFFCC7] shadow-[3px_4px_0_#59322B] hover:translate-y-[1px] hover:shadow-[2px_3px_0_#59322B]")
+									}
+								>
+									{t("common.clear")}
+								</button>
 							</div>
 
-							<p className="mt-1 text-xs text-gray-400">{t("settings.item.avatarUploadHint")}</p>
+							<p className="font-body mt-1 text-xs text-[#59322B]">{t("settings.item.avatarUploadHint")}</p>
 						</div>
 
 						{/* Built-in avatar */}
-						<p className="text-sm mb-2">{t("settings.item.avatarBuiltIn")}</p>
-						<div className="grid grid-cols-5 gap-2">
+						<p className="font-hand text-[#59322B] mb-5">{t("settings.item.avatarBuiltIn")}</p>
+						<div className="grid gap-2 grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
 							{availableAvatars.map((av) => (
 								<button
 									key={av}
 									type="button"
 									onClick={() => { setSelectedAvatar(av); setAvatarDirty(av !== currentAvatar); }}
 									className={
-										"rounded-lg p-1 border " +
-										(selectedAvatar === av ? "border-blue-500" : "border-gray-700")
+										"rounded-lg p-1 border flex items-center justify-center " +
+										(selectedAvatar === av ? "bg-[#4DA394] border-[#FFFCC7]" : "bg-[#4DA394] border-[#59322B]")
 									}
 									aria-label="Select avatar"
 								>
@@ -855,31 +1025,44 @@ const SettingsPage: React.FC = () => {
 								</button>
 							))}
 						</div>
-						<div className="mt-3 flex gap-2">
+						<div className="mt-8 flex gap-2">
 							<PrimaryTiny onClick={saveAvatar} disabled={busy || uploadBusy}>{t("common.save")}</PrimaryTiny>
 							<SecondaryTiny
 								onClick={onCancelAvatarClick} disabled={busy || uploadBusy}>{t("common.cancel")}</SecondaryTiny>
 						</div>
 					</div>
 				)}
-						{/*2FA*/}
-						<SettingButton label={t("settings.change2fa")} onClick={() => toggle("twofa")} />
-						{openRow === "twofa" && (
-							<div className="px-4 pt-3 pb-4">
-								{/* Your interactive checkbox */}
-								<label className="flex items-center gap-2 mb-4">
-									<input
-									type="checkbox"
-									checked={twoFactor}
-									onChange={handle2faCheckboxChange}
-									disabled={!!qrCode}
-									/>
-									<span className="text-sm">{t("settings.twofaLabel")}</span>
-								</label>
+
+				{/* 2FA */}
+				{openRow === "twofa" && (
+					<div className="w-full">
+						<h2 
+							className="mb-6 font-cupcake text-[#FFFCC7] text-2xl tracking-wider"
+              				style={{ textShadow: `
+                  				-3px 0 #000,
+                  				3px 0 #000,
+                  				0 3px #000,
+                  				0 -3px #000,
+                  				3px 3px #59322B,
+                 				-3px -3px #59322B`
+               				}}
+						>
+							{t("settings.twofaLabel")}
+						</h2>
+
+						<label className="flex items-center gap-2 mb-4">
+							<input
+								type="checkbox"
+								checked={twoFactor}
+								onChange={handle2faCheckboxChange}
+								disabled={!!qrCode}
+							/>
+							<span className="font-hand text-[#59322B] text-sm">{t("settings.twofaLabel")}</span>
+						</label>
 						{showDisableConfirm && (
-							<div className="mt-3 p-4 rounded-lg border border-gray-700 bg-gray-900/60">
-								<h3 className="font-semibold text-lg">{t("settings.twofaDisableConfirmTitle")}</h3>
-								<p className="text-sm mt-1 text-gray-300">
+							<div className="mt-3 p-4 rounded-lg border border-[#59322B] bg-gray-900/30">
+								<h3 className="font-body text-[#FFFCC7] text-lg">{t("settings.twofaDisableConfirmTitle")}</h3>
+								<p className="font-body text-sm mt-1 text-[#FFFCC7]">
 									{t("settings.twofaDisableConfirmText")}
 								</p>
 								<div className="mt-3 flex gap-2">
@@ -893,19 +1076,19 @@ const SettingsPage: React.FC = () => {
 							</div>
 						)}
 						{qrCode && (
-							<div className="mt-4 p-4 border border-gray-700 rounded-lg bg-gray-900/60 text-white">
-								<h3 className="font-semibold text-lg">{t("settings.twofaEnableTitle")}</h3>
-								<p className="text-sm mt-1">{t("settings.twofaScanQR")}</p>
+							<div className="mt-4 p-4 border border-[#59322B] rounded-lg bg-gray-900/30 text-white">
+								<h3 className="font-body text-lg text-[#FFFCC7]">{t("settings.twofaEnableTitle")}</h3>
+								<p className="text-sm mt-1 font-body text-[#FFFCC7]">{t("settings.twofaScanQR")}</p>
 								<img
 									src={qrCode}
 									alt="2FA QR Code"
 									className="my-3 mx-auto bg-white p-1 rounded"
 								/>
-								<p className="text-sm">{t("settings.twofaEnterCode")}</p>
+								<p className="text-sm font-body text-[#FFFCC7]">{t("settings.twofaEnterCode")}</p>
 								<div className="flex items-center gap-2 mt-2">
 									<input
 										type="text"
-										className="border border-gray-700 bg-gray-900 text-white p-2 rounded-md w-32 text-center tracking-widest"
+										className="border border-[#59322B] bg-[#4DA394] text-[#59322B] p-2 rounded-md w-32 text-center tracking-widest"
 										placeholder="123456"
 										value={otp}
 										onChange={(e) => setOtp(e.target.value.replace(/\D/g,''))}
@@ -929,65 +1112,81 @@ const SettingsPage: React.FC = () => {
 						)}
 					</div>
 				)}
-			</section>
 
-			{/* Danger Zone */}
-		<section className="mt-6 border border-red-500/30 bg-red-900/10 rounded-lg p-4">
-		<h2 className="text-red-400 font-semibold mb-2">
-			{t("settings.title.delete")}
-		</h2>
+			{/* Delete */}
+			{openRow === "delete" && (
+				<div className="w-full max-w-md">
+						<h2 
+							className="mb-6 font-cupcake text-[#FFFCC7] text-2xl tracking-wider"
+              				style={{ textShadow: `
+                  				-3px 0 #000,
+                  				3px 0 #000,
+                  				0 3px #000,
+                  				0 -3px #000,
+                  				3px 3px #59322B,
+                 				-3px -3px #59322B`
+               				}}
+						>
+							{t("settings.title.delete")}
+						</h2>
 
-		{deleteError && <p className="text-red-300 text-sm mb-2">{deleteError}</p>}
-		{deleted && <p className="text-red-300 text-sm mb-2">{t("common.delete.success")}</p>}
+					{deleteError && (
+						<p className="text-red-300 text-sm mb-2">
+							{deleteError}
+						</p>
+					)}
+					{deleted && (
+						<p className="text-red-300 text-sm mb-2">
+							{t("common.delete.success")}
+						</p>
+					)}
 
-		{/* Delete confirmation logic */}
-		{confirmDelete ? (
-			<div className="border border-red-500/30 bg-red-900/10 rounded p-4 mt-3">
-			<p className="text-sm text-red-200 mb-3">
-				{t("settings.delete.text")}
-			</p>
-			<div className="flex gap-2">
-				<button
-				type="button"
-				onClick={handleDeleteProfile}
-				disabled={deleting || deleted}
-				className="px-3 py-1.5 text-sm rounded-md text-white bg-red-600 hover:bg-red-700 disabled:cursor-not-allowed"
+				{/* Delete confirmation logic */}
+				{confirmDelete ? (
+					<div className="font-body text-[#59322B] border border-[#59322B] bg-[#4DA394] rounded p-4 mt-3">
+					<p className="text-sm text-[#FFFCC7] text-red-200 mb-3">
+						{t("settings.delete.text")}
+					</p>
+					<div className="mt-3 flex flex-wrap gap-2">
+						<SecondaryTiny
+							onClick={handleDeleteProfile}
+							disabled={deleting || deleted}
+						>
+							{deleting ? t("common.deleting") : t("game.action.confirm")}
+						</SecondaryTiny>
+						<PrimaryTiny
+							onClick={() => setConfirmDelete(false)}
+						>
+							{t("common.cancel")}
+						</PrimaryTiny>
+					</div>
+				</div>
+			) : (
+				<div className="mt-3 flex flex-wrap gap-2">
+				<SecondaryTiny
+					onClick={() => setConfirmDelete(true)}
+					disabled={deleting || deleted}
 				>
-				{deleting ? t("common.deleting") : t("game.action.confirm")}
-				</button>
-				<button
-				type="button"
-				onClick={() => setConfirmDelete(false)}
-				disabled={deleting}
-				className="px-3 py-1.5 text-sm rounded-md text-white bg-gray-600 hover:bg-gray-700 disabled:cursor-not-allowed"
+					{deleted ? t("common.deleted") : t("settings.item.delete")}
+				</SecondaryTiny>
+				<PrimaryTiny
+					onClick={() => closeAndReset("delete")}
+					disabled={deleting}
 				>
-				{t("common.cancel")}
-				</button>
-			</div>
-			</div>
-		) : (
-			<button
-			type="button"
-			onClick={() => setConfirmDelete(true)}
-			disabled={deleting || deleted}
-			className={`px-3 py-1.5 text-sm rounded-md text-white ${
-				deleted
-				? "bg-red-600 cursor-not-allowed"
-				: deleting
-				? "bg-red-500 cursor-wait"
-				: "bg-red-600 hover:bg-red-700"
-			}`}
-			>
-			{deleted ? t("common.deleted") : t("settings.item.delete")}
-			</button>
-		)}
-		</section>
+					{t("common.cancel")}
+				</PrimaryTiny>
+				</div>
+			)}
 		</div>
-		  </div>
+		)}
+		</div>
+		)}
+		</div>
+		</div>
 	);
 };
 
-function SettingButton({
+/*function SettingButton({
 	label,
 	onClick,
 }: {
@@ -1005,7 +1204,7 @@ function SettingButton({
 			</button>
 		</div>
 	);
-}
+}*/
 
 function PrimaryTiny({
 	children,
@@ -1021,8 +1220,11 @@ function PrimaryTiny({
 			type="button"
 			onClick={onClick}
 			disabled={disabled}
-			className={"px-3 py-1.5 text-sm rounded-md text-white " +
-				(disabled ? "bg-blue-400 cursor-wait" : "bg-blue-600 hover:bg-blue-700")
+			className={
+				"font-hand px-4 py-1.5 text-sm rounded-lg font-semibold  tracking-wide " +
+				(disabled
+					? "bg-[#F9B4A5] text-[#59322B] cursor-not-allowed" 
+					: "bg-[#FFFCC7] text-[#59322B] shadow-[3px_4px_0_#59322B] hover:translate-y-[1px] hover:shadow-[2px_3px_0_#59322B]")
 			}
 		>
 			{children}
@@ -1044,7 +1246,12 @@ function SecondaryTiny({
 			type="button"
 			onClick={onClick}
 			disabled={disabled}
-			className="px-3 py-1.5 text-sm rounded-md text-white bg-gray-700 hover:bg-gray-600 disabled:opacity-50"
+			className={
+				"font-hand px-4 py-1.5 text-sm rounded-lg font-semibold  tracking-wide " +
+				(disabled
+					? "bg-[#C04D57] text-[#FFFCC7] opacity-60 cursor-not-allowed" 
+					: "bg-[#C04D57] text-[#FFFCC7] shadow-[3px_4px_0_#59322B] hover:translate-y-[1px] hover:shadow-[2px_3px_0_#59322B]")
+				}
 		>
 			{children}
 		</button>

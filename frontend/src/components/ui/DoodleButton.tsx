@@ -35,7 +35,7 @@ const DoodleBox: React.FC<DoodleBoxProps> = ({
 			onClick={onClick}
 			onMouseEnter={() => setIsHovered(true)}
 			onMouseLeave={() => setIsHovered(false)}
-			className={`group ${width} ${height} p-0 ${borderRadius} ${rotate}
+			className={`group ${width} p-0 ${borderRadius} ${rotate}
 				flex flex-col items-center justify-center`}
 			>
 			{imageSrc && (
