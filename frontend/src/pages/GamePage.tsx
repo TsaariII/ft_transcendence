@@ -185,6 +185,9 @@ const Game: React.FC = () => {
 		} else if (gameStarted && gameId) {
 			arcadeTitle = "PONG";
 		}
+		else if (selectedMode && gameId && gameSettings && !gameStarted) {
+			arcadeTitle = "PONG";
+		}
 
 	if (loading) return <div>{t("game.checkingLogin")}</div>;
 	if (!isLoggedIn) return <div>{t("game.loginRequired")}</div>;
