@@ -28,9 +28,9 @@ const GameSettings: React.FC<GameSettingsProps> = ({ onConfirm, onBack }) => {
 	return (
 		<div className="mx-auto p-6 font-body text-lg text-white">
 			{/* 2 COLUMN GRID */}
-			<div className="grid grid-cols-1 sm:grid-cols-2 gap-24 mt-10">
+			<div className="grid grid-cols-1 sm:grid-cols-2 gap-20 mt-14">
 				{/* LEFT COLUMN */}
-				<div className="space-y-6">
+				<div className="space-y-4">
 
 					{/* Ball Speed */}
 					<div>
@@ -91,7 +91,7 @@ const GameSettings: React.FC<GameSettingsProps> = ({ onConfirm, onBack }) => {
 				</div>
 
 				{/* RIGHT COLUMN */}
-				<div className="space-y-6">
+				<div className="space-y-4">
 
 					{/* Max Score */}
 					<div>
@@ -143,15 +143,15 @@ const GameSettings: React.FC<GameSettingsProps> = ({ onConfirm, onBack }) => {
 					</div>
 				</div>
 			</div>
-			<div className="flex flex-colsm:flex-row gap-6 sm:gap-40 ml-10 mt-8 sm:mt-12">
+			<div className="flex flex-col sm:flex-row items-center justify-center gap-8 mt-16">
 					{/* Back button */}
 					{onBack && (
 						<SketchyButton
 							variant="shadow"
-							bg="#fffcc7"
-							hoverBg="#ce71608a"
-							borderColor="#cd877aff"
-							className="text-lg text-black w-32"
+							bg="#a48d988a"
+							hoverBg="#a91a5f8a"
+							borderColor="#a91a5f8a"
+							className="text-lg text-white w-32"
 							onClick={onBack}
 						>
 							{t("game.action.back")}
@@ -163,8 +163,8 @@ const GameSettings: React.FC<GameSettingsProps> = ({ onConfirm, onBack }) => {
 						variant="shadow"
 						bg="#58d1b7d9"
 						hoverBg="#1ea58893"
-						borderColor="#1ea588"
-						className="text-lg text-black w-32" 
+						borderColor="#177863ff"
+						className="text-lg text-white w-32" 
 						onClick={() =>
 							onConfirm({ ballSpeed, paddleSize, paddleSpeed, maxScore, powerUp })
 						}
