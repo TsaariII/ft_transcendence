@@ -63,9 +63,9 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 			/>
 
 			{/* Foreground content */}
-			<div className="relative z-10 flex flex-col h-full p-6">
+			<div className="relative z-10 flex flex-col min-h-screen">
 				{showNavbar && (
-					<div className="mb-6">
+					<div className="px-4 pt-4"> 
 						<div className="rounded-xl overflow-hidden shadow-lg">
 							<Navbar />
 						</div>
@@ -73,7 +73,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 				)}
 
 				{/* Main content area */}
-				<main className="flex-grow py-0">{children}</main>
+				<main className="flex-grow">{children}</main>
 			</div>
 		</div>
 	);
