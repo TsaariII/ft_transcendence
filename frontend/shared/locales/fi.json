@@ -96,6 +96,7 @@
   "auth.error.usernameFormat": "Käyttäjänimen tulee olla 6-12 merkkiä, alkaa kirjaimella ja sisältää vain kirjaimia, numeroita, tai alaviivoja.",
   "auth.error.passwordFormat": "Salasanan tulee olla 8-16 merkkiä ja se voi sisältää kirjaimia, numeroita, sekä !@#$%^&*()_-+=.",
   "auth.error.invalidCredentials": "Virheellinen käyttäjänimi tai salasana.",
+  "auth.error.alreadyLoggedIn": "Olet jo kirjautunut sisään tällä käyttäjätunnuksella.",
   "auth.error.secondPlayerLoginFailed": "Toisen pelaajan kirjautuminen epäonnistui.",
   "auth.error.requestFailed": "Pyyntö epäonnistui.",
 
@@ -118,7 +119,7 @@
   "game.mode.title": "Valitse pelitila",
   "game.mode.text": "Valitse vastustaja",
   "game.mode.guest": "Vieraspelaaja",
-  "game.mode.loginSecond": "Kirjautunut toinen pelaaja",
+  "game.mode.loginSecond": "Toinen käyttäjä",
   "game.mode.ai": "Tekoälyvastustaja",
   "game.settings.title": "Peliasetukset",
   "game.settings.ballSpeed": "Pallon nopeus",

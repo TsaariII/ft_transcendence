@@ -96,6 +96,7 @@
   "auth.error.usernameFormat": "Username must be 6-12 characters, start with a letter, and contain only letters, numbers, or underscores.",
   "auth.error.passwordFormat": "Password must be 8-16 characters and may include letters, numbers, and !@#$%^&*()_-+=.",
   "auth.error.invalidCredentials": "Invalid username or password.",
+  "auth.error.alreadyLoggedIn": "You are already logged in with this username.",
   "auth.error.secondPlayerLoginFailed": "Second player login failed.",
   "auth.error.requestFailed": "Request failed.",
 
@@ -119,7 +120,7 @@
   "game.mode.title": "Choose game mode",
   "game.mode.text": "Select your opponent",
   "game.mode.guest": "Guest player",
-  "game.mode.loginSecond": "Logged-in second player",
+  "game.mode.loginSecond": "Another user",
   "game.mode.ai": "AI opponent",
   "game.settings.title": "Game settings",
   "game.settings.ballSpeed": "Ball speed",
