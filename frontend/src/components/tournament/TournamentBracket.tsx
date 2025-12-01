@@ -117,18 +117,18 @@ const TournamentBracket: React.FC<TournamentBracketProps> = ({
 
 			<SketchyButton
 				variant="shadow"
-				bg="#6ee7b7"
-				hoverBg="#6ee7b7a6"
-				borderColor="#6ee7b7"
+				bg="#58d1b7d9"
+				hoverBg="#1ea58893"
+				borderColor="#177863ff"
 				onClick={() => onStartMatch?.(finalMatch)}
 				disabled={!isMatchPlayable(finalMatch, 2, 0)}
 				className={`
 					-mt-4
 					${finalMatch.status === "finished"
-						? "border-gray-600 bg-gray-900 text-gray-500 cursor-not-allowed"
+						? "text-gray-400 cursor-not-allowed"
 						: !isMatchPlayable(finalMatch, 2, 0)
-							? "border-indigo-500 bg-black text-gray-400 cursor-not-allowed"
-							: "border-indigo-500 bg-black text-white hover:bg-indigo-700"
+							? "text-gray-400 cursor-not-allowed"
+							: "text-white hover:bg-indigo-700"
 					}
 				`}
 			>
@@ -165,17 +165,17 @@ const TournamentBracket: React.FC<TournamentBracketProps> = ({
 
 					<SketchyButton
 						variant="shadow"
-						bg="#6ee7b7"
-						hoverBg="#6ee7b7a6"
-						borderColor="#6ee7b7"
+						bg="#58d1b7d9"
+						hoverBg="#1ea58893"
+						borderColor="#177863ff"
 						onClick={() => onStartMatch?.(match)}
 						disabled={!isMatchPlayable(match, 1, idx)}
 						className={`
 							${match.status === "finished"
-								? "border-gray-600 bg-[#fffcc2] text-gray-500 cursor-not-allowed"
+								? "text-gray-400 cursor-not-allowed"
 								: !isMatchPlayable(match, 1, idx)
-									? "border-indigo-500 bg-black text-gray-400 cursor-not-allowed"
-									: "border-indigo-500 bg-black text-black hover:bg-indigo-700"
+									? "text-gray-400 cursor-not-allowed"
+									: "text-white hover:bg-indigo-700"
 							}
 						`}
 					>
@@ -197,10 +197,10 @@ const TournamentBracket: React.FC<TournamentBracketProps> = ({
 						{onCancel && (
 							<SketchyButton 
 								variant="shadow"
-								bg="#fffcc7"
-								hoverBg="#ce71608a"
-								borderColor="#cd877aff"
-								className="text-black"
+								bg="#a48d988a"
+								hoverBg="#a91a5f8a"
+								borderColor="#a91a5f8a"
+								className="text-white"
 								onClick={onCancel}
 							>	
 								{t("tournament.cancel")}

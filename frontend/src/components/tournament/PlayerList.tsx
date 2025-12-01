@@ -310,9 +310,9 @@ const PlayerList: React.FC<PlayerListProps> = ({
 		const isEditMode =
 			isEditingAlias || (!isPlayerReady && player.alias) || aliasChanged;
 
-		const buttonBg = isEditMode ? "#fffcc2" : "#fffcc2";          // normal fill
-		const buttonHoverBg = isEditMode ? "#6ee7b7a0" : "#ce71608a";     // hover fill
-		const buttonBorderColor = isEditMode ? "#6ee7b7" : "#cd877aff"; // border
+		const buttonBg = isEditMode ? "#58d1b7d9" : "#a48d988a";          // normal fill
+		const buttonHoverBg = isEditMode ? "#6ee7b7a0" : "#a91a5f8a";     // hover fill
+		const buttonBorderColor = isEditMode ? "#177863ff" : "#a91a5f8a"; // border
 
 		const NumberIcon = numberIcons[idx];
 	
@@ -400,15 +400,15 @@ const PlayerList: React.FC<PlayerListProps> = ({
 							${isPlayerReady && "border-[#6ee7b7] text-[#6ee7b7]"}
 						`}
 					/>
-					<div className="min-w-0 w-full text-black md:w-30">
+					<div className="min-w-0 w-full text-white md:w-30">
 						{/* Action Buttons (Other players) */}
 						{!player.isSelf && !isPlayerReady && (
 							<SketchyButton
 								variant="shadow"
-								bg="#fffcc2"
-								hoverBg="#6ee7b7a6"
-								borderColor="#6ee7b7"
-								className="px-[1rem]"
+								bg="#58d1b7d9"
+								hoverBg="#1ea58893"
+								borderColor="#177863ff"
+								className="px-[1rem] w-32"
 								onClick={() => handleAddPlayer(role, player)}
 								disabled={isCurrentlyLoading}
 							>
@@ -419,10 +419,10 @@ const PlayerList: React.FC<PlayerListProps> = ({
 						{!player.isSelf && isPlayerReady && (
 							<SketchyButton
 								variant="shadow"
-								bg="#fffcc2"
-								hoverBg="#ce7160a1"
-								borderColor="#ce7160"
-								className="px-[1rem]"
+								bg="#a48d988a"
+								hoverBg="#a91a5f8a"
+								borderColor="#a91a5f8a"
+								className="px-[1rem] w-32"
 								onClick={() => handleRemovePlayer(role)}
 								disabled={isCurrentlyLoading}
 							>
@@ -439,7 +439,7 @@ const PlayerList: React.FC<PlayerListProps> = ({
 									bg={buttonBg}
 									hoverBg={buttonHoverBg}
 									borderColor={buttonBorderColor}
-									className="px-[1rem]"
+									className="px-[1rem] w-32"
 									onClick={() => {
 										if (isPlayerReady && !isEditingAlias) {
 											setIsEditingAlias(true);

@@ -158,12 +158,12 @@ const TournamentSetup: React.FC<TournamentSetupProps> = ({ onCancel, onTournamen
 				</div>
 				)}
 
-				<div className="flex flex-col md:flex-row gap-6 md:gap-24 mt-6 ml-0 md:ml-7 px-4 md:px-0">
+				<div className="flex flex-col md:flex-row justify-center gap-2 md:gap-12 mt-6 ml-0 md:ml-7 px-4 md:px-0">
 					<SketchyButton
 						variant="shadow"
-						bg="#fffcc7"
-						hoverBg="#ce71608a"
-						borderColor="#cd877aff"
+						bg="#a48d988a"
+						hoverBg="#a91a5f8a"
+						borderColor="#a91a5f8a"
 						className="text-black text-lg px-6 py-3 w-full md:w-48"
 						onClick={onCancel}
 						disabled={loading}>
@@ -172,9 +172,9 @@ const TournamentSetup: React.FC<TournamentSetupProps> = ({ onCancel, onTournamen
 
 					<SketchyButton
 						variant="shadow"
-						bg={allPlayersReady ? "#6ee7b7" : "#9ecbbf"}
+						bg={allPlayersReady ? "#58d1b7d9" : "#9ecbbf"}
 						hoverBg={allPlayersReady ? "#1ea58893" : "#9ecbbf"} 
-						borderColor="#1ea588"
+						borderColor="#177863ff"
 						className="text-black text-lg px-6 py-3 w-full md:w-48"
 						disabled={!allPlayersReady || loading || aliasChanged}
 						onClick={handleStartTournament}
