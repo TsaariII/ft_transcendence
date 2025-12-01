@@ -74,11 +74,6 @@ const API_PROTOCOL = {
 		method: 'POST',
 	},
 
-	ADD_PLAYER_TO_TOURNAMENT: {
-		path: '/api/tournament/add-player',
-		method: 'POST',
-	},
-
 	CREATE_TOURNAMENT: {
 		path:'/api/tournaments',
 		method: 'POST',
@@ -87,11 +82,6 @@ const API_PROTOCOL = {
 	GAME_STATE: {
 		path:'/api/game/local/:id/state',
 		method: 'GET',
-	},
-
-	GET_ALL_REGISTERED_PLAYERS: {
-		path: '/api/tournament/search',
-		method: 'GET'
 	},
 
 	GET_FRIENDS: {
@@ -112,11 +102,6 @@ const API_PROTOCOL = {
 	GET_TOURNAMENT_STATE: {
 		path: '/api/tournament/state',
 		method: 'GET',
-	},
-
-	REGISTER_PLAYER_ALIAS: {
-		path: "/api/tournament/register-alias",
-		method: "POST",
 	},
 
 	START_TOURNAMENT: {
@@ -144,12 +129,8 @@ const API_PROTOCOL = {
 	method: 'POST',
 	},
 
-	JOIN_TOURNAMENT: {
-	path: '/api/tournaments/:tid/join',
-	method: 'POST'
-	},
 
-REPORT_GAME_RESULT:{
+	REPORT_GAME_RESULT:{
 	path: '/api/games/result',
 	method: 'POST' },
 	CHANGE_2FA: {
@@ -170,6 +151,11 @@ REPORT_GAME_RESULT:{
 	CANCEL_TOURNAMENT: {
 		path: '/api/tournament/cancel',
 		method: 'DELETE',
+	},
+
+	CLOSE_TOURNAMENT: {
+		path: '/api/tournament/close',
+		method: 'POST'
 	},
 
 	GET_ACTIVE_TOURNAMENT: {

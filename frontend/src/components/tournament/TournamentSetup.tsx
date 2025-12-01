@@ -77,32 +77,47 @@ const TournamentSetup: React.FC<TournamentSetupProps> = ({ onCancel, onTournamen
 		- Sends tournament_id to backend
 	*/
 
-	const handleStartTournament = async () => {
-		const payload: StartTournamentPayload = {
+	// const handleStartTournament = async () => {
+	// 	const payload: StartTournamentPayload = {
+	// 		tournament_id: tournament.tournament_id,
+	// 	};
+
+		// try {
+		// 	setLoading(true);
+			// const url = API_PROTOCOL.START_TOURNAMENT.path.replace(
+			// 	":id", String(tournament.tournament_id)
+			// );
+			// const data: StartTournamentResponse = await apiFetch(
+			// API_PROTOCOL.START_TOURNAMENT.path,
+			// {
+			// 	method: API_PROTOCOL.START_TOURNAMENT.method,
+			// 	headers: { "Content-Type": "application/json" },
+			// 	body: JSON.stringify(payload),
+			// }
+			// );
+		const handleStartTournament = async () => {
+			const payload: StartTournamentPayload = {
 			tournament_id: tournament.tournament_id,
 		};
-
 		try {
 			setLoading(true);
-			const data: StartTournamentResponse = await apiFetch(
-			API_PROTOCOL.START_TOURNAMENT.path,
-			{
+			const url = API_PROTOCOL.START_TOURNAMENT.path.replace(
+				":id", String(tournament.tournament_id)
+			);
+			const data: StartTournamentResponse = await apiFetch(url, {
 				method: API_PROTOCOL.START_TOURNAMENT.method,
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify(payload),
-			}
-			);
-
+				body: JSON.stringify(payload)
+			});
 			console.log("lets looky at the data sent ", data);
 			if (data.status === "OK" && data.tournament) {
 				setTournament(data.tournament);
 				await refreshSession(); 
 				if (onTournamentStarted)
 					onTournamentStarted();
-			} else {
+				} else {
 					console.error("Tournament start error:", data.error);
-			}
-
+				}
 		console.log("Tournament object from backend:", tournament);
 		} catch (err: any) {
 			if (err.sessionExpired) return;
@@ -118,12 +133,17 @@ const TournamentSetup: React.FC<TournamentSetupProps> = ({ onCancel, onTournamen
 	For some reason backend sends status as status: status: "waiting" */
 
 	const setupInProgress = tournament && (
-		tournament.status?.status === "waiting" || 
-		(tournament.status?.status === "ongoing" && 
+		tournament.status === "waiting" || 
+		(tournament.status === "ongoing" && 
 			(!tournament.bracket || tournament.bracket.length === 0)));
 	
 		const allPlayersReady =
 			tournament?.players?.every((player) => player.status === "ready") ?? false;
+
+	const tournamentCanStart =
+		tournament &&
+			tournament.status === "ongoing" &&
+			allPlayersReady;
 
 	return (
 			<div className="mt-3 space-y-14">

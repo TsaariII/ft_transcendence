@@ -1,354 +1,225 @@
-
 const { API_PROTOCOL } = require('@sharedApi');
-const {logger} = require('@logger');
-const flog = logger.child({ fileContext: 'tournamnet.js' });
-const tournamentSchema = require('@schemas/tournamentSchema.js');
-//this is so i can utalize as a utility function from outside this file scope
-const  {
-	getTournamentPlayersWithUsernames,
-	getActiveTournamentStatus,
-	getBrackets,
- 
-} = require('@db/tournament.js');
+const bcrypt = require('bcrypt');
+const {
+	isUserInTournament,
+	getActiveTournamentForUser,
+	buildTournamentState,
+	startTournament,
+	createTournamentWithOwner,
+	getUserByCredentials,
+	insertPlayer,
+	removePlayerFromTournament,
+	isRoleTaken,
+	upsertHostAlias,
+	markOngoingIfFull,
+	cancelTournament,
+	closeTournament,
+	startTournamentMatch
+} = require('../../database/tournament.js'); // adjust path
+const { getUserIdFromToken } = require('@security'); // adjust path
 
-
-let currentTournamentId = null; // global variable to track current tournament id
-/**
- * consideration bank 
- * 
- * for when we need tournamnet id , now we use global variable to track current tournamnet id
- * function getCurrentTournamentId(req) {
-  return req.session.tournamentId || null;
+function roleStringToNumber(role) {
+  const map = {
+    player1: 1,
+    player2: 2,
+    player3: 3,
+    player4: 4,
+  };
+  return map[role] ?? null;
 }
 
- */
-/**
- * 
- * @param {*} players player object containing all existing players from db
- * @returns all players inside db tournament player object , filling empty slots with placeholders, player
- * object has been cleaned , so that eg, no user ids are sent to front end
- */
-function buildTournamentPlayerList(players) {
-	const fullPlayerList = [];
-//	flog.debug({function: 'buildTournamentPlayerList', players: players}, 'building full player list ');
-	for (let i = 1; i <= 4; i++) {
-		const player = players.find(p => p.player_role === `player${i}`);
+const _wrap = (db) => ({
+	run: (sql, params = []) => new Promise((res, rej) =>
+		db.run(sql, params, function (err){
+			if (err) return rej(err);
+			else res({lastID: this.lastID, changes: this.changes});
+		})
+	),
+	get: (sql, params = []) => new Promise((res, rej) =>
+	db.get(sql, params, (e, row) => (e ? rej(e) : res(row || null)))
+	),
+	all: (sql, params = []) => new Promise((res, rej) =>
+	db.all(sql, params, (e, rows) => (e ? rej(e) : res(rows || [])))
+	),
+	tx: async (fn) => {
+		const run = (sql, p=[]) => _wrap(db).run(sql, p);
+		await run('BEGIN');
+		try{const r = await fn(); await run('COMMIT'); return r;}
+		catch (e) {await run('ROLLBACK'); throw e;}
+	}
+});
 
-	if (player) {
-		//flog.debug({function: 'buildTournamentPlayerList', playerrole: player.role}, `////checking ownership////// `);
+module.exports = async function tournamentRoutes(fastify, options) {
+	fastify.get(API_PROTOCOL.GET_ACTIVE_TOURNAMENT.path, async (request, reply) => {
+		const { db } = options;
+		const token = request.cookies?.auth_token;
+		if (!token) return reply.code(401).send({ status: 'ERROR', error: 'Not authenticated' });
+		let userId; try { userId = getUserIdFromToken(token); } catch { return reply.code(401).send({ status: 'ERROR', error: 'Invalid auth token' }); }
 
-		fullPlayerList.push({
-			username:  player.username || "", // fallback if user not assigned,
-			alias: player.alias,
-			role: player.player_role,
-			status: player.player_status,
-			score: player.player_score,
-			isSelf: player.is_owner,
-			isVerified: player.verified
+		const t = await getActiveTournamentForUser(db, userId);
+		if (!t) return reply.send({ status: 'OK', tournament: null });
+		const state = await buildTournamentState(db, t.id, userId);
+		return reply.send({ status: 'OK', tournament: state });
 	});
-	} else {
-		fullPlayerList.push({
-			username: "",
-			alias: "",
-			role: `player${i}`,
-			status: "waiting",
-			score: 0,
-			isSelf: false,
-			isVerified: false
-		});
-	 }
-	}
-	return fullPlayerList;
-}
 
-/**
- * This fucntion takes from database relevent details required for front end and restructures
- * the data for front end.
- *  
- * It fetches the details and compensates for empty values during the tounamnet building phase
- * 
- * @param {*} tournamentId 
- * @returns 
- */
-async function getTournamentState(tournamentId) {
-	let players = await getTournamentPlayersWithUsernames(tournamentId);
-	let tournamentStatus = await getActiveTournamentStatus(tournamentId)
-	let full_list = buildTournamentPlayerList(players);
-	let brackets = await getBrackets(tournamentId);
-	let fullBracket = [];
-	let tid = tournamentId;
-	if (players.length < 4){
-		const round0Finished = brackets[0]?.some(match => match.status === 'finished');
-		if (round0Finished) {
-		  console.log("HELL TO THE YEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
-			tid = 0;
-			full_list = [];
-			players = [];
-			//brackets = [];
-			// await DBtour.applyTournamentId(userId, 0);
+	fastify.post(API_PROTOCOL.CREATE_TOURNAMENT.path, async (request, reply) => {
+		const { db } = options;
+		const token = request.cookies?.auth_token;
+		if (!token) return reply.code(401).send({ status: 'ERROR', error: 'Not authenticated' });
+		let userId; try { userId = getUserIdFromToken(token); } catch { return reply.code(401).send({ status: 'ERROR', error: 'Invalid auth token' }); }
+		try
+		{
+			const tid = await createTournamentWithOwner(db, userId);
+			const state = await buildTournamentState(db, tid, userId);
+			return reply.code(201).send({ status: 'OK', tournament: state });
 		}
-
-	}
-	else if (brackets.length > 0){
-		//full_list = buildTournamentPlayerList(players);
-		//players = await getTournamentPlayersWithUsernames(tournamentId);
-		if (Array.isArray(brackets) && brackets.length >= 3) {
-			fullBracket = [
-				[brackets[0][0], brackets[1][0]], // extract game1 and game2
-				[brackets[2][0]]                  // extract game3
-			];
+		catch (err) {
+			const msg = String(err?.message || '');
+			if (msg.includes('UNIQUE') || msg.includes('constraint')) return reply.code(409).send({ status: 'ERROR', error: 'Tournament create conflict' });
+			request.log.error({ err }, 'CREATE_TOURNAMENT');
+			return reply.code(500).send({ status: 'ERROR', error: 'Create tournament failed' });
 		}
-	}
+	});
 
-	const tournamentState = {
-		tournament_id: tid,
-		status: tournamentStatus,
-		players: full_list,
-		currentMatch: undefined, //not in use?
-		bracket: fullBracket,
-		winner: undefined,
-		createdAt: undefined,
-		lastUpdated: undefined
-	};
-// flog.debug({function: 'getTournamentState', tournamentState: tournamentState}, 'tournament state built +++++++++');
-	return tournamentState;
-//	console.log("tid is ----- ", tournamentId);
-}
-/**
- * 
- * @param {*} fastify fastify instance
- * @param {*} options see context.js for available options
- * 
- * creates a baisc tournament object with creating user as player1.
- */
-async function createTournament(fastify, options){
- 	const {secure, DBtour, DBupdate} = options;
- 	fastify.route({
- 		method: API_PROTOCOL.CREATE_TOURNAMENT.method,
- 		url: API_PROTOCOL.CREATE_TOURNAMENT.path,
- 		handler: async (request, reply) => {
- 			flog.debug({ function: 'createTournament', body: request.body }, 'request body:');
- 			try{
-				const userId = request.userId;
-				const tournamentId = await DBtour.createTournament();
-				flog.warn({function: "create tournamnet", tidbeforeset: tournamentId});
-				currentTournamentId = tournamentId; // set global variable to current tournament id
-				await DBtour.createTournamentPlayer(tournamentId, userId, "", "player1", true, true);
-				const tournamentState = await getTournamentState(tournamentId);
-				await DBupdate.applyTournamentId(userId, tournamentId);				
- 				reply.code(200).send({status: 'OK', tournament: tournamentState});
- 			}
- 			catch (err){
- 				flog.error({fucntion: 'createTournament'}, "error ::", err);
-				reply.code(418).send({status: 'ERROR', message: "error in create tournament"});
- 			}
- 		}
- 	});
-}
-
-/**
- * Players are verified during their log in for tournamnet
- * @param {*} fastify 
- * @param {*} options 
- */
-async function verifyPlayer(fastify, options){
- 	const {DBget, DBtour} = options;
- 	fastify.route({
-		method: API_PROTOCOL.VERIFY_PLAYER.method,
-		url: API_PROTOCOL.VERIFY_PLAYER.path,
-        schema: tournamentSchema,
- 		handler: async (request, reply) => {
- 			flog.debug({ function: 'verifyPlayer', body: request.body }, 'request body:');
- 			const {role, username, password, alias} = request.body;
-			try {
-				if (!currentTournamentId || currentTournamentId === 0){
-					return;
-				}
-				const userId = request.userId;				
-				let tournamentState = undefined;
-				if (role === 'player1'){
-					await DBtour.updateAlias(currentTournamentId, userId, alias);
-					await DBtour.updatePlayerReadyStatus(currentTournamentId, userId, 'ready');
-					tournamentState = await getTournamentState(currentTournamentId);
-				} else {
-					const otherUserId = await DBget.miniLogin(username, password);
-					//flog.warn({fucntion: "verify player", othrId: otherUserId.id});
-					if (otherUserId) {
-						flog.warn({fiucntion: "verify player", otherid: otherUserId.id}, "seeing if undefined, should not be");
-						await DBtour.createTournamentPlayer(currentTournamentId, otherUserId.id, alias, role, true, false);
-						await DBtour.updatePlayerReadyStatus(currentTournamentId, otherUserId.id, 'ready');
-
-						const checkFull = await DBtour.getTournamentPlayers(currentTournamentId);
-						if (checkFull && checkFull.length === 4) {
-							await DBtour.updateTournamentStatus(currentTournamentId, 'ongoing');
-						}
-						tournamentState = await getTournamentState(currentTournamentId);
-						if (checkFull && checkFull.length  === 4){
-							tournamentState.can_start = true;
-						}
-					}
-				}
- 				reply.code(200).send({status: 'OK', tournament: tournamentState});
- 			}
- 			catch (err){
- 				flog.error({fucntion: 'createTournament'}, "error :: in verify player", err); //wrong
-				reply.code(418).send({ status: 'ERROR', error: 'Verification failed?' });
+	fastify.post(API_PROTOCOL.VERIFY_PLAYER.path, async (request, reply) => {
+		const { db } = options;
+		const token = request.cookies?.auth_token;
+		if (!token) return reply.code(401).send({ status: 'ERROR', error: 'Not authenticated' });
+		let userId; try { userId = getUserIdFromToken(token); } catch { return reply.code(401).send({ status: 'ERROR', error: 'Invalid auth token' }); }
+		request.log.info(
+			{ params: request.params, body: request.body, cookies: Object.keys(request.cookies || {}) },
+			'verify-player in'
+		);
+		const tid = Number(request.body?.tournament_id);
+		const { role, alias, username, password } = request.body || {};
+		if (!Number.isInteger(tid)) return reply.code(400).send({ status: 'ERROR', error: 'Invalid tournament id' });
+		if (role === 'player1') {
+			await upsertHostAlias(db, tid, String(alias || '').trim());
+			const state = await buildTournamentState(db, tid, userId);
+			return reply.send({ status: 'OK', tournament: state });
+		}
+		if (!['player2','player3','player4'].includes(role)) return reply.code(400).send({ status: 'ERROR', error: 'Role must be 2–4' });
+		if (!alias || !username || !password) return reply.code(400).send({ status: 'ERROR', error: 'Missing fields' });
+		const roleNum = roleStringToNumber(role);
+		if (await isRoleTaken(db, tid, roleNum)) return reply.code(409).send({ status: 'ERROR', error: `Role ${role} already taken` });
+		const u = await getUserByCredentials(db, username, password);
+		if (await isUserInTournament(db, tid, u.id))
+			return reply.code(409).send({status: 'ERROR', error: 'User already joined this tournament'});
+		if (!u) return reply.code(400).send({ status: 'ERROR', error: 'Invalid credentials' });
+		await insertPlayer(db, tid, u.id, String(alias).trim(), roleNum);
+		await markOngoingIfFull(db, tid);
+		const state = await buildTournamentState(db, tid, userId);
+		return reply.send({ status: 'OK', tournament: state });
+	});
+	fastify.delete(API_PROTOCOL.REMOVE_PLAYER_FROM_TOURNAMENT.path, async (request, reply) => {
+		const {db} = options;
+		const {role} = request.body || {};
+		const token = request.cookies?.auth_token;
+		if (!token) return reply.code(401).send({ status: 'ERROR', error: 'Not authenticated' }); 
+		try { userId = getUserIdFromToken(token); }
+		catch { return reply.code(401).send({ status: 'ERROR', error: 'Invalid auth token' }); }
+		const tid = Number(request.body?.tournament_id);
+		if (!Number.isInteger(tid)) return reply.code(400).send({ status: 'ERROR', error: 'Invalid tournament id' });
+		const roleNum = roleStringToNumber(role);
+		const result = removePlayerFromTournament(db, tid, roleNum);
+		if (!result || !result.changes) return reply.code(404).send({status: 'ERROR', error: 'Player not in tournament'});
+		return reply.send({ok: true});
+	});
+	fastify.post(API_PROTOCOL.START_TOURNAMENT.path, async (request, reply) => {
+		const { db } = options;
+		try
+		{
+			const token = request.cookies?.auth_token;
+			if (!token) return reply.code(401).send({ status: 'ERROR', error: 'Not authenticated' });
+			let userId; 
+			try { userId = getUserIdFromToken(token); }
+			catch { return reply.code(401).send({ status: 'ERROR', error: 'Invalid auth token' }); }
+			const tid = Number(request.params?.id ?? request.body?.tournament_id);
+			if (!Number.isInteger(tid)) return reply.code(400).send({ status: 'ERROR', error: 'Invalid tournament id' });
+			try
+			{
+				await startTournament(db, tid);
+				const state = await buildTournamentState(db, tid, userId);
+				return reply.send({ status: 'OK', tournament: state });
 			}
- 		}
- 	});
-}
-async function createMatchWithBracket(DBtour, game, tournamentId, playerA, playerB, round) {
-	const gameId = game.createGameCore(
-		playerA?.user_id,
-		'tournament',
-		'local',
-		playerA?.alias
-	);
-
-	const gameObj = game.getGame(gameId);
-	gameObj.tid = tournamentId;
-
-	if (playerB) {
-		game.addPlayer(gameId, playerB.user_id, {
-			type: 'login',
-			ws: undefined,
-			role: 'player2',
-			alias: playerB.alias,
-			ready: false,
-			disconnectedAt: undefined,
-			pauseTimeout: undefined,
-			score: playerB.player_score
-		});
-	}
-
-	const bracket = await DBtour.buildBracket(
-		tournamentId,
-		playerA?.user_id,
-		playerB?.user_id,
-		gameId,
-		round,
-		'pending'
-	);
-	return createMatches(playerA, playerB, bracket);
-}
-
-async function createMatches(player1, player2, bracket){
-//same is logic as buildfulllist? 
-//flog.warn({function: 'createMatches'}, 'entering create matches');
-//flog.warn({function: 'createMatches', bracket: bracket}, 'entering create matches');
-	if (player1 === null && player2 === null) {
-
-		player1 = {
-			username: "TBD",
-			alias: "TBD",
-			status: "waiting",
-			score: 0,
-			isSelf: false,
-		}
-		player2 = {
-			username: "TBD",
-			alias: "TBD",
-			status: "waiting",
-			score: 0,
-			isSelf: false,
-		}
-	}
-const ret = {
-		match_id: bracket.game_uid,
-		player1: player1,
-		player2: player2,
-		status: "pending",
-		score: { player1: player1.score, player2: player2.score },
-	}
-	return ret;
-}
-
-
-async function startTournament(fastify, options){
-	const {DBtour, game, DBget} = options;
- 	fastify.route({
-		method: API_PROTOCOL.START_TOURNAMENT.method,
-		url: API_PROTOCOL.START_TOURNAMENT.path,
- 		handler: async (request, reply) => {
-			try {
-				flog.warn({fucntion: 'start torunamnet'}, "starting tournamnet ------------------------");
-				if (!currentTournamentId || currentTournamentId === 0){
-					return;
-				}
-				
-				await DBtour.seedPlayers(currentTournamentId);
-				const players = await DBtour.getTournamentPlayers(currentTournamentId);
-				if (players.length != 4){
-					return;
-				}
-				const match1 = await createMatchWithBracket(DBtour, game, currentTournamentId, players[0], players[3], 1);
-				const match2 = await createMatchWithBracket(DBtour, game, currentTournamentId, players[1], players[2], 2);
-				const match3 = await createMatchWithBracket(DBtour, game, currentTournamentId, null, null, 3);		
-		
-				let tournamentState = await getTournamentState(currentTournamentId);
-					//flog.debug({function: 'startTournament', tournamentState: tournamentState}, "showing state before adding extra bits");
-				tournamentState.currentMatch = match1;
-				tournamentState.bracket = [[match1, match2], [match3]];
-				reply.code(200).send({status: 'OK', tournament: tournamentState});
-			} catch (err) {
-			//	flog.error({fucntion: 'startTournament', errStack: err.stack, errMessage: err.message}, "error :: in start tournament"); //wrong
-				reply.code(418).send({ status: 'ERROR', error: 'Start tournament failed?' });//wrong	
+			catch (err)
+			{
+				const statusCode = err.statusCode || 500;
+				const message =typeof err.message === 'string' && err.message.trim() ? err.message : 'Failed to start tournament';
+				return reply.code(statusCode).send({ status: 'ERROR', error: message });
 			}
 		}
-		
+		catch (err)
+		{
+			const statusCode =
+			err && Number.isInteger(err.statusCode) ? err.statusCode : 500;
+			const message = err && typeof err.message === 'string' && err.message.trim()
+				? err.message
+				: 'Failed to start tournament';
+			return reply.code(statusCode).send({ status: 'ERROR', error: message });
+		}
+	});
+	fastify.delete(API_PROTOCOL.CANCEL_TOURNAMENT.path, async (request, reply) => {
+		const { db } = options;
+		const token = request.cookies?.auth_token;
+		if (!token) return reply.code(401).send({ status: 'ERROR', error: 'Not authenticated' });
+		let userId; try { userId = getUserIdFromToken(token); }
+		catch { return reply.code(401).send({ status: 'ERROR', error: 'Invalid auth token' }); }
+		const active = await getActiveTournamentForUser(db, userId);
+  		if (!active) return reply.code(404).send({ status: 'ERROR', error: 'No active tournament' });
+		try
+		{
+			await cancelTournament(db, active.id, userId);
+			return reply.send({ status: 'OK', tournament: null });
+		}
+		catch (err)
+		{
+			request.log.error({ err, tid }, 'CANCEL_TOURNAMENT failed');
+			return reply.code(err.statusCode || 500).send({ status: 'ERROR', error: err.message || 'Failed to cancel tournament' });
+		}
+	});
+	fastify.post(API_PROTOCOL.CLOSE_TOURNAMENT.path, async (request, reply) => {
+		const {db} = options;
+		const token = request.cookies?.auth_token;
+		if (!token) return reply.code(401).send({ status: 'ERROR', error: 'Not authenticated' });
+		let userId; 
+		try { userId = getUserIdFromToken(token); }
+		catch { return reply.code(401).send({ status: 'ERROR', error: 'Invalid auth token' }); }
+		const active = await getActiveTournamentForUser(db, userId);
+		if (!active) return reply.code(404).send({status: 'ERROR', error: 'No active tournament'});
+		try
+		{
+			await closeTournament(db, active.id, userId);
+			return reply.send({status: 'OK', tournament: null});
+		}
+		catch (err)
+		{
+			request.log.error({err, tid: active.id}, 'CLOSE_TOURNAMENT failed');
+			return reply.code(err.statusCode || 500).send({
+				status: 'ERROR', error: err.message || 'Failed to close tournament'
+			});
+		}
+	});
+	fastify.post(API_PROTOCOL.START_TOURNAMENT_MATCH.path, async (request, reply) => {
+		const {db} = options;
+		const token = request.cookies?.auth_token;
+		if (!token) return reply.code(401).send({ status: 'ERROR', error: 'Not authenticated' });
+		let userId; try { userId = getUserIdFromToken(token); }
+		catch { return reply.code(401).send({ status: 'ERROR', error: 'Invalid auth token' }); }
+		const tid = Number(request.body?.tournament_id);
+		if (!Number.isInteger(tid)) return reply.code(400).send({ status: 'ERROR', error: 'Invalid tournament id' });
+		const matchId = Number(request.body?.match_id);
+		if (!Number.isInteger(matchId)) return reply.code(400).send({ status: 'ERROR', error: 'Invalid match id' });
+		try
+		{
+			await startTournamentMatch(db, tid, matchId, userId);
+			const state = await buildTournamentState(db, tid, userId);
+			return reply.send({status: 'OK', tournament: state});
+		}
+		catch (err)
+		{
+			request.log.error({err, tid, matchId}, 'START_TOURNAMENT_MATCH failed');
+			return reply.code(err.statusCode || 500).send({status: 'ERROR', error: err.message || 'Failed to start match'});
+		}
 	});
 }
-
-async function removeUserFromTournament(fastify, options) {
-	const {secure, DBget, DBtour, game} = options;
- 	fastify.route({
-		method: API_PROTOCOL.REMOVE_PLAYER_FROM_TOURNAMENT.method,
-		url: API_PROTOCOL.REMOVE_PLAYER_FROM_TOURNAMENT.path,
- 		handler: async (request, reply) => {
-			//flog.debug({function: "removeUserFRomTournamnet", body:request.body}, "looking at incoming body")
-			const {tournament_id, role} = request.body;
-			try {
-				await DBtour.removePlayer(tournament_id, role);
-				const tournamentState = await getTournamentState(tournament_id);
-				reply.code(200).send({status: 'OK', tournament: tournamentState});
-			}
-			catch (err) {
-				reply.code(418).send({status: 'ERROR', error: "error removing from tournamnet"});
-			}
-		}
-	})
-}
-
-async function cancelTournament(fastify, options) {
-	const {DBupdate, DBtour} = options;
- 	fastify.route({
-		method: API_PROTOCOL.CANCEL_TOURNAMENT.method,
-		url: API_PROTOCOL.CANCEL_TOURNAMENT.path,
- 		handler: async (request, reply) => {
-			const {tournament_id} = request.body;
-			try {
-				const userId = request.userId;
-				await DBtour.cancelTournament(tournament_id);
-				await DBupdate.applyTournamentId(userId, 0);
-				reply.code(200).send({status: 'OK'});
-
-			}
-			catch(err) {
-				//flog.error({function: "cancelTournament", errmsg: err.message}, "errorerror")
-				reply.code(418).send({status: 'ERROR', error: "error canceling tournamnet"});
-			}
-		}
-	})
-}
-
-
-async function tournamentRoutes(fastify, options) {
-	await createTournament(fastify, options);
-	await verifyPlayer(fastify, options);
-	await startTournament(fastify, options);
-	await removeUserFromTournament(fastify, options);
-	await cancelTournament(fastify, options);
-}
-tournamentRoutes.getTournamentState = getTournamentState;
-
-module.exports = tournamentRoutes;

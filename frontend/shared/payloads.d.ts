@@ -260,6 +260,7 @@ export interface VerifyPlayerPayload {
   username: string;
   password: string;
   alias: string;
+  tournament_id: string;
 }
 
 export interface VerifyPlayerResponse {

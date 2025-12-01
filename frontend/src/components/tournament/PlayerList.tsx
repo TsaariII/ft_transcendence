@@ -203,12 +203,14 @@ const PlayerList: React.FC<PlayerListProps> = ({
 				username: player.isSelf ? player.username : data.username,	// use username entered in the form or logged-in player's username
 				password: player.isSelf ? "" : data.password,	// only sends password if player is not self
 				alias: aliasToUse,
+				tournament_id: tournament.tournament_id
 			};
 
 			// API call to backend to verify entered player
 				const response: VerifyPlayerResponse = await apiFetch(API_PROTOCOL.VERIFY_PLAYER.path, {
 				method: API_PROTOCOL.VERIFY_PLAYER.method,
 				headers: { "Content-Type": "application/json" },
+				credentials: "include",
 				body: JSON.stringify(payload),
 			});
 

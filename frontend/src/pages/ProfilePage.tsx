@@ -92,7 +92,7 @@ const Profile: React.FC = () => {
 				{/* <StatCard label={`${t("profile.stats.tournamentWins")} 🏆`} value={user.tournamentWins ?? user.tournament_wins ?? 0} /> */}
 			</section>
 
-			{/* Match History */}
+			Match History
 			<section className="mt-6">
 				<h3 className="font-semibold mb-2">{t("profile.history.title")}</h3>
 					<div className="rounded-lg border border-gray-700 bg-gray-800/40 overflow-hidden">

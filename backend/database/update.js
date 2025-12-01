@@ -1,326 +1,234 @@
 const db = require('./initDB');
-// const updateScoreSchema = require('@schemas/updateScore.js');
 const {logger} = require('@logger');
-const flog = logger.child({ fileContext: 'DB/update.js' }); // scoped logger
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
-function updateOnlineStatus(userId, status) {
-	flog.info({function: "updateOnlineStatus"})
-	return new Promise((resolve, reject) => {
-		db.run ('UPDATE users SET status = ? WHERE id = ?',
-			[status, userId],
-			function (err) {
-				if (err) {
-					return reject ({ error: 'failed to update status', code: 418 });
-				}
-				else if (this.changes === 0) {
-					return reject({error: 'no changes made', code: 401});
-				}
-				else {
-					return resolve (this.changes);
-				}
-			}
+const flog = logger.child({fileContext: 'DB/update.js'});
 
-		)
-	}
-)
-}
-
-function updateUserScore({userId, score}) {
-	console.log('updating score for user:', { userId, score });
-
+function updateOnlineStatus(userId, status)
+{
+	const normalizedStatus = typeof status === 'string' ? status : status ? 'online' : 'offline ';
 	return new Promise((resolve, reject) => {
 		db.run(
-			`UPDATE users SET score = ? WHERE id = ?`,
-			[score, userId],
+			`UPDATE users SET status = ? WHERE id = ?`, [normalizedStatus, userId],
 			function (err) {
-				if (err) {
-					reject({ error: 'Failed to update the score', details: err});
-				} else if (this.changes === 0) {
-					reject({ error: 'User not found , no changes made' });
-				} else {
-					resolve({ message: 'Score updated', userId: userId, newScore: score});
-				}
+				if (err)
+					return reject({error: 'Failed to update status', code: 418, details: err});
+				// if (this.changes === 0)
+				// 	return reject({error: 'No changes made', code: 401});
+				return resolve({updated: this.changes, status: status});
 			}
 		);
 	});
 }
 
-function updateUsername(username, userId) {
-	console.log('updating username for user:', { username, userId});
-
+function updateUserScore({userId, score})
+{
 	return new Promise((resolve, reject) => {
 		db.run(
-			`UPDATE users SET username = ? WHERE id = ?`,
-			[username, userId],
+			`UPDATE users SET score = ? WHERE id = ?`, [score, userId],
 			function (err) {
-				if (err) {
-					reject({ error: 'Failed to update the username', details: err});
-				} else if (this.changes === 0) {
-					reject({ error: 'User not found , no changes made' });
-				} else {
-					resolve({ message: 'username updated', userId: userId, newUsername: username});
-				}
+				if (err)
+					return reject({error: 'Failed to update score', details: err});
+				if (this.changes === 0)
+					return reject({error: 'User not found, no changes made'});
+				return resolve({
+					message: 'Score updated',
+					userId,
+					newScore: score
+				});
 			}
 		);
 	});
 }
 
-function updatePassword(hashedPassword, userId) {
-	console.log('updating username for user:', { hashedPassword, userId});
-
+function updateUsername(username, userId)
+{
 	return new Promise((resolve, reject) => {
 		db.run(
-			`UPDATE users SET password = ? WHERE id = ?`,
-			[hashedPassword, userId],
+			`UPDATE users SET username = ? WHERE id = ?`, [username, userId],
 			function (err) {
-				if (err) {
-					reject({ error: 'Failed to update the password', details: err});
-				} else if (this.changes === 0) {
-					reject({ error: 'User not found , no changes made' });
-				} else {
-					resolve({ message: 'password updated', userId: userId, newPassword: hashedPassword});
-				}
-			}
-		);
-	});
-}
-
-function changeAvatar(avatar, userId) {
-	console.log('updating avatar for user:', userId);
-
-	return new Promise((resolve, reject) => {
-		db.run(
-			`UPDATE users SET  avatar_file = ? WHERE id = ?`,
-			[avatar, userId],
-			function (err) {
-				if (err) {
-					reject({ error: 'Failed to update the avatar', details: err});
-				} else if (this.changes === 0) {
-					reject({ error: 'User not found , no changes made' });
-				} else {
-					resolve({ message: 'password updated', userId: userId, newAvatar: avatar});
-				}
-			}
-		);
-	});
-}
-
-function changeLanguage(language, userId) {
-	console.log('updating language for user:', userId);
-
-	return new Promise((resolve, reject) => {
-		db.run(
-			`UPDATE users SET  language = ? WHERE id = ?`,
-			[language, userId],
-			function (err) {
-				if (err) {
-					reject({ error: 'Failed to update the language', details: err});
-				} else if (this.changes === 0) {
-					reject({ error: 'User not found , no changes made' });
-				} else {
-					resolve({ message: 'language updated', userId: userId, newLanguage: language});
-				}
-			}
-		);
-	});
-}
-
-async function update2fa(enabled, userId, secret) {
-	flog.debug({ function: 'update2fa', userId: userId, enabled: enabled }, 'Updating 2FA settings for user');
-
-	return new Promise((resolve, reject) => {
-		db.run(
-			'UPDATE users SET mfa_enabled = ?, mfa_secret = ? WHERE id = ?',
-			[enabled ? 1 : 0, secret || null, userId],
-			function (err) {
-				if (err) {
-					reject({ error: 'Failed to update 2fa', details: err});
-				} else if (this.changes === 0) {
-					reject({ error: 'User not found , no changes made' });
-				} else {
-					resolve({ message: '2fa updated', userId: userId, enabled: enabled});
-				}
-			}
-		);
-	});
-	
-}
-/**
- * 
- * @param {*} winner bool if winner or not 
- * @param {*} id player id
- * @param {*} score score to update
- */
-async function updatePlayerGameStats(winner, id, score) {
-	flog.debug({ function: 'updateGameStats', userId: id, winner: winner, score: score }, 'Updating game stats for user');
-
-	return new Promise((resolve, reject) => {
-		db.serialize(() => {
-			db.run(
-				'UPDATE users SET  wins = wins + ?, losses = losses + ?, score = score + ?, total_games = total_games + 1 WHERE id = ?',
-				[winner ? 1 : 0, winner ? 0 : 1, score, id],
-				function (err) {
-					if (err) {
-						flog.error({ function: 'updateGameStats', error: err }, 'Error updating player game stats');
-						return reject({ error: 'Failed to update player game stats ', details: err});
-					} else if (this.changes === 0) {
-						flog.error({ function: 'updateGameStats' }, 'No changes made, user not found');
-						reject({ error: 'User not found , no changes made' });
-					} else {
-	        db.get(
-	            'SELECT wins, losses, score, total_games FROM users WHERE id = ?',
-	            [id],
-	            (err, row) => {
-	              if (err) {
-	                reject({ error: 'Failed to fetch updated stats', details: err });
-	              } else {
-						const { wins, total_games, score } = row;
-						const winRate = total_games > 0 ? wins / total_games : 0;
-						const experienceFactor = total_games / (total_games + 10);
-						const rank = Math.round(score * winRate * experienceFactor);
-						db.run(
-							'UPDATE users SET rank = ? WHERE id = ?',
-							[rank, id],
-							(err) => {
-								if (err) {
-									flog.error({ function: 'updateGameStats', error: err }, 'Error updating rank');
-									reject({ error: 'Failed to update rank', details: err });
-								}
-							})
-					flog.debug({function: "updategamestats", ...row}, "show me the stats");
-	                resolve({ message: 'player game stats updated', userId: id, ...row });
-	              }
-	            }
-	          );
-	        }
-		})
-      }
-    );
-  });
-}
-
-//helper
-//	function calculateRank(score, wins, totalGames) {
-//  const winRate = totalGames > 0 ? wins / totalGames : 0;
-//  const experienceFactor = totalGames / (totalGames + 10); // dampens low-game players
-//  return score * winRate * experienceFactor;
-//}
-
-
-
-async function applyTournamentId(userId, tournamentId){
-	return new Promise ((resolve, reject) =>{
-		db.run(
-			'UPDATE users SET active_tournament_id = ? WHERE id = ?',
-			[tournamentId, userId],
-			function (err) {
-				if (err) {
-					flog.error({ function: 'applyTournamentId', error: err }, 'Error updating player game stats');
-					reject({ error: 'Failed to update player game stats ', details: err});
-				} else if (this.changes === 0) {
-					flog.error({ function: 'applyTournamentId' }, 'No changes made, user not found');
-					reject({ error: 'User not found , no changes made' });
-				} else {
-					return resolve({ messgae: 'active touramnet set', tid: tournamentId})
-				}
+				if (err)
+					return reject({error: 'Failed to update username', details: err});
+				if (this.changes === 0)
+					return reject({error: 'User not found, no changes made'});
+				return resolve({
+					message: 'Username updated',
+					userId,
+					newUsername: username
+				});
 			}
 		)
 	})
 }
-//
-async function updateMatchHistory(userId, result, userScore, userType, opponentId, opponentScore, opponentType) {
-  return new Promise((resolve, reject) => {
-	// must first make sure thet type has valid id, user1 will always be logged in
-	if (userType !== 'login') {
-    	return resolve({ message: `No match history needed for ${userType}` });
-	}
-	console.log("what is the id before all the shifty buisness", opponentId);
-	const numericOpponentId = opponentType === 'login' ? opponentId : null;
-	console.log("checking update match history that opponent id makes sense", numericOpponentId);
-	db.serialize(() => {
-      // Check how many matches the user has we rae capped at 10 at this moment
-      db.get(
-        'SELECT COUNT(*) AS count FROM match_history WHERE user_id = ?',
-        [userId],
-        (err, row) => {
-        	if (err) return reject({ error: 'Failed to count match history', details: err });
-			// Create a call back delete function in here as we wont use it anywhere else
-          const maybeDeleteOldest = (cb) => {
-            if (row.count >= 10) {
-              db.run(
-                'DELETE FROM match_history WHERE id = (SELECT id FROM match_history WHERE user_id = ? ORDER BY match_date ASC LIMIT 1)',
-                [userId],
-                cb
-              );
-            } else {
-              cb();
-            }
-          };
 
-          maybeDeleteOldest(() => {
-            //  Insert new match after if delete
-            db.run(
-              `INSERT INTO match_history 
-              (user_id, opponent_id, user_score, opponent_score, result, opponent_type, match_date) 
-              VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`,
-              [userId, numericOpponentId, userScore, opponentScore, result, opponentType],
-              function (err) {
-                if (err) {
-                  reject({ error: 'Failed to insert match history', details: err });
-                } else {
-                  resolve({ 
-                    matchId: this.lastID,
-                    userId,
-                    opponentId,
-                    result,
-                    score: userScore,
-                    opponentScore,
-                    //timestamp: new Date().toISOString()
-					//this.chnages later
-                  });
-                }
-              }
-            );
-          });
-        }
-      );
-    });
-  });
+function updatePassword(password, userId)
+{
+	return new Promise((resolve, reject) => {
+		bcrypt.hash(password, saltRounds, (hashErr, hash) => {
+			if (hashErr)
+				return reject({error: 'Failed to hash password', details: hashErr});
+			db.run(
+				`UPDATE users SET password = ? WHERE id = ?`, [hash, userId],
+				function (err) {
+					if (err)
+						return reject({error: 'Failed to update password', details: err});
+					if (this.changes === 0)
+						return reject({error: 'User not found, no changes made'});
+					return resolve({
+						message: 'Password updated',
+						userId
+					});
+				}
+			);
+		});
+	});
 }
 
-//async function updateMatchHistory(userId, result, score, opponentId) {
-//	flog.debug({ function: 'updateMatchHistory', userId: userId }, 'Updating match history for user');
-//
-//	return new Promise((resolve, reject) => {
-//		db.get('FROM users WHERE id = ?',
-//		[]	
-//		)
-//		db.run(
-//			'INSERT INTO match_history = ? WHERE id = ?',
-//			[, userId],
-//			function (err) {
-//				if (err) {
-//					reject({ error: 'Failed to update match history', details: err});
-//				} else if (this.changes === 0) {
-//					reject({ error: 'User not found , no changes made' });
-//				} else {
-//					resolve({ message: 'match history updated', userId: userId});
-//				}
-//			}
-//		);
-//	});
-//}	
-//	
-module.exports = { updateUserScore,
-	updateUsername,
+function changeAvatar(avatar, userId)
+{
+	return new Promise((resolve, reject) => {
+		db.run(
+			`UPDATE users SET avatar_file = ? WHERE id = ?`, [avatar, userId],
+			function (err) {
+				if (err)
+					return reject({error: 'Failed to update avatar', details: err});
+				if (this.changes === 0)
+					return reject({error: 'User not found, no changes made'});
+				return resolve({
+					message: 'Changed avatar',
+					userId,
+					avatar: avatar
+				});
+			}
+		);
+	});
+}
+
+function changeLanguage(language, userId)
+{
+	return new Promise((resolve, reject) => {
+		db.run(
+			`UPDATE users SET language = ? WHERE id = ?`, [language, userId],
+			function (err) {
+				if (err)
+					return reject({error: 'Failed to update language', details: err});
+				if (this.changes === 0)
+					return reject({error: 'User not found, no changes made'});
+				return resolve({
+					message: 'Language changed',
+					userId,
+					newLanguage: language
+				});
+			}
+		);
+	});
+}
+
+function update2fa(enabled, userId, secret)
+{
+	return new Promise((resolve, reject) => {
+		db.run(
+			`UPDATE users SET mfa_enabled = ?, mfa_secret = ? WHERE id = ?`,
+			[enabled ? 1 : 0, secret || null, userId],
+			function (err) {
+				if (err)
+					return reject({error: 'Failed to update 2fa', details: err});
+				if (this.changes === 0)
+					return reject({error: 'User not found, no changes made'});
+				return resolve({
+					message: '2fa updated',
+					userId,
+					enabled
+				});
+			}
+		);
+	});
+}
+
+function recomputeLeaderboardRanks()
+{
+	return new Promise((resolve, reject) => {
+		db.all(
+			`SELECT id, score FROM users ORDER BY score DESC, id ASC`, [],
+			(err, rows) => {
+				if (err)
+					return reject({error: 'Failed to fetch users for rank recompute', details: err});
+				db.serialize(() => {
+					const stmt = db.prepare(`UPDATE users SET rank = ? WHERE id = ?`);
+					let rank = 1;
+					rows.forEach((row) => {
+						stmt.run(rank, row.id);
+						rank += 1;
+					});
+					stmt.finalize((finalizeErr) => {
+						if (finalizeErr)
+							return reject({error: 'Failed to update ranks', details: err});
+						resolve({
+							message: 'ranks computed',
+							totalUsers: rows.length
+						});
+					});
+				});
+			}
+		);
+	});
+}
+
+function updatePlayerGameStats(winner, id)
+{
+	const scoreDelta = winner ? 10 : 5;
+	const incWin = winner ? 1 : 0;
+	const incLoss = winner ? 0 : 1;
+	return new Promise((resolve, reject) => {
+		db.serialize(() => {
+			db.run(
+				`UPDATE users
+				 SET wins = wins + ?,
+				 	losses = losses + ?,
+					score = score + ?,
+					total_games = total_games + 1
+				WHERE id = ?`,
+				[incWin, incLoss, scoreDelta, id],
+				function (err) {
+					if (err)
+						return reject({error: 'Failed to update player stats', details: err});
+					if (this.changes === 0)
+						return reject({error: 'User not found, no changes made'});
+					recomputeLeaderboardRanks().then(() => {
+						db.get(
+							`SELECT wins, losses, score, total_games, rank FROM users WHERE id = ?`, [id],
+							(getErr, row) => {
+								if (getErr)
+									return reject({error: 'Failed to fetch updated stats', details: getErr});
+								if (this.changes === 0)
+									return reject({error: 'User not found after stats update'});
+								const payload = {
+									message: 'player game stats updated',
+									userId: id,
+									wins: row.wins,
+									losses: row.losses,
+									score: row.score,
+									total_games: row.total_games,
+									rank: row.rank
+								};
+								return resolve(payload);
+							}
+						);
+					}).catch((rankErr) => { return reject(rankErr); });
+				}
+			);
+		});
+	});
+}
+
+module.exports = {
+	updateOnlineStatus,
+	updateUserScore,
 	updatePassword,
+	updateUsername,
 	changeAvatar,
 	changeLanguage,
 	update2fa,
-	updatePlayerGameStats,
-	applyTournamentId,
-	updateMatchHistory,
-	updateOnlineStatus
-};
+	updatePlayerGameStats
+}

@@ -1,16 +1,8 @@
-// schemas could be usefull for parsing incoming body
-//const schemas = require('@sharedSchemas');
 const { API_PROTOCOL } = require('@sharedApi');
-
 const {logger} = require('@logger');
 const flog = logger.child({ fileContext: 'friend.js' }); // scoped logger
 
-/**
- * Finds frined based on username , adds friend by id to friends table, user token errors are sent from AuthHook.
- * Other errors could be refined 
- * @param {*} fastify 
- * @param {*} options come from context.js
- */
+
 async function addFriend(fastify, options) {
 	
 	const {DBinsert, DBget} = options;
@@ -41,32 +33,27 @@ async function addFriend(fastify, options) {
 	});
 }
 
-/**
- * 
- * @param {*} fastify 
- * @param {*} options comes from contex.js
- */
-async function removeFriend(fastify, options) {
+async function removeFriend(fastify, options)
+{
 	const {DBdelete} = options;
 	fastify.route ({
 		method: API_PROTOCOL.REMOVE_FRIEND.method,
 		url: API_PROTOCOL.REMOVE_FRIEND.path,
 		handler: async (request, reply) => {
 			const friendId = request.body.friend_id
-			try {
-				userId = request.userId;
+			const userId = request.userId;
+			if (!userId)
+				return reply.code(401).send({error: 'Authentication required'})
+			if (!friendId)
+				return reply.code(400).send({error: 'Friend ID is required'});
+			try
+			{
 				await DBdelete.deleteFriendById(userId, friendId);
-				reply.code(200).send({
-					status: "REMOVED"
-				})
-			} catch (err) {
-				reply.code(418).send({
-					status: "ERROR",
-					friend: username,
-					error: err,
-				}
-				);
-
+				reply.code(200).send({status: "REMOVED"})
+			}
+			catch (err)
+			{
+				reply.code(418).send({status: 'ERROR', error: 'Failed to remove friend'});
 			}
 		}
 	});

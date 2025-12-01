@@ -101,7 +101,7 @@ const Game: React.FC = () => {
 				method: API_PROTOCOL.CREATE_GAME.method,
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
-					type: "local",
+					type: mode,
 					mode: "vs",
 					settings: null,
 				}),

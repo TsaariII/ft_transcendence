@@ -8,15 +8,15 @@ dev:
 #	@docker network inspect custom-network >/dev/null 2>&1 || docker network create inceptionnet
 # Build the Docker images defined in the Dockerfile
 build:
-	docker-compose -f $(DOCKER_COMPOSE_FILE) up --build -d
+	docker compose -f $(DOCKER_COMPOSE_FILE) up --build -d
 
 # Start services defined in docker-compose.yml added as fail safe to start network
 up: #start-network
-	docker-compose -f $(DOCKER_COMPOSE_FILE) up -d
+	docker compose -f $(DOCKER_COMPOSE_FILE) up -d
 
 # Stop and remove services, cleanup
 down:
-	docker-compose -f $(DOCKER_COMPOSE_FILE) down
+	docker compose -f $(DOCKER_COMPOSE_FILE) down
 
 enter-nginx:
 	docker exec -it nginx sh
@@ -29,16 +29,16 @@ enter-backend:
 
 # Show status of containers managed by docker-compose (only running)
 ps:
-	docker-compose -f $(DOCKER_COMPOSE_FILE) ps
+	docker compose -f $(DOCKER_COMPOSE_FILE) ps
 
 # Restart all services
 restart:
-	docker-compose -f $(DOCKER_COMPOSE_FILE) restart
+	docker compose -f $(DOCKER_COMPOSE_FILE) restart
 
 
 # View logs of the running services in real time
 logs:
-	docker-compose -f $(DOCKER_COMPOSE_FILE) logs -f 
+	docker compose -f $(DOCKER_COMPOSE_FILE) logs -f 
 
 # Clean dangling images and unused volumes
 clean:
@@ -51,7 +51,7 @@ clean-volumes:
 
 # View logs for the Nginx service in real time
 logs-nginx:
-	docker-compose -f $(DOCKER_COMPOSE_FILE) logs -f nginx
+	docker compose -f $(DOCKER_COMPOSE_FILE) logs -f nginx
 
 
 # Full clean: includes `clean` and removes images and stopped containers
