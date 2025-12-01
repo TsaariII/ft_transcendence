@@ -137,13 +137,12 @@ const Modal: React.FC<ModalProps> = ({
 					</div>
 
 					{/* Submit and Close buttons */}
-					<div className="flex justify-between items-center gap-4 text-black pl-4 pr-4 pt-10">
+					<div className="flex items-center justify-center gap-8 text-white pt-10">
 						<SketchyButton
 							variant="shadow"
-							className="text-xl"
-							bg="#b0605266"
-							hoverBg="#db786718"
-							borderColor="#ce71606d"
+							bg="#a48d988a"
+							hoverBg="#a91a5f8a"
+							borderColor="#a91a5f8a"
 							className="text-lg"
 							type="button"
 							onClick={onClose}
@@ -152,10 +151,9 @@ const Modal: React.FC<ModalProps> = ({
 						</SketchyButton>
 						<SketchyButton
 							variant="shadow"
-							className="text-xl"
 							bg="#58d1b7d9"
 							hoverBg="#1ea58893"
-							borderColor="#1ea588"
+							borderColor="#177863ff"
 							className="text-lg"
 							type="submit"
 							>

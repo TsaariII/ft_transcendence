@@ -360,15 +360,15 @@ const HomePage: React.FC = () => {
 						padding="0.25rem"
 						borderRadius="20px"
 						>
-						 <div className="text-[#FFFCC7] flex flex-col items-center px-12 pt-12">
-							<h2 className="text-2xl font-bold mb-2">{t("home.2fa.title")}</h2>
+						 <div className="text-[#FFFCC7] flex flex-col items-center px-12 pt-8">
+							<h2 className="text-xl sm:text-2xl font-bold mb-2">{t("home.2fa.title")}</h2>
 							<p className="pt-2 text-sm text-[#FFFCC7] mb-4">{t("home.2fa.instructions")}</p>
 								
 							<input
 								type="text"
 								value={otp}
 								onChange={(e) => setOtp(e.target.value)}
-								className="mt-2 lg:mt-6 mb-3 lg:mb-6 w-full max-w-[14rem] p-3 border border-gray-700 bg-gray-900 rounded-md
+								className="mt-1 lg:mt-6 mb-1 lg:mb-6 w-full max-w-[14rem] p-3 border border-gray-700 bg-gray-900 rounded-md
 									text-center text-2xl tracking-widest focus:outline-none focus:ring-2 focus:ring-[#58d1b7]"
 								maxLength={6}
 								placeholder="123456"
@@ -378,20 +378,20 @@ const HomePage: React.FC = () => {
 								variant="shadow"
 								bg="#58d1b7d9"
 								hoverBg="#1ea58893"
-								borderColor="#1ea588"
+								borderColor="#177863ff"
 								onClick={handle2faVerifySubmit}
-								className="w-full max-w-[10rem] mt-2 px-6 py-3 text-black"
+								className="w-full max-w-[14rem] mt-2 px-6 py-2 text-white"
 							>
 								{t("home.2fa.verify")}
 								
 							</SketchyButton>
 							<SketchyButton
 								variant="shadow"
-								bg="#b0605266"
-								hoverBg="#db786718"
-								borderColor="#ce71606d"
+								bg="#a48d988a"
+								hoverBg="#a91a5f8a"
+								borderColor="#a91a5f8a"
 								onClick={() => setIs2faStep(false)}
-								className="w-full max-w-[10rem] mt-2 px-6 py-3 text-black"
+								className="w-full max-w-[14rem] mt-2 px-6 py-2 text-white"
 								>
 								{t("common.cancel")}
 							</SketchyButton>
