@@ -46,7 +46,7 @@ function deleteFriendById(userId, friendId)
     db.run(
       `DELETE FROM friends
         WHERE (user_id = ? AND friend_id = ?)
-        OF (user_id = ? AND friend_id = ?)`,
+        OR (user_id = ? AND friend_id = ?)`,
         [userId, friendId, friendId, userId],
         function (err) {
           if (err)
