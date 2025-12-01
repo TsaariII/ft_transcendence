@@ -124,23 +124,36 @@ module.exports = async function tournamentRoutes(fastify, options) {
 	});
 	fastify.post(API_PROTOCOL.START_TOURNAMENT.path, async (request, reply) => {
 		const { db } = options;
-		const token = request.cookies?.auth_token;
-		if (!token) return reply.code(401).send({ status: 'ERROR', error: 'Not authenticated' });
-		let userId; 
-		try { userId = getUserIdFromToken(token); }
-		catch { return reply.code(401).send({ status: 'ERROR', error: 'Invalid auth token' }); }
-		// const tid = Number(request.body?.tournament_id);
-		const tid = Number(request.params?.id ?? request.body?.tournament_id);
-		if (!Number.isInteger(tid)) return reply.code(400).send({ status: 'ERROR', error: 'Invalid tournament id' });
 		try
 		{
-			await startTournament(db, tid);
-			const state = await buildTournamentState(db, tid, userId);
-			return reply.send({ status: 'OK', tournament: state });
+			const token = request.cookies?.auth_token;
+			if (!token) return reply.code(401).send({ status: 'ERROR', error: 'Not authenticated' });
+			let userId; 
+			try { userId = getUserIdFromToken(token); }
+			catch { return reply.code(401).send({ status: 'ERROR', error: 'Invalid auth token' }); }
+			const tid = Number(request.params?.id ?? request.body?.tournament_id);
+			if (!Number.isInteger(tid)) return reply.code(400).send({ status: 'ERROR', error: 'Invalid tournament id' });
+			try
+			{
+				await startTournament(db, tid);
+				const state = await buildTournamentState(db, tid, userId);
+				return reply.send({ status: 'OK', tournament: state });
+			}
+			catch (err)
+			{
+				const statusCode = err.statusCode || 500;
+				const message =typeof err.message === 'string' && err.message.trim() ? err.message : 'Failed to start tournament';
+				return reply.code(statusCode).send({ status: 'ERROR', error: message });
+			}
 		}
 		catch (err)
 		{
-			return reply.code(err.statusCode || 500).send({ status: 'ERROR', error: err.message || 'Failed to start tournament' });
+			const statusCode =
+			err && Number.isInteger(err.statusCode) ? err.statusCode : 500;
+			const message = err && typeof err.message === 'string' && err.message.trim()
+				? err.message
+				: 'Failed to start tournament';
+			return reply.code(statusCode).send({ status: 'ERROR', error: message });
 		}
 	});
 	fastify.delete(API_PROTOCOL.CANCEL_TOURNAMENT.path, async (request, reply) => {

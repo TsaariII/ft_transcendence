@@ -83,17 +83,23 @@ const TournamentSetup: React.FC<TournamentSetupProps> = ({ onCancel, onTournamen
 	// 		tournament_id: tournament.tournament_id,
 	// 	};
 
-	// 	try {
-	// 		setLoading(true);
-	// 		const data: StartTournamentResponse = await apiFetch(
-	// 		API_PROTOCOL.START_TOURNAMENT.path,
-	// 		{
-	// 			method: API_PROTOCOL.START_TOURNAMENT.method,
-	// 			headers: { "Content-Type": "application/json" },
-	// 			body: JSON.stringify(payload),
-	// 		}
-	// 		);
-	const handleStartTournament = async () => {
+		// try {
+		// 	setLoading(true);
+			// const url = API_PROTOCOL.START_TOURNAMENT.path.replace(
+			// 	":id", String(tournament.tournament_id)
+			// );
+			// const data: StartTournamentResponse = await apiFetch(
+			// API_PROTOCOL.START_TOURNAMENT.path,
+			// {
+			// 	method: API_PROTOCOL.START_TOURNAMENT.method,
+			// 	headers: { "Content-Type": "application/json" },
+			// 	body: JSON.stringify(payload),
+			// }
+			// );
+		const handleStartTournament = async () => {
+			const payload: StartTournamentPayload = {
+			tournament_id: tournament.tournament_id,
+		};
 		try {
 			setLoading(true);
 			const url = API_PROTOCOL.START_TOURNAMENT.path.replace(
@@ -102,6 +108,7 @@ const TournamentSetup: React.FC<TournamentSetupProps> = ({ onCancel, onTournamen
 			const data: StartTournamentResponse = await apiFetch(url, {
 				method: API_PROTOCOL.START_TOURNAMENT.method,
 				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(payload)
 			});
 			console.log("lets looky at the data sent ", data);
 			if (data.status === "OK" && data.tournament) {

@@ -199,6 +199,22 @@ async function is2FaEnabled(userId)
   });
 }
 
+function getLeaderBoard(limit = 10)
+{
+  return new Promise((resolve, reject) => {
+    db.all(
+      `SELECT username, avatar_file, score, rank, status
+      FROM users
+      ORDERED BY rank DESC, id ASC
+      LIMIT ?`, [limit],
+      (err, rows) => {
+        if (err) return reject({error: 'DB error getting leaderboard'});
+        resolve(rowa || []);
+      }
+    );
+  });
+}
+
 module.exports = { fetchUser, 
 	miniLogin, 
 	getFriendsForPlayer, 
@@ -207,5 +223,6 @@ module.exports = { fetchUser,
 	checkPasswordMatch,
 	fetchUserByUsername,
 	is2FaEnabled,
-	get2FaSecret
+	get2FaSecret,
+  getLeaderBoard
 };

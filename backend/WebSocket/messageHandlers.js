@@ -12,6 +12,7 @@ const {
 const {updatePlayerGameStats} = require('@db/update.js');
 const {updateGameResult} = require('@db/game.js');
 
+const {updateTournamentStats, updateBracket} = require('@db/tournament.js');
 
 const {addPlayer} = require('@Rgame');
 
@@ -53,206 +54,210 @@ function ensureAliasAndId(entry, fallbackId)
 	return {id, player};
 }
 
-function handleMessage(ws, data)
+function createMessageHandler(db)
 {
-	const context = getGameContext(ws, data, playerInit);
-	const {game, gameState} = context || {};
-	const requireContextFor = [
-		'pause',
-		'getPlayerNames',
-		'resetPositions',
-		'resetScore',
-		'gameOver',
-		'init',
-		'keys',
-		'start_loop',
-		'reconnect',
-		'end'
-	];
-	if (requireContextFor.includes(data.type) && (!game || !gameState))
+	function handleMessage(ws, data)
 	{
-		if (ws)
-			safeSend(ws, {error: 'Game session is not initialized'});
-		return;
-	}
-	switch (data.type)
-	{
-		case 'greet':
+		const context = getGameContext(ws, data, playerInit);
+		const {game, gameState} = context || {};
+		const requireContextFor = [
+			'pause',
+			'getPlayerNames',
+			'resetPositions',
+			'resetScore',
+			'gameOver',
+			'init',
+			'keys',
+			'start_loop',
+			'reconnect',
+			'end'
+		];
+		if (requireContextFor.includes(data.type) && (!game || !gameState))
 		{
-			handleGreet(ws, data);
-			break;
+			if (ws)
+				safeSend(ws, {error: 'Game session is not initialized'});
+			return;
 		}
-		case 'ping':
+		switch (data.type)
 		{
-			safeSend(ws, {type: 'pong', payload: 'Pong!'});
-			break;
-		}
-		case 'pause':
-		{
-			if (!gameState) break;
-			if (gameState.loop)
+			case 'greet':
 			{
-				clearInterval(gameState.loop);
-				gameState.loop = undefined;
-				gameState.gameRunning = false;
-				paused = true;
+				handleGreet(ws, data);
+				break;
 			}
-			break;
-		}
-		case 'initPlayer':
-		{
-			initPlayer(ws, data.token);
-			playerInit = true;
-			safeSend(ws, {type: 'playerInit_ack', message: 'player init success'});
-			if (!player1 || !player2) break;
-			safeSend(ws, {
-				type: 'playerNames',
-				player1: player1.alias || 'Player 1',
-				player2: player2.alias || 'Player 2'
-			});
-			break;
-		}
-		case 'resetPositions':
-		{
-			const resetAll = !data.resetTargets || data.resetTargets.length === 0;
-			if (resetAll || data.resetTargets.includes('paddles'))
+			case 'ping':
 			{
-				gameState.positions[gameState.leftPaddleI] = gameState.paddleOffset;
-				gameState.positions[gameState.rightPaddleI] = gameState.width - gameState.paddleOffset;
+				safeSend(ws, {type: 'pong', payload: 'Pong!'});
+				break;
 			}
-			if (resetAll || data.resetTargets.includes('ball') || data.resetTargets.includes('gameRunning'))
+			case 'pause':
 			{
-				gameState.positions[gameState.ballYI] = gameState.height / 2;
-				gameState.positions[gameState.ballXI] = gameState.width / 2;
+				if (!gameState) break;
+				if (gameState.loop)
+				{
+					clearInterval(gameState.loop);
+					gameState.loop = undefined;
+					gameState.gameRunning = false;
+					paused = true;
+				}
+				break;
 			}
-			if (resetAll || data.resetTargets.includes('gameRunning'))
+			case 'initPlayer':
 			{
-				gameState.gameRunning = true;
-				gameState.firstHit = false;
-				gameState.ballSpeedUp = 1;
+				initPlayer(ws, data.token);
+				playerInit = true;
+				safeSend(ws, {type: 'playerInit_ack', message: 'player init success'});
+				if (!player1 || !player2) break;
+				safeSend(ws, {
+					type: 'playerNames',
+					player1: player1.alias || 'Player 1',
+					player2: player2.alias || 'Player 2'
+				});
+				break;
 			}
-			break;
-		}
-		case 'resetScore':
-		{
-			const {player1, player2} = getPlayersOrLog(game, 'resetScore');
-			if (!player1 || !player2) break;
-			player1.score = 0;
-			player2.score = 0;
-			break;
-		}
-		case 'gameOver':
-		{
-			const gameId = ws ? ws.gameId || game.gameId : game.gameId;
-			if (!gameId) break;
-			const p1Entry = [...game.players.entries()].find(([, p]) => p.role === 'player1');
-			const p2Entry = [...game.players.entries()].find(([, p]) => p.role === 'player2');
-			const {id: id1, player: player1} = ensureAliasAndId(p1Entry, 'p1');
-			const {id: id2, player: player2} = ensureAliasAndId(p2Entry, 'p2');
-			if (!player1 || !player2) break;
-			const player1Won = player1.score > player2.score;
-			const dbP1Id = player1.type === 'login' ? id1 : null;
-			const dbP2Id = player2.type === 'login' ? id2 : null;
-			let winnerDbId = null;
-			if (player1Won && player1.type === 'login') winnerDbId = dbP1Id;
-			else if (!player1Won && player2.type === 'login') winnerDbId = dbP2Id;
-			const promises = [];
-			if (dbP1Id !== null && dbP2Id !== null)
-				promises.push(updatePlayerGameStats(player1Won, id1));
-			if (dbP2Id !== null && dbP2Id !== null)
-				promises.push(updatePlayerGameStats(!player1Won, id2));
-			promises.push(updateGameResult(gameId, {
-				p1_id: dbP1Id,
-				p2_id: dbP2Id,
-				p1_score: player1.score,
-				p2_score: player2.score,
-				winner_id: winnerDbId,
-				status: 'finished'
-			}));
-			Promise.all(promises).catch((err) => {});
-			if (game.mode === 'tournament')
+			case 'resetPositions':
 			{
-				// updateTournamentStats(gameId, player1.score, player2.score, 'finished', winnerId).then(() => {})
-				// 	.catch((err) => {});
-				// const winnerData = player1Won ? player1 : player2;
-				// updateBracket(game.tid, winnerId, 2).then((result) => {
-				// 	const {gameId: nextGameId, slot} = result;
-				// 	const playerRole = slot === 'p1_id' ? 'player1' : 'player2';
-				// 	addPlayer(nextGameId, winnerId, {
-				// 		type: 'login',
-				// 		ws: undefined,
-				// 		role: playerRole,
-				// 		alias: winnerData.alias,
-				// 		ready: true,
-				// 		disconnectedAt: undefined,
-				// 		pauseTimeout: undefined,
-				// 		score: 0
-				// 	});
-				// }).catch((err) => {});
-			}
-			break;
-		}
-		case 'init':
-		{
-			initGame(gameState, data.payload);
-			gameState.powerups = data.payload.powerups;
-			safeSend(ws, {type: 'init_ack', message: 'Game init success'});
-			break;
-		}
-		case 'keys':
-		{
-			updateKeys(gameState, data.payload);
-			break;
-		}
-		case 'start_loop':
-		{
-			const {player1, player2} = getPlayersOrLog(game, 'start_loop');
-			if (!player1 || !player2) break;
-			startLoop(ws, gameState, player1, player2);
-			break;
-		}
-		case 'reconnect':
-		{
-			paused = false;
-			if (gameState)
-			{
-				safeSend(ws, gameState.positions);
-				if (!gameState.loop)
+				const resetAll = !data.resetTargets || data.resetTargets.length === 0;
+				if (resetAll || data.resetTargets.includes('paddles'))
+				{
+					gameState.positions[gameState.leftPaddleI] = gameState.paddleOffset;
+					gameState.positions[gameState.rightPaddleI] = gameState.width - gameState.paddleOffset;
+				}
+				if (resetAll || data.resetTargets.includes('ball') || data.resetTargets.includes('gameRunning'))
+				{
+					gameState.positions[gameState.ballYI] = gameState.height / 2;
+					gameState.positions[gameState.ballXI] = gameState.width / 2;
+				}
+				if (resetAll || data.resetTargets.includes('gameRunning'))
 				{
 					gameState.gameRunning = true;
-					const {player1, player2} = getPlayersOrLog(game, 'reconnect');
-					if (!player1 || player2) break;
-					startLoop(ws, gameState, player1, player2);
+					gameState.firstHit = false;
+					gameState.ballSpeedUp = 1;
 				}
+				break;
 			}
-			break;
-		}
-		case 'end':
-		{
-			const {player1, player2} = getPlayersOrLog(game, 'end');
-			if (!player1 || !player2) break;
-			safeSend(ws, {
-				type: 'game_end',
-				payload: gameState.positions,
-				player1: player1.score,
-				player2: player2.score
-			});
-			break;
-		}
-		case 'close':
-		{
-			safeSend(ws, { 
-				type: 'game_closed',
-				message: 'Game closed by player'
-			});
-			break;
-		}
-		default:
-		{
-			safeSend(ws, {error: 'Unknown message type'});
-			break;
+			case 'resetScore':
+			{
+				const {player1, player2} = getPlayersOrLog(game, 'resetScore');
+				if (!player1 || !player2) break;
+				player1.score = 0;
+				player2.score = 0;
+				break;
+			}
+			case 'gameOver':
+			{
+				const gameId = ws ? ws.gameId || game.gameId : game.gameId;
+				if (!gameId) break;
+				const p1Entry = [...game.players.entries()].find(([, p]) => p.role === 'player1');
+				const p2Entry = [...game.players.entries()].find(([, p]) => p.role === 'player2');
+				const {id: id1, player: player1} = ensureAliasAndId(p1Entry, 'p1');
+				const {id: id2, player: player2} = ensureAliasAndId(p2Entry, 'p2');
+				if (!player1 || !player2) break;
+				const player1Won = player1.score > player2.score;
+				const dbP1Id = player1.type === 'login' ? id1 : null;
+				const dbP2Id = player2.type === 'login' ? id2 : null;
+				let winnerDbId = null;
+				if (player1Won && player1.type === 'login') winnerDbId = dbP1Id;
+				else if (!player1Won && player2.type === 'login') winnerDbId = dbP2Id;
+				const promises = [];
+				if (dbP1Id !== null)// && dbP2Id !== null)
+					promises.push(updatePlayerGameStats(player1Won, id1));
+				if (dbP2Id !== null)// && dbP1Id !== null)
+					promises.push(updatePlayerGameStats(!player1Won, id2));
+				promises.push(updateGameResult(gameId, {
+					p1_id: dbP1Id,
+					p2_id: dbP2Id,
+					p1_score: player1.score,
+					p2_score: player2.score,
+					winner_id: winnerDbId,
+					status: 'finished'
+				}));
+				Promise.all(promises).catch((err) => {});
+				if (game.mode === 'tournament' && game.tid && winnerDbId)
+				{
+					updateTournamentStats(db, gameId, player1.score, player2.score, 'finished', winnerDbId).catch((err) => {});
+					const winnerData = player1Won ? player1 : player2;
+					updateBracket(db, game.tid, winnerDbId, 2).then((result) => {
+						const {gameId: nextGameId, slot} = result;
+						const playerRole = slot === 'p1_id' ? 'player1' : 'player2';
+						addPlayer(String(nextGameId), winnerDbId, {
+							type: 'login',
+							ws: undefined,
+							role: playerRole,
+							alias: winnerData.alias,
+							ready: true,
+							disconnectedAt: undefined,
+							pauseTimeout: undefined,
+							score: 0
+						});
+					}).catch((err) => {});
+				}
+				break;
+			}
+			case 'init':
+			{
+				initGame(gameState, data.payload);
+				gameState.powerups = data.payload.powerups;
+				safeSend(ws, {type: 'init_ack', message: 'Game init success'});
+				break;
+			}
+			case 'keys':
+			{
+				updateKeys(gameState, data.payload);
+				break;
+			}
+			case 'start_loop':
+			{
+				const {player1, player2} = getPlayersOrLog(game, 'start_loop');
+				if (!player1 || !player2) break;
+				startLoop(ws, gameState, player1, player2);
+				break;
+			}
+			case 'reconnect':
+			{
+				paused = false;
+				if (gameState)
+				{
+					safeSend(ws, gameState.positions);
+					if (!gameState.loop)
+					{
+						gameState.gameRunning = true;
+						const {player1, player2} = getPlayersOrLog(game, 'reconnect');
+						if (!player1 || player2) break;
+						startLoop(ws, gameState, player1, player2);
+					}
+				}
+				break;
+			}
+			case 'end':
+			{
+				const {player1, player2} = getPlayersOrLog(game, 'end');
+				if (!player1 || !player2) break;
+				safeSend(ws, {
+					type: 'game_end',
+					payload: gameState.positions,
+					player1: player1.score,
+					player2: player2.score
+				});
+				break;
+			}
+			case 'close':
+			{
+				safeSend(ws, { 
+					type: 'game_closed',
+					message: 'Game closed by player'
+				});
+				break;
+			}
+			default:
+			{
+				safeSend(ws, {error: 'Unknown message type'});
+				break;
+			}
 		}
 	}
+	return handleMessage;
 }
 
-module.exports = {handleMessage};
+
+module.exports = {createMessageHandler};

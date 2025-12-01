@@ -1,11 +1,15 @@
 const WebSocket = require('ws');
-const handleMessage = require('./messageHandlers.js').handleMessage;
+const {createMessageHandler} = require('./messageHandlers.js');
+const db = require('../database/initDB.js')
 const {logger} = require('@logger');
 const flog = logger.child({ fileContext: 'websockets/startUp.js' }); // scoped logger
 
 function setUpWebSockets(server) {
 	// this allows http and websocket to share same port
 	const wss = new WebSocket.Server({ noServer: true});
+	const handleMessage = createMessageHandler(db);
+	if (typeof handleMessage !== 'function')
+		throw new Error('WebSocket message handler is not a function');
 	// WebSocket server setup AFTER Fastify is listening
 	server.on('upgrade', (req, socket, head) => {
 		flog.info('Upgrade request received');
@@ -23,7 +27,7 @@ function setUpWebSockets(server) {
 			socket.destroy();
 		}
 	});
-
+	
 	wss.on('connection', (ws, req) => {
 		flog.info('WebSocket client connected');
 		ws.on('message', (msg, isBinary) => {
@@ -78,4 +82,4 @@ function setUpWebSockets(server) {
 
 }
 
-module.exports = setUpWebSockets; // not exporting as an object 
+module.exports = setUpWebSockets;

@@ -20,6 +20,7 @@ const appContext = require('@context');
 
 // Routes
 const friendRoutes = require('@routes/friends.js');
+const leaderboardRoutes = require('@routes/leaderboard.js');
 const tournamentRoutes = require('@routes/tournament/tournament.js');
 const tournamentContext = require('@routes/tournament/context.js');
 const authRoutes = require('@Rauth/auth.js');
@@ -92,6 +93,7 @@ const start = async () => {
         // Domain routes
         await fastify.register(tournamentRoutes, tournamentContext);
         await fastify.register(friendRoutes, appContext);
+        await fastify.register(leaderboardRoutes, appContext);
         await fastify.register(gameRoutes, appContext);
         
         // Static files: user avatars

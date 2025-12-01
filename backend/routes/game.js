@@ -5,6 +5,8 @@ const {miniLogin} = require('@db/get.js');
 const {API_PROTOCOL} = require('@sharedApi');
 const {insertGame} = require('@db/game.js');
 const tournament = require('./tournament/tournament');
+const DBtournament = require('@db/tournament.js');
+const {_wrap} = require('@db/tournament.js');
 const games = new Map();
 
 function generateRandomId() { return Math.random().toString(36).substring(2, 10); }
@@ -160,11 +162,57 @@ function startGameCore(secure, gameId)
 
 async function startGame(fastify, options)
 {
-	const {secure} = options;
+	const {secure, db} = options;
 	fastify.post(API_PROTOCOL.START_GAME.path, async (request, reply) => {
-		const {gameId} = request.body || {};
+		const {gameId, tournamentId} = request.body || {};
 		try
 		{
+			if (tournamentId)
+			{
+				let game = getGame(String(gameId));
+				if (!game || tournamentId)
+				{
+					const {get} = _wrap(db);
+					const row = await get(
+						`SELECT id, p1_id, p2_id, type, mode
+						FROM games
+						WHERE id = ? AND tournament_id =? `, [gameId, tournamentId]
+					);
+					if (!row)
+						return reply.code(404).send({error: 'Game not found'});
+					const inMemId = createGameMap(row.id, row.p1_id, 'login', 'tournament');
+					game = getGame(String(inMemId));
+					game.tid = tournamentId;
+					game.mode = 'tournament';
+					if (row.p1_id)
+					{
+						addPlayer(String(inMemId), String(row.p1_id), {
+							type: 'login',
+							ws: undefined,
+							role: 'player1',
+							alias: undefined,
+							ready: false,
+							disconnectedAt: undefined,
+							pauseTimeout: undefined,
+							score: 0
+						});
+					}
+					if (row.p2_id)
+					{
+						addPlayer(String(inMemId), String(row.p2_id), {
+							type: 'login',
+							ws: undefined,
+							role: 'player2',
+							alias: undefined,
+							ready: false,
+							disconnectedAt: undefined,
+							pauseTimeout: undefined,
+							score: 0
+						});
+					}
+				}
+
+			}
 			const result = startGameCore(secure, gameId);
 			if (result.error) return reply.code(result.code || 400).send({error: result.error});
 			if (!reply.sent)
@@ -187,6 +235,34 @@ async function startGame(fastify, options)
 		}
 	});
 }
+// {
+// 	const {secure} = options;
+// 	fastify.post(API_PROTOCOL.START_GAME.path, async (request, reply) => {
+// 		const {gameId} = request.body || {};
+// 		try
+// 		{
+// 			const result = startGameCore(secure, gameId);
+// 			if (result.error) return reply.code(result.code || 400).send({error: result.error});
+// 			if (!reply.sent)
+// 			{
+// 				return reply.send({
+// 					status: 'ready',
+// 					gameId,
+// 					playerTokens: result.playerTokens
+// 				});
+// 			}
+// 		}
+// 		catch (err)
+// 		{
+// 			if (!reply.sent)
+// 			{
+// 				return reply.code(418).send({
+// 					error: 'Game initialization failed'
+// 				});
+// 			}
+// 		}
+// 	});
+// }
 
 async function gameRoutes(fastify, options)
 {
