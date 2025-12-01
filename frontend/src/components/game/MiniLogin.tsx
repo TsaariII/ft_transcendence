@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useTranslation } from "../../shared/Translation";
 import SketchyButton from "../ui/SketchyButtons";
 import SketchyPanel from "../layout/SketchyPanel";
+import { useAuth } from "../../context/AuthContext";
 
 interface MiniLoginProps {
 		gameId:string;
@@ -14,6 +15,8 @@ const PASSWORD_REGEX = /^[a-zA-Z0-9!@#$%^&*()_\-+=.]{8,16}$/; // 8–16 chars
 
 const MiniLogin: React.FC<MiniLoginProps> = ({gameId, onLoginSuccess, onCancel }) => {
 		const { t } = useTranslation();
+		const { user } = useAuth(); // currently logged-in user
+
 		const [username, setUsername] = useState("");
 		const [password, setPassword] = useState("");
 		const [loading, setLoading] = useState(false);
@@ -29,12 +32,12 @@ const MiniLogin: React.FC<MiniLoginProps> = ({gameId, onLoginSuccess, onCancel }
 		const validateFrontend = () => {
 			const newErrors: typeof errors = {};
 
-			if (!USERNAME_REGEX.test(username.trim())) {
-				newErrors.username = t("auth.error.usernameFormat");
+			if (!PASSWORD_REGEX.test(password.trim()) || !USERNAME_REGEX.test(username.trim())) {
+				newErrors.password = t("auth.error.invalidCredentials");
 			}
-
-			if (!PASSWORD_REGEX.test(password.trim())) {
-				newErrors.password = t("auth.error.passwordFormat");
+			// Frontend check: prevent logging in as already logged-in user
+			if (user?.username && username.trim() === user.username) {
+				newErrors.password = t("auth.error.alreadyLoggedIn");
 			}
 
 			setErrors(newErrors);
@@ -66,19 +69,29 @@ const MiniLogin: React.FC<MiniLoginProps> = ({gameId, onLoginSuccess, onCancel }
 				}),
 			});
 
-			const data = await res.json();
-
-			if (!res.ok || data.error) {
-				throw new Error(data.error || t("error.auth.miniLoginFailed"));
+			 if (res.status === 400) {
+				const data = await res.json().catch(() => null);
+				setErrors({
+					general: data?.error || t("auth.error.invalidCredentials"),
+				});
+				return;
 			}
-			
+
+			// Handle other non-OK responses
+			if (!res.ok) {
+				const text = await res.text().catch(() => "Unknown error");
+				throw new Error(text);
+			}
+
+			const data = await res.json();
 			onLoginSuccess(data.playerToken);
+
 		} catch (err: any) {
 			setErrors({ general: err?.message || t("auth.error.secondPlayerLoginFailed") });
 		} finally {
 			setLoading(false);
 		}
-	};
+	}
 
 	return (
 		<div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -87,8 +100,8 @@ const MiniLogin: React.FC<MiniLoginProps> = ({gameId, onLoginSuccess, onCancel }
 				onClick={onCancel}
 			/>
 			<SketchyPanel
-				className="relative w-[90%] max-w-[22rem] sm:max-w-[24rem] md:max-w-[28rem] lg:max-w-[32rem] 
-						xl:max-w-[34rem] min-h-[20rem] sm:min-h-[22rem] md:min-h-[24rem] lg:min-h-[26rem]"
+				className="relative w-[90%] max-w-[20rem] sm:max-w-[22rem] md:max-w-[26rem] lg:max-w-[30rem] 
+						xl:max-w-[32rem] min-h-[18rem] sm:min-h-[20rem] md:min-h-[22rem] lg:min-h-[24rem]"
 				bg="#6C0E42"
 				stroke="#FFFCC7"
 				padding="0.25rem"
@@ -96,7 +109,7 @@ const MiniLogin: React.FC<MiniLoginProps> = ({gameId, onLoginSuccess, onCancel }
 			>
 				<div className="text-[#FFFCC7]">
 					<div className="px-12 pt-16">
-						<h2 className="font-cupcake text-4xl text-center"
+						<h2 className="font-cupcake text-2xl text-center"
 							style={{
 								textShadow: `
 								-3px 0 #000,
@@ -109,7 +122,7 @@ const MiniLogin: React.FC<MiniLoginProps> = ({gameId, onLoginSuccess, onCancel }
 						</h2>
 					</div>
 
-					<form className="pl-12 pr-14 pb-10 pt-12 space-y-6 text-2xl" onSubmit={handleSubmit}>
+					<form className="pl-12 pr-14 pb-10 pt-12 space-y-6" onSubmit={handleSubmit}>
 						{/* Username */}
 						<div>
 							<input
@@ -117,7 +130,7 @@ const MiniLogin: React.FC<MiniLoginProps> = ({gameId, onLoginSuccess, onCancel }
 								placeholder={t("auth.placeholder.username")}
 								value={username}
 								onChange={(e) => setUsername(e.target.value)}
-								className="w-full h-[4rem] sketch-border border-[#FFFCC7] font-body
+								className="w-full h-[3rem] sketch-border border-[#FFFCC7] font-body
 										bg-gray-800/60 px-3 py-2 placeholder-gray-400 focus:outline-none
 										focus:ring-4 focus:ring-[#3F839C]"
 								required
@@ -134,26 +147,26 @@ const MiniLogin: React.FC<MiniLoginProps> = ({gameId, onLoginSuccess, onCancel }
 								placeholder={t("auth.placeholder.password")}
 								value={password}
 								onChange={(e) => setPassword(e.target.value)}
-								className="w-full h-[4rem] sketch-border border-[#FFFCC7] font-body
+								className="w-full h-[3rem] sketch-border border-[#FFFCC7] font-body
 										bg-gray-800/60 px-3 py-2 placeholder-gray-400 focus:outline-none
 										focus:ring-4 focus:ring-[#3F839C]"
 								required
 							/>
 							{errors.password && (
-								<p className="text-lg text-[#FFFCC7] mt-3 pl-2">{errors.password}</p>
+								<p className="text-medium text-[#FFFCC7] mt-3 pl-2">{errors.password}</p>
 							)}
 						</div>
 
 						{/* Backend error */}
-						{error && <p className="text-lg text-[#FFFCC7] mt-3 pl-2">{error}</p>}
+						{error && <p className="text-medium text-[#FFFCC7] mt-3 pl-2">{error}</p>}
 
 						{/* Buttons */}
-						<div className="flex justify-between items-center pl-8 pr-8 pt-10">
+						<div className="flex justify-between items-center text-black pl-8 pr-8 pt-10">
 							<SketchyButton
 								variant="shadow"
-								className="text-xl"
-								bg="#7C5483"
-								hoverBg="#3A1C4B"
+								bg="#fffcc7"
+								hoverBg="#ce71606d"
+								borderColor="#cd877aff"
 								type="button"
 								onClick={onCancel}
 							>
@@ -161,9 +174,9 @@ const MiniLogin: React.FC<MiniLoginProps> = ({gameId, onLoginSuccess, onCancel }
 							</SketchyButton>
 							<SketchyButton
 								variant="shadow"
-								className="text-xl"
-								bg="#3F839C"
-								hoverBg="#125a74"
+								bg="#58d1b7d9"
+								hoverBg="#1ea58893"
+								borderColor="#1ea588"
 								type="submit"
 							>
 								{loading ? t("auth.loggingIn") : t("auth.logIn")}
