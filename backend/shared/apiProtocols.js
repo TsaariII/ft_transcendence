@@ -153,6 +153,11 @@ const API_PROTOCOL = {
 		method: 'DELETE',
 	},
 
+	CLOSE_TOURNAMENT: {
+		path: '/api/tournament/close',
+		method: 'POST'
+	},
+
 	GET_ACTIVE_TOURNAMENT: {
 		path: '/api/tournament/get-active',
 		method: 'GET',

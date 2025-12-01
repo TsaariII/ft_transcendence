@@ -26,6 +26,15 @@ function _wrap(db) {
 	};
 }
 
+async function isUserInTournament(db, tid, userId)
+{
+	const {get} = _wrap(db);
+	const row = await get(
+		`SELECT 1 FROM tournament_players WHERE tournament_id = ? AND user_id = ?`, [tid, userId]
+	);
+	return !!row;
+}
+
 async function getActiveTournamentForUser(db, userId) {
 	const { get } = _wrap(db);
 	return get(
@@ -133,14 +142,7 @@ async function updateTournamentStats(db, gameId, p1score, p2score, status, winne
 
 async function updateBracket(db, tournamentId, winnerId, round) {
 	const { get, run } = _wrap(db);
-	const prevGame = await get(
-		`SELECT id, round, bracket_pos
-      FROM games
-     WHERE tournament_id = ?
-      AND winner_id = ?`, [tournamentId, winnerId]
-	);
-	if (!prevGame) return { gameId: null, slot: null };
-	const nextRound = prevGame.round + 1;
+	const nextRound = round + 1;
 	const nextGame = await get(
 		`SELECT id, p1_id, p2_id
 			FROM games
@@ -156,12 +158,15 @@ async function updateBracket(db, tournamentId, winnerId, round) {
 		slot = 'p1_id';
 		await run(`UPDATE games SET p1_id = ? WHERE id = ?`, [winnerId, nextGame.id]);
 	}
-	else {
+	else if (!nextGame.p2_id)
+	{
 		slot = 'p2_id';
 		await run(`UPDATE games SET p2_id = ? WHERE id = ?`, [winnerId, nextGame.id]);
 	}
-	const g = await get(`SELECT p1_id, p2_id FROM games WHERE id = ?`, [nextGame.id]);
-	if (g.p1_id && g.p2_id)
+	else
+		return {gameId: nextGame.id, slot: null};
+	const g = await get(`SELECT p1_id, p2_id, status FROM games WHERE id = ?`, [nextGame.id]);
+	if (g.p1_id && g.p2_id && g.status !== 'pending')
 		await run(`UPDATE games SET status = 'pending' WHERE id = ?`, [nextGame.id]);
 	return {gameId: nextGame.id, slot};
 }
@@ -169,16 +174,16 @@ async function updateBracket(db, tournamentId, winnerId, round) {
 async function insertInitialBracket(db, tid, s1, s2, s3, s4) {
 	const { run } = _wrap(db);
 	await run(
-		`INSERT INTO games (tournament_id, round, bracket_pos, p1_id, p2_id, status)
-     VALUES (?, 1, 1, ?, ?, 'pending')`, [tid, s1, s4]
+		`INSERT INTO games (tournament_id, round, bracket_pos, p1_id, p2_id, status, mode, type)
+     VALUES (?, 1, 1, ?, ?, 'pending', 'tournament', 'login')`, [tid, s1, s4]
 	);
 	await run(
-		`INSERT INTO games (tournament_id, round, bracket_pos, p1_id, p2_id, status)
-     VALUES (?, 1, 2, ?, ?, 'pending')`, [tid, s2, s3]
+		`INSERT INTO games (tournament_id, round, bracket_pos, p1_id, p2_id, status, mode, type)
+     VALUES (?, 1, 2, ?, ?, 'pending', 'tournament', 'login')`, [tid, s2, s3]
 	);
 	await run(
-		`INSERT INTO games (tournament_id, round, bracket_pos, p1_id, p2_id, status)
-     VALUES (?, 2, 1, NULL, NULL, 'pending')`, [tid]
+		`INSERT INTO games (tournament_id, round, bracket_pos, p1_id, p2_id, status, mode, type)
+     VALUES (?, 2, 1, NULL, NULL, 'pending', 'tournament', 'login')`, [tid]
 	);
 }
 
@@ -354,6 +359,7 @@ function startTournamentMatch(db, tid, matchId, hostId) {
 module.exports = {
 	_wrap,
 	ROLE_COL,
+	isUserInTournament,
 	getActiveTournamentForUser,
 	getTournamentById,
 	getTournamentPlayers,

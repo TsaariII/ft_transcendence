@@ -93,11 +93,11 @@ const Game: React.FC = () => {
 
 		try {
 		// 1. Create game
-					const data = await apiFetch(API_PROTOCOL.CREATE_GAME.path, {
+				const data = await apiFetch(API_PROTOCOL.CREATE_GAME.path, {
 				method: API_PROTOCOL.CREATE_GAME.method,
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
-					type: "local",
+					type: mode,
 					mode: "vs",
 					settings: null,
 				}),

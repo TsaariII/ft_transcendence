@@ -15,6 +15,7 @@ const {updateGameResult} = require('@db/game.js');
 const {updateTournamentStats, updateBracket} = require('@db/tournament.js');
 
 const {addPlayer} = require('@Rgame');
+const { _wrap } = require('../database/tournament.js');
 
 let playerInit = false;
 let paused = false;
@@ -160,10 +161,17 @@ function createMessageHandler(db)
 				if (player1Won && player1.type === 'login') winnerDbId = dbP1Id;
 				else if (!player1Won && player2.type === 'login') winnerDbId = dbP2Id;
 				const promises = [];
-				if (dbP1Id !== null)// && dbP2Id !== null)
-					promises.push(updatePlayerGameStats(player1Won, id1));
-				if (dbP2Id !== null)// && dbP1Id !== null)
-					promises.push(updatePlayerGameStats(!player1Won, id2));
+				const isRankedGame = game.type === 'login';
+				if (isRankedGame)
+				{
+					if (dbP1Id !== null && dbP2Id !== null && dbP1Id !== dbP2Id)
+					{
+						if (dbP1Id !== null)
+							promises.push(updatePlayerGameStats(player1Won, dbP1Id));
+						if (dbP2Id !== null)
+							promises.push(updatePlayerGameStats(!player1Won, dbP2Id));
+					}
+				}
 				promises.push(updateGameResult(gameId, {
 					p1_id: dbP1Id,
 					p2_id: dbP2Id,
@@ -177,8 +185,14 @@ function createMessageHandler(db)
 				{
 					updateTournamentStats(db, gameId, player1.score, player2.score, 'finished', winnerDbId).catch((err) => {});
 					const winnerData = player1Won ? player1 : player2;
-					updateBracket(db, game.tid, winnerDbId, 2).then((result) => {
+					const {get} = _wrap(db);
+					get(`SELECT round FROM games WHERE id = ?`, [gameId])
+					.then((row) => {
+						const round = row?.round ?? 1;
+						return updateBracket(db, game.tid, winnerDbId, round);
+					}).then((result) => {
 						const {gameId: nextGameId, slot} = result;
+						if (!nextGameId || !slot) return;
 						const playerRole = slot === 'p1_id' ? 'player1' : 'player2';
 						addPlayer(String(nextGameId), winnerDbId, {
 							type: 'login',
