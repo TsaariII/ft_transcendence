@@ -66,7 +66,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 			<div className="relative z-10 flex flex-col min-h-screen">
 				{showNavbar && (
 					<div className="px-4 pt-4"> 
-						<div className="rounded-xl overflow-hidden shadow-lg">
+						<div className="rounded-xl shadow-lg">
 							<Navbar />
 						</div>
 					</div>
