@@ -7,7 +7,7 @@ function formatValidationError(error) {
     // Ajv usually gives paths like "/username" or "/body/username"
     const path = issue.instancePath || '';
     const segments = typeof path === 'string'
-        ? paths.split('/').filter(Boolean)
+        ? path.split('/').filter(Boolean)
         : [];
     const field = segments[segments.length - 1] || '';
     // Base HTTP status for validation errors if anything weird 400

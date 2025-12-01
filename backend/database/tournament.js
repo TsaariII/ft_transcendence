@@ -307,7 +307,7 @@ function startTournamentMatch(db, tid, matchId, hostId)
     if (!game) { const e = new Error('Match not found'); e.statusCode = 404; throw e; }
     if (game.status === 'finished') { const e = new Error('Match already finished'); e.statusCode = 409; throw e; }
     const twoMatches = await get(
-      `SELECT id FROM games WHERE tournament_id = ? AMD status = 'ongoing'`
+      `SELECT id FROM games WHERE tournament_id = ? AND status = 'ongoing'`, [tid]
     );
     if (twoMatches && twoMatches.id !== game.id) { const e = new Error('Another match already ongoing'); e.statusCode = 409; throw e; }
     await run(`UPDATE games SET status = 'ongoing' WHERE id = ?`, [game.id]);

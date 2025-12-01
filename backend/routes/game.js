@@ -117,7 +117,7 @@ async function joinGame(fastify)
 			if (type === 'login')
 			{
 				const p2ID = await miniLogin(username, password);
-				userId = p2ID;
+				userId = String(p2ID.id); //p2ID;
 			}
 			else if (type === 'guest')
 				userId = 'Guest_' + generateRandomId();
@@ -137,7 +137,7 @@ async function joinGame(fastify)
 			});
 			return reply.send({player: 'player' + player_count, status: 'ready'});
 		}
-		catch (err) { return reply.code(400).send({error: 'Player can not be added'}); }
+		catch (err){ return reply.code(400).send({error: 'Player can not be added'}); }
 	});
 }
 

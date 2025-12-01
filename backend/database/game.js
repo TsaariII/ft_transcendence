@@ -32,4 +32,36 @@ function insertGame({
     });
 }
 
-module.exports = {insertGame};
+function updateGameResult(gameId, {
+    p1_id = null,
+    p2_id = null,
+    p1_score = 0,
+    p2_score = 0,
+    winner_id = null,
+    status = 'finished'
+    } = {}
+)
+{
+    return new Promise((resolve, reject) => {
+        db.run(
+            `UPDATE games
+            SET p1_id = ?,
+                p2_id = ?,
+                p1_score = ?,
+                p2_score = ?,
+                winner_id = ?,
+                status = ?
+            WHERE id = ?`,
+            [p1_id, p2_id, p1_score, p2_score, winner_id, status, gameId],
+            function (err) {
+                if (err)
+                    return reject({error: 'Failed to update game result', details: err});
+                if (this.changes === 0)
+                    return reject({error: 'Game not found', code: 404});
+                return resolve({message: 'Game result updated', gameId});
+            }
+        );
+    });
+}
+
+module.exports = {insertGame, updateGameResult};

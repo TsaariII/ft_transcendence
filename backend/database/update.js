@@ -7,15 +7,15 @@ const flog = logger.child({fileContext: 'DB/update.js'});
 
 function updateOnlineStatus(userId, status)
 {
-	// const normalizedStatus = typeof status === 'string' ? status : status ? 'online' : 'offline ';
+	const normalizedStatus = typeof status === 'string' ? status : status ? 'online' : 'offline ';
 	return new Promise((resolve, reject) => {
 		db.run(
-			`UPDATE users SET status = ? WHERE id = ?`, [status, userId],
+			`UPDATE users SET status = ? WHERE id = ?`, [normalizedStatus, userId],
 			function (err) {
 				if (err)
 					return reject({error: 'Failed to update status', code: 418, details: err});
-				if (this.changes === 0)
-					return reject({error: 'No changes made', code: 401});
+				// if (this.changes === 0)
+				// 	return reject({error: 'No changes made', code: 401});
 				return resolve({updated: this.changes, status: status});
 			}
 		);
@@ -29,7 +29,7 @@ function updateUserScore({userId, score})
 			`UPDATE users SET score = ? WHERE id = ?`, [score, userId],
 			function (err) {
 				if (err)
-					return ({error: 'Failed to update score', details: err});
+					return reject({error: 'Failed to update score', details: err});
 				if (this.changes === 0)
 					return reject({error: 'User not found, no changes made'});
 				return resolve({
@@ -49,7 +49,7 @@ function updateUsername(username, userId)
 			`UPDATE users SET username = ? WHERE id = ?`, [username, userId],
 			function (err) {
 				if (err)
-					return ({error: 'Failed to update username', details: err});
+					return reject({error: 'Failed to update username', details: err});
 				if (this.changes === 0)
 					return reject({error: 'User not found, no changes made'});
 				return resolve({
@@ -67,21 +67,21 @@ function updatePassword(password, userId)
 	return new Promise((resolve, reject) => {
 		bcrypt.hash(password, saltRounds, (hashErr, hash) => {
 			if (hashErr)
-				return ({error: 'Failed to hash password', details: err});
+				return reject({error: 'Failed to hash password', details: hashErr});
+			db.run(
+				`UPDATE users SET password = ? WHERE id = ?`, [hash, userId],
+				function (err) {
+					if (err)
+						return reject({error: 'Failed to update password', details: err});
+					if (this.changes === 0)
+						return reject({error: 'User not found, no changes made'});
+					return resolve({
+						message: 'Password updated',
+						userId
+					});
+				}
+			);
 		});
-		db.run(
-			`UPDATE users SET password = ? WHERE id = ?`, [hash, userId],
-			function (err) {
-				if (err)
-					return ({error: 'Failed to update password', details: err});
-				if (this.changes === 0)
-					return reject({error: 'User not found, no changes made'});
-				return resolve({
-					message: 'Username updated',
-					userId
-				});
-			}
-		);
 	});
 }
 
@@ -89,14 +89,14 @@ function changeAvatar(avatar, userId)
 {
 	return new Promise((resolve, reject) => {
 		db.run(
-			`UPDATE users SET avatar = ? WHERE id = ?`, [avatar, userId],
+			`UPDATE users SET avatar_file = ? WHERE id = ?`, [avatar, userId],
 			function (err) {
 				if (err)
-					return ({error: 'Failed to update avatar', details: err});
+					return reject({error: 'Failed to update avatar', details: err});
 				if (this.changes === 0)
 					return reject({error: 'User not found, no changes made'});
 				return resolve({
-					message: 'Score updated',
+					message: 'Changed avatar',
 					userId,
 					avatar: avatar
 				});
@@ -112,11 +112,11 @@ function changeLanguage(language, userId)
 			`UPDATE users SET language = ? WHERE id = ?`, [language, userId],
 			function (err) {
 				if (err)
-					return ({error: 'Failed to update language', details: err});
+					return reject({error: 'Failed to update language', details: err});
 				if (this.changes === 0)
 					return reject({error: 'User not found, no changes made'});
 				return resolve({
-					message: 'Score updated',
+					message: 'Language changed',
 					userId,
 					newLanguage: language
 				});
@@ -133,11 +133,11 @@ function update2fa(enabled, userId, secret)
 			[enabled ? 1 : 0, secret || null, userId],
 			function (err) {
 				if (err)
-					return ({error: 'Failed to update 2fa', details: err});
+					return reject({error: 'Failed to update 2fa', details: err});
 				if (this.changes === 0)
 					return reject({error: 'User not found, no changes made'});
 				return resolve({
-					message: 'Score updated',
+					message: '2fa updated',
 					userId,
 					enabled
 				});
@@ -150,7 +150,7 @@ function recomputeLeaderboardRanks()
 {
 	return new Promise((resolve, reject) => {
 		db.all(
-			`SELECT id score FROM users ORDER BY score DESC, id ASC`, [],
+			`SELECT id, score FROM users ORDER BY score DESC, id ASC`, [],
 			(err, rows) => {
 				if (err)
 					return reject({error: 'Failed to fetch users for rank recompute', details: err});
@@ -178,11 +178,18 @@ function recomputeLeaderboardRanks()
 function updatePlayerGameStats(winner, id)
 {
 	const scoreDelta = winner ? 10 : 5;
+	const incWin = winner ? 1 : 0;
+	const incLoss = winner ? 0 : 1;
 	return new Promise((resolve, reject) => {
 		db.serialize(() => {
 			db.run(
-				`UPDATE users SET wins = wins + ?, losses = losses + 1, score = score + ?, total_games = total_games + 1 WHERE id = ?`,
-				[winner ? 1 : 0, winner ? 0 : 1, scoreDelta, id],
+				`UPDATE users
+				 SET wins = wins + ?,
+				 	losses = losses + ?,
+					score = score + ?,
+					total_games = total_games + 1
+				WHERE id = ?`,
+				[incWin, incLoss, scoreDelta, id],
 				function (err) {
 					if (err)
 						return reject({error: 'Failed to update player stats', details: err});
@@ -193,7 +200,7 @@ function updatePlayerGameStats(winner, id)
 							`SELECT wins, losses, score, total_games, rank FROM users WHERE id = ?`, [id],
 							(getErr, row) => {
 								if (getErr)
-									return reject({error: 'Failed to fetch updated stats', details: err});
+									return reject({error: 'Failed to fetch updated stats', details: getErr});
 								if (this.changes === 0)
 									return reject({error: 'User not found after stats update'});
 								const payload = {

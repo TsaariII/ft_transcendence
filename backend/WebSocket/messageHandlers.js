@@ -9,25 +9,14 @@ const {
 	initPlayer,
 	getGameContext
 } = require('./handlers.js');
-const {
-	updatePlayerGameStats,
-	updateMatchHistory
-} = require('@db/update.js');
-// const {
-// 	updateTournamentStats,
-// 	updateBracket
-// } = require('@db/tournaments.js');
+const {updatePlayerGameStats} = require('@db/update.js');
+const {updateGameResult} = require('@db/game.js');
+
 
 const {addPlayer} = require('@Rgame');
 
 let playerInit = false;
 let paused = false;
-// const TYPES_THAT_DONT_NEED_CONTEXT = new Set([
-//     'greet',
-//     'ping',
-//     'initPlayer',
-//     'init'
-// ]);
 
 
 function safeSend(ws, payload)
@@ -66,18 +55,8 @@ function ensureAliasAndId(entry, fallbackId)
 
 function handleMessage(ws, data)
 {
-	// const needsContext = !TYPES_THAT_DONT_NEED_CONTEXT.has(data.type);
 	const context = getGameContext(ws, data, playerInit);
 	const {game, gameState} = context || {};
-	// if (needsContext && (!game || !gameState))
-	// {
-	// 	ws.send(JSON.stringify({
-	// 		type: 'error',
-	// 		message: 'Game session is not initialized'
-	// 	}));
-	// 	return;
-	// }
-	// if (data.type !== 'keys')
 	const requireContextFor = [
 		'pause',
 		'getPlayerNames',
@@ -165,35 +144,32 @@ function handleMessage(ws, data)
 		case 'gameOver':
 		{
 			const gameId = ws ? ws.gameId || game.gameId : game.gameId;
+			if (!gameId) break;
 			const p1Entry = [...game.players.entries()].find(([, p]) => p.role === 'player1');
 			const p2Entry = [...game.players.entries()].find(([, p]) => p.role === 'player2');
 			const {id: id1, player: player1} = ensureAliasAndId(p1Entry, 'p1');
 			const {id: id2, player: player2} = ensureAliasAndId(p2Entry, 'p2');
 			if (!player1 || !player2) break;
 			const player1Won = player1.score > player2.score;
-			const winnerId = player1Won ? id1 : id2;
-			const loserId = player1Won ? id2 : id1;
-			const winner = player1Won ? player1 : player2;
-			const loser = player1Won ? player2 : player1;
-			const updateStats = async (isWinner, playerId, player, opponent) => {
-				if (player.type === 'login')
-				{
-					await updatePlayerGameStats(isWinner, playerId, player.score);
-					await updateMatchHistory(
-						playerId,
-						isWinner ? 'win' : 'loss',
-						player.score,
-						player.type,
-						opponent.id,
-						opponent.score,
-						opponent.type
-					);
-				}
-			};
-			Promise.all([
-				updateStats(true, winnerId, winner, loser),
-				updateStats(false, loserId, loser, winner)
-			]).then(() => {}).catch((err) => {});
+			const dbP1Id = player1.type === 'login' ? id1 : null;
+			const dbP2Id = player2.type === 'login' ? id2 : null;
+			let winnerDbId = null;
+			if (player1Won && player1.type === 'login') winnerDbId = dbP1Id;
+			else if (!player1Won && player2.type === 'login') winnerDbId = dbP2Id;
+			const promises = [];
+			if (dbP1Id !== null)
+				promises.push(updatePlayerGameStats(player1Won, id1));
+			if (dbP2Id !== null)
+				promises.push(updatePlayerGameStats(!player1Won, id2));
+			promises.push(updateGameResult(gameId, {
+				p1_id: dbP1Id,
+				p2_id: dbP2Id,
+				p1_score: player1.score,
+				p2_score: player2.score,
+				winner_id: winnerDbId,
+				status: 'finished'
+			}));
+			Promise.all(promises).catch((err) => {});
 			if (game.mode === 'tournament')
 			{
 				// updateTournamentStats(gameId, player1.score, player2.score, 'finished', winnerId).then(() => {})

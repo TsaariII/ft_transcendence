@@ -5,6 +5,7 @@ const flog = logger.child({ fileContext: 'auth' }); // scoped logger
 
 const speakeasy = require('speakeasy'); // for creating 2FA secrets
 const qrcode = require('qrcode');      // creating qrcodes
+const {encrypt, decrypt} = require('./crypto.js')
 const tempSetupSecrets = new Map();
 
 /**

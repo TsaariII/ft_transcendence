@@ -47,13 +47,13 @@ fastify.setErrorHandler((error, request, reply) => {
     if (error.validation)
     {
         const formatted = formatError.formatValidationError(error);
-        reply.code(formatted.code).send({
+        return reply.code(formatted.code).send({
             error: formatted.error,
             details: formatted.message
         });
     }
     logger.error({error}, 'Unhandled server error');
-    reply.code(500).send({ 
+    return reply.code(500).send({ 
         error: 'SERVER_ERROR', 
         message: 'Unexpected server error' 
     });

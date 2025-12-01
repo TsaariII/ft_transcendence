@@ -129,8 +129,8 @@ module.exports = async function tournamentRoutes(fastify, options) {
 		let userId; 
 		try { userId = getUserIdFromToken(token); }
 		catch { return reply.code(401).send({ status: 'ERROR', error: 'Invalid auth token' }); }
-		const tid = Number(request.body?.tournament_id);
-		// const tid = Number(request.params.id);
+		// const tid = Number(request.body?.tournament_id);
+		const tid = Number(request.params?.id ?? request.body?.tournament_id);
 		if (!Number.isInteger(tid)) return reply.code(400).send({ status: 'ERROR', error: 'Invalid tournament id' });
 		try
 		{

@@ -1,374 +1,222 @@
-const { API_PROTOCOL } = require('@sharedApi');
+const {API_PROTOCOL} = require('@sharedApi');
+const {saveAndGetAvatarUrl, deleteOldAvatar} = require('./save_avatar.js');
 const {logger} = require('@logger');
-const { saveAndGetAvatarUrl, deleteOldAvatar } = require('./save_avatar.js'); // <-- Note the new import
-const flog = logger.child({ fileContext: 'profile.js' }); // scoped logger
+const flog = logger.child({fileContext: 'profile.js'});
 
 const {
-  getActiveTournamentForUser,
-  buildTournamentState
-} = require('../../database/tournament'); // fix path to your DAL
+	getActiveTournamentForUser,
+	buildTournamentState
+} = require('../../database/tournament.js');
 
-async function getUser(fastify, options) {
-  const { DBget, secure, db } = options; // <-- make sure you pass `db` when you register this plugin
-
-  const toFriend = (r) => ({
-    user_id: r.friendID,
-    username: r.username,
-    avatar: r.avatar || undefined,
-    online_status: r.status === 'online'
-  });
-
-  // Match history item -> your frontend Match shape (for the history list)
-  const toMatch = (g) => {
-    const status = (g.status === 'finished') ? 'finished'
-                : (g.status === 'ongoing')  ? 'ongoing'
-                : 'pending';
-    return {
-      match_id: String(g.id),
-      player1: {
-        username: g.p1_username || '',
-        alias: g.p1_alias || g.p1_username || '',
-        status: status === 'ongoing' ? 'playing' : (status === 'finished' ? 'finished' : 'ready'),
-        avatar: undefined,
-        score: g.p1_score ?? undefined,
-        isSelf: undefined,
-        isVerified: undefined,
-        role: 'player1'
-      },
-      player2: {
-        username: g.p2_username || '',
-        alias: g.p2_alias || g.p2_username || '',
-        status: status === 'ongoing' ? 'playing' : (status === 'finished' ? 'finished' : 'ready'),
-        avatar: undefined,
-        score: g.p2_score ?? undefined,
-        isSelf: undefined,
-        isVerified: undefined,
-        role: 'player2'
-      },
-      winner: g.winner_username || undefined,
-      score: { player1: g.p1_score ?? 0, player2: g.p2_score ?? 0 },
-      status
-    };
-  };
-
-  fastify.get(API_PROTOCOL.GET_PROFILE.path, {}, async (request, reply) => {
-	const userId = request.userId;
-	if (!userId) return reply.code(401).send({error: 'Authentication required'});
-	try
-	{
-		const profile = await DBget.fetchUser(userId);
-		const [friendsRows, matchHistoryRows] = await Promise.all([
-			DBget.getFriendsForPlayer(userId),
-			DBget.getMatchHistory(userId)
-		]);
-		const active = await getActiveTournamentForUser(db, userId);
-		const tournament = active ? await buildTournamentState(db, active.id, userId) : null;
-		const payload = {
-			user_id: userId,
-			username: profile.username,
-			avatarFile: profile.avatar_file || undefined,
-			twoFactor: !!profile.mfa_enabled,
-			rank: profile.rank ?? 0,
-			victories: profile.wins ?? 0,
-			losses: profile.losses ?? 0,
-			totalMatches: profile.total_games ?? 0,
-			tournamentWins: undefined,
-			friends: friendsRows.map(toFriend),
-			matchHistory: matchHistoryRows.map(toMatch),
-			tournament,
-			language: profile.language || 'en'
+async function profileRoutes(fastify, options)
+{
+	const {DBget, DBupdate, db} = options;
+	const toFriend = (r) => ({
+		user_id: r.friendID,
+		username: r.username,
+		avatar: r.avatar || undefined,
+		online_status: r.status === 'online'
+	});
+	const toMatch = (g, userId) => {
+		const isP1 = String(g.p1_id) === String(userId);
+		const myScore = isP1 ? g.p1_score : g.p2_score;
+		const oppScore = isP1 ? g.p2_score : g.p1_score;
+		let result;
+		if (myScore > oppScore) result = 'win';
+		else if (myScore < oppScore) result = 'loss';
+		else result = 'loss';
+		const opponentId = isP1 ? g.p2_id : g.p1_id;
+		const opponentName = isP1 ? g.p2_name : g.p1_name;
+		return {
+			user_id: String(g.id),
+			opponent: opponentName || String(opponentId ?? ''),
+			result,
+			score: `${myScore ?? 0}-${oppScore ?? 0}`,
+			timestamp: g.created_at
 		};
-		return reply.code(200).send(payload);
-	}
-	catch (err)
-	{
-		if (err && err.error === 'User not found')
-			return reply.code(404).send({error: 'User not found'});
-		if (err && err.error === 'Failed to fetch match history')
-			return reply.code(500).send({error: 'Failed to fetch match history'});
-		return reply.code(500).send({error: 'Failed to fetch profile'});
-	}
-  });
-}
-
-async function updateUsername(fastify, options) {
-	const { DBupdate, DBget, secure } = options;
-	fastify.route({
-		method: API_PROTOCOL.CHANGE_USERNAME.method,
-		url: API_PROTOCOL.CHANGE_USERNAME.path,
-		handler: async (request, reply) => {
-		//schema: { body: schemas.ChangeUsername }, dosnt exist yet 
-		const { username } = request.body;
-		try {
-
-			const token = request.cookies.auth_token;
-			const userId = secure.getUserIdFromToken(token);
-			if (userId){
-				const check = await DBget.checkUsernameAvailable(username);
-				console.log('checking check', check)
-				if (check.taken) {
-					//update the username
-					reply.code(400).send({
-						status: 'ERROR',
-						error: 'username not available'
-					})
-				}	
-				const res = await DBupdate.updateUsername(username, userId.id);
-				console.log('checking res', res);
-			}
-
+	};
+	fastify.get(API_PROTOCOL.GET_PROFILE.path, async (request, reply) => {
+		const userId = request.userId;
+		if (!userId)
+			return reply.code(401).send({error: 'Authentication required'});
+		try
+		{
 			const profile = await DBget.fetchUser(userId);
-			if (!profile) {
-				console.log('error in fetching user id or profile ');
-				reply.code(404).send({
-					status: 'ERROR',
-					error: 'no such user'
-				})
-			}
-
-			reply.code(200).send({
-				status: 'UPDATED',
-				profile: profile,
-			});
-		} catch (err) {
-			
-			reply.code(500).send(err);
+			if (!profile)
+				return reply.code(404).send({error: 'User not found'});
+			const [friendsRows, matchHistoryRows] = await Promise.all([
+				DBget.getFriendsForPlayer(userId),
+				DBget.getMatchHistory(userId)
+			]);
+			const active = await getActiveTournamentForUser(db, userId);
+			const tournament = active ? await buildTournamentState(db, active.id, userId) : null;
+			const payload = {
+				user_id: userId,
+				username: profile.username,
+				avatarFile: profile.avatar_file || profile.avatar || undefined,
+				twoFactor: !!profile.mfa_enabled,
+				rank: profile.rank ?? 0,
+				victories: profile.wins ?? 0,
+				losses: profile.losses ?? 0,
+				totalMatches: profile.total_games ?? 0,
+				tournamentWins: undefined,
+				friends: friendsRows.map(toFriend),
+				matchHistory: matchHistoryRows.map((g) => toMatch(g, userId)),
+				tournament,
+				language: profile.language || 'en',
+			};
+			return reply.code(200).send(payload);
 		}
-	}
+		catch (err)
+		{
+			if (err && err.error === 'Failed to fetch match history')
+				return reply.code(500).send({ error: 'Failed to fetch match history' });
+			return reply.code(500).send({ error: 'Failed to fetch profile' });
+		}
+	});
+	fastify.patch(API_PROTOCOL.CHANGE_USERNAME.path, async (request, reply) => {
+		const {username} = request.body || {};
+		const userId = request.userId; //getUserIdFromToken(request.cookies.auth_token);
+		if (!userId)
+			return reply.code(401).send({status: 'ERROR', error: 'Invalid auth token'});
+		if (!username || typeof username !== 'string')
+			return reply.code(400).send({status: 'ERROR', error: 'Invalid username'});
+		try
+		{
+			let isTaken = false;
+			try
+			{
+				const check = await DBget.checkUsernameAvailable(username);
+				isTaken = !!check.taken;
+			}
+			catch (checkErr)
+			{
+				return reply.code(500).send({status: 'ERROR', error: 'Failed to validate username'});
+
+			}
+			if (isTaken)
+				return reply.code(500).send({status: 'ERROR', error: 'Username not available'});
+			await DBupdate.updateUsername(username, userId);
+			const profile = await DBget.fetchUser(userId);
+			return reply.code(200).send({status: 'UPDATED', profile});
+		}
+		catch (err)
+		{
+			return reply.code(500).send({status: 'ERROR', error: 'Server error'});
+		}
+	});
+	fastify.patch(API_PROTOCOL.CHANGE_PASSWORD.path, async (request, reply) => {
+		const {current_password, new_password} = request.body || {};
+		const userId = request.userId;
+		if (!userId)
+			return reply.code(401).send({status: 'ERROR', error: 'Invalid auth token'});
+		if (!current_password || !new_password)
+			return reply.code(400).send({status: 'ERROR', error: 'Missing password field'});
+		try
+		{
+			const check = await DBget.checkPasswordMatch(current_password);
+			if (!check && check.match !== true)
+				return reply.code(400).send({status: 'ERROR', error: 'Current password does not match'});
+			await DBupdate.updatePassword(new_password, userId);
+			return reply.code(200).send({status: 'UPDATED'});
+		}
+		catch (err)
+		{
+			return reply.code(500).send({status: 'ERROR', error: 'Server error'});
+		}
+	});
+	fastify.patch(API_PROTOCOL.CHANGE_AVATAR.path, async (request, reply) => {
+		const {avatar} = request.body || {};
+		const userId = request.userId; //getUserIdFromToken(request.cookies.auth_token);
+		if (!userId)
+			return reply.code(401).send({status: 'ERROR', error: 'Invalid auth token'});
+		if (!avatar || typeof avatar !== 'string')
+			return reply.code(400).send({status: 'ERROR', error: 'Invalid avatar'});
+		try
+		{
+			const res = await DBupdate.changeAvatar(avatar, userId);
+			if (res && res.error)
+				return reply.code(400).send({status: 'ERROR', error: 'Invalid avatar'});
+			return reply.code(200).send({status: 'UPDATED'});
+		}
+		catch (errr)
+		{
+			return reply.code(500).send({status: 'ERROR', error: 'Server error'});
+		}
+	});
+	fastify.post(API_PROTOCOL.UPLOAD_AVATAR.path, async (request, reply) => {
+		let newAvatarUrl = null;
+		const userId = request.userId; //getUserIdFromToken(request.cookies.auth_token);
+		if (!userId)
+			return reply.code(401).send({status: 'ERROR', error: 'Invalid auth token'});
+		try
+		{
+			const currentUserData = await DBget.fetchUser(userId);
+			const OldAvatarUrl = currentUserData?.avatar_file || currentUserData?.avatar || null;
+			const data = await request.file();
+			if (!data || data.fieldname !== 'file')
+				return reply.code(400).send({status: 'ERROR', error: 'No file received or wrong field name'});
+			const allowedMimes = ['image/jpeg', 'image/png', 'image/gif'];
+			if (!allowedMimes.includes(data.mimetype))
+				return reply.code(400).send({status: 'ERROR', error: 'Invalid file type. Allowed types JPEG, PNG and GIF'});
+			newAvatarUrl = await saveAndGetAvatarUrl(data, userId);
+			const updateCheck = await DBupdate.changeAvatar(newAvatarUrl, userId);
+			if (updateCheck && updateCheck.error)
+			{
+				await deleteOldAvatar(newAvatarUrl);
+				return reply.code(500).send({status: 'ERROR', error: 'Batabase update failed'});
+			}
+			if (OldAvatarUrl)
+				await deleteOldAvatar(OldAvatarUrl);
+			return reply.code(200).send({status: 'UPLOADED', url: newAvatarUrl});
+		}
+		catch (err)
+		{
+			if (newAvatarUrl)
+			{
+				try { await deleteOldAvatar(newAvatarUrl); }
+				catch (cleanupErr) {}
+			}
+			return reply.code(500).send({status: 'ERROR', error: 'Server error'});
+		}
+	});
+	fastify.patch(API_PROTOCOL.CHANGE_LANGUAGE.path, async (request, reply) => {
+		const {language} = request.body || {};
+		const userId = request.userId; //getUserIdFromToken(request.cookies.auth_token);
+		if (!userId)
+			return reply.code(401).send({status: 'ERROR', error: 'Invalid auth token'});
+		if (!language || typeof language !== 'string')
+			return reply.code(400).send({status: 'ERROR', error: 'Invalid language'});
+		try
+		{
+			const res = await DBupdate.changeLanguage(language, userId);
+			if (res && res.error)
+				return reply.code(400).send({status: 'ERROR', error: 'Not valid language'});
+			return reply.code(200).send({status: 'UPDATED'});
+		}
+		catch (err)
+		{
+			return reply.code(500).send({status: 'ERROR', error: 'Server error'});
+		}
+	});
+	fastify.post(API_PROTOCOL.CHANGE_2FA.path, async (request, reply) => {
+		const {twoFactor} = request.body || {};
+		const userId = request.userId; //getUserIdFromToken(request.cookies.auth_token);
+		if (!userId)
+			return reply.code(401).send({status: 'ERROR', error: 'Invalid auth token'});
+		try
+		{
+			const enabled = !!twoFactor;
+			const res = await DBupdate.update2fa(enabled, userId, null);
+			if (res && res.error)
+				return reply.code(400).send({status: 'ERROR', error: 'Invalid two factor request'});
+			return reply.code(200).send({status: 'UPDATED'});
+		}
+		catch (err)
+		{
+			return reply.code(500).send({status: 'ERROR', error: 'Server error'});
+		}
 	});
 }
 
-async function updatePassword(fastify, options) {
-	const { DBupdate, DBget, secure } = options;
-	fastify.route({
-		method: API_PROTOCOL.CHANGE_PASSWORD.method,
-		url: API_PROTOCOL.CHANGE_PASSWORD.path,
-		handler: async (request, reply) => {
-		//schema: { body: schemas.ChangeUsername }, dosnt exist yet 
-		const { current_password, new_password } = request.body;
-		try {
-
-			const token = request.cookies.auth_token;
-			const userId = secure.getUserIdFromToken(token);
-			if (userId){
-				const check = await DBget.checkPasswordMatch(current_password);
-				console.log('checking check', check)
-				//might need more in depth error handling
-				if (check.error) {
-					//update the username
-					reply.code(400).send({
-						status: 'ERROR',
-						error: 'current password does not match'
-					})
-				}
-				//update password after checks valid
-				const res = await DBupdate.updatePassword(new_password, userId.id);
-				console.log('checking res', res);
-			}
-			reply.code(200).send({
-				status: 'UPDATED',
-			});
-		} catch (err) {
-			console.log(('Error during login:', err));
-			reply.code(500).send(err);
-		}
-	}
-	});
-}
-
-// Route for file upload (POST) 
-async function uploadAvatarFileRoute(fastify, options) {
-	const { DBupdate, DBget, secure } = options; 
-	fastify.route({
-		method: API_PROTOCOL.UPLOAD_AVATAR.method, // POST
-		url: API_PROTOCOL.UPLOAD_AVATAR.path,     // /api/profile/avatar
-		
-		handler: async (request, reply) => {
-			flog.info({ function: 'uploadAvatarFileRoute' }, 'Attempting avatar file upload');
-			
-			let newAvatarUrl = null; // Initialize to track the newly saved file
-			
-			try {
-				const token = request.cookies.auth_token;
-				const userId = secure.getUserIdFromToken(token);
-
-				if (!userId) {
-					reply.code(401).send({ status: 'ERROR', error: 'Unauthorized' });
-					return;
-				}
-
-				// 1. Fetch current user data to get the old avatar URL for later deletion
-				const currentUserData = await DBget.fetchUser(userId);
-				const oldAvatarUrl = currentUserData ? currentUserData.avatar_file : null;
-
-				// Parse the file data from the multipart request
-				const data = await request.file();
-				if (!data || data.fieldname !== 'file') {
-					reply.code(400).send({ status: 'ERROR', error: 'No file received or wrong field name' });
-					return;
-				}
-				
-				// Validate file type (basic check)
-				const allowedMimes = ['image/jpeg', 'image/png', 'image/gif'];
-				if (!allowedMimes.includes(data.mimetype)) {
-					// Optionally log this attempt
-					reply.code(400).send({ status: 'ERROR', error: 'Invalid file type. Only JPEG, PNG, and GIF allowed.' });
-					return;
-}
-
-				// 2. Save the new file and get its public URL
-				newAvatarUrl = await saveAndGetAvatarUrl(data, userId.id);
-
-				// 3. Update the user's database entry with the new URL
-				const updateCheck = await DBupdate.changeAvatar(newAvatarUrl, userId.id);
-
-				if (updateCheck.error) {
-					flog.error({ error: updateCheck.error }, 'Failed to update database with new avatar URL. Attempting file rollback.');
-					
-					// Delete the newly uploaded file if DB update fails
-					await deleteOldAvatar(newAvatarUrl); 
-					
-					reply.code(500).send({ status: 'ERROR', error: 'Database update failed' });
-					return;
-				}
-
-				// 4. Delete the old file from disk (only if DB update succeeded)
-				await deleteOldAvatar(oldAvatarUrl);
-				
-				// Success response, returning the URL the frontend needs
-				reply.code(200).send({
-					status: 'UPLOADED',
-					url: newAvatarUrl, // The public URL the frontend will use
-				});
-
-			} catch (err) {
-				// If a file was saved but an error occurred outside of the DB check (e.g., file saving failed)
-				// we should attempt to clean up if newAvatarUrl was set.
-				if (newAvatarUrl) {
-					await deleteOldAvatar(newAvatarUrl); // Clean up temp file
-				}
-				flog.error({ err }, 'Error during avatar file upload (includes file system errors)');
-				reply.code(500).send({ status: 'ERROR', error: 'Server error during upload' });
-			}
-		},
-	});
-}
-
-
-async function updateAvatar(fastify, options) {
-	const { DBupdate, secure } = options;
-	fastify.route({
-		method: API_PROTOCOL.CHANGE_AVATAR.method,
-		url: API_PROTOCOL.CHANGE_AVATAR.path,
-		handler: async (request, reply) => {
-		//schema: { body: schemas.updateAvatar }, dosnt exist yet 
-		const { avatar } = request.body;
-		try {
-
-			const token = request.cookies.auth_token;
-			const userId = secure.getUserIdFromToken(token);
-			if (userId){
-				const check = await DBupdate.changeAvatar(avatar, userId.id);
-				console.log('checking check', check)
-				//might need more in depth error handling
-				if (check.error) {
-					//update the username
-					reply.code(400).send({
-						status: 'ERROR',
-						error: 'not valid avatar?'// other errors?
-					})
-				}
-			}
-			reply.code(200).send({
-				status: 'UPDATED',
-			});
-		} catch (err) {
-			console.log(('Error during avatar change:', err));
-			reply.code(500).send(err);
-		}
-	}
-	});
-}
-
-async function updateLanguage(fastify, options) {
-	const { DBupdate, secure } = options;
-	fastify.route({
-		method: API_PROTOCOL.CHANGE_LANGUAGE.method,
-		url: API_PROTOCOL.CHANGE_LANGUAGE.path,
-		handler: async (request, reply) => {
-		//schema: { body: schemas.updateLanguage }, dosnt exist yet 
-		const { language } = request.body;
-		try {
-
-			const token = request.cookies.auth_token;
-			const userId = secure.getUserIdFromToken(token);
-			if (userId){
-				const check = await DBupdate.changeLanguage(language, userId.id);
-				console.log('checking check Language', check)
-				//might need more in depth error handling
-				if (check.error) {
-					//update the username
-					reply.code(400).send({
-						status: 'ERROR',
-						error: 'not valid Language?'// other errors?
-					})
-				}
-			}
-			reply.code(200).send({
-				status: 'UPDATED',
-			});
-		} catch (err) {
-			console.log(('Error during Language change:', err));
-			reply.code(500).send(err);
-		}
-	}
-	});
-}
-
-async function updateTwoFactor(fastify, options) {
-	const { DBupdate, secure } = options;
-	fastify.route({
-		method: API_PROTOCOL.CHANGE_2FA.method,
-		url: API_PROTOCOL.CHANGE_2FA.path,
-		handler: async (request, reply) => {
-		//schema: { body: schemas.updateTwoFactor }, dosnt exist yet 
-		const { twoFactor } = request.body;
-		flog.debug({ function: 'updateTwoFactor', body: request.body }, 'Toggling Two Factor Authentication , inc body');
-		try {
-			
-			const token = request.cookies.auth_token;
-			const userId = secure.getUserIdFromToken(token);	
-			if (userId){
-				const check = await DBupdate.update2fa(userId.id);
-				console.log('checking check Two Factor', check)
-				//might need more in depth error handling
-				if (check.error) {
-					//update the username
-					reply.code(400).send({
-						status: 'ERROR',
-						error: 'not valid Two Factor?'// other errors?
-					})
-				}
-			}
-			reply.code(200).send({
-				status: 'UPDATED',
-			});
-		}
-		catch (err) {
-			console.log(('Error during Two Factor change:', err));
-			reply.code(500).send(err);
-		}
-	}
-	});
-}	
-
-async function profileRoutes(fastify, options) {
-	await getUser(fastify, options);
-	await updateUsername(fastify, options);
-	await updatePassword(fastify, options);
-	await updateAvatar(fastify, options);
-	await uploadAvatarFileRoute(fastify, options); // POST for file upload
-	await updateLanguage(fastify, options);
-	await updateTwoFactor(fastify, options);
-}
-module.exports = profileRoutes
+module.exports = profileRoutes;

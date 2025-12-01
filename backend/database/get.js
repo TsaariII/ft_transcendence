@@ -46,59 +46,51 @@ function getFriendsForPlayer(userId) {
   });
 }
 
-
 function getMatchHistory(userId, limit = 10)
 {
   return new Promise((resolve, reject) => {
     db.all(
-      `SELECT id, p1_id, p2_id, p1_score, p2_score,
-              mode, created_at
-       FROM games
-       WHERE p1_id = ? OR p2_id = ?
-       ORDER BY created_at DESC
-       LIMIT ?`, [userId, userId, limit],
-       (err, rows) => {
+      `SELECT
+        g.id,
+        g.p1_id,
+        g.p2_id,
+        g.p1_score,
+        g.p2_score,
+        g.mode,
+        g.created_at,
+        u1.username AS p1_name,
+        u2.username AS p2_name
+        FROM games g
+        LEFT JOIN users u1 ON g.p1_id = u1.id
+        LEFT JOIN users u2 ON g.p2_id = u2.id
+        WHERE (p1_id = ? AND p2_id IS NOT NULL)
+           OR (p2_id = ? AND p1_id IS NOT NULL)
+        ORDER BY g.created_at DESC
+        LIMIT ?`, [userId, userId, limit],
+        (err, rows) => {
         if (err) return reject({error: 'Failed to fetch match history', details: err});
         resolve(rows);
-       }
-    )
-  })
+      });
+  });
 }
 
-// // Returns games the user participated in, with joined usernames/aliases
-// function getMatchHistory(userId) {
-// //   const id = _normalizeId(userId);
+// function getMatchHistory(userId, limit = 10)
+// {
 //   return new Promise((resolve, reject) => {
 //     db.all(
-//       `SELECT
-//           g.id,
-//           g.tournament_id,
-//           g.p1_id, g.p2_id,
-//           g.p1_score, g.p2_score,
-//           g.status,
-//           g.winner_id,
-//           u1.username AS p1_username,
-//           u2.username AS p2_username,
-//           uW.username AS winner_username,
-//           tp1.alias AS p1_alias,
-//           tp2.alias AS p2_alias,
-//           g.round,
-//           g.bracket_pos
-//        FROM games g
-//        LEFT JOIN users u1 ON u1.id = g.p1_id
-//        LEFT JOIN users u2 ON u2.id = g.p2_id
-//        LEFT JOIN users uW ON uW.id = g.winner_id
-//        LEFT JOIN tournament_players tp1 ON tp1.tournament_id = g.tournament_id AND tp1.user_id = g.p1_id
-//        LEFT JOIN tournament_players tp2 ON tp2.tournament_id = g.tournament_id AND tp2.user_id = g.p2_id
-//        WHERE g.p1_id = ? OR g.p2_id = ?
-//        ORDER BY g.id DESC`,
-//       [userId, userId],
-//       (err, rows) => {
-//         if (err) return reject({ error: 'DB error getMatchHistory' });
-//         resolve(rows || []);
-//       }
-//     );
-//   });
+//       `SELECT id, p1_id, p2_id, p1_score, p2_score,
+//               mode, created_at
+//        FROM games
+//        WHERE (p1_id = ? AND p2_id IS NOT NULL)
+//           OR (p2_id = ? AND p1_id IS NOT NULL)
+//        ORDER BY created_at DESC
+//        LIMIT ?`, [userId, userId, limit],
+//        (err, rows) => {
+//         if (err) return reject({error: 'Failed to fetch match history', details: err});
+//         resolve(rows);
+//        }
+//     )
+//   })
 // }
 
 // get user by username , ie when adding friend
@@ -121,18 +113,37 @@ async function fetchUserByUsername(username)
 async function checkUsernameAvailable(username)
 {
   return new Promise((resolve, reject) => {
-    db.get('SELECT * FROM users WHERE username = ?', [username], (err, row) =>{
-      if (err || !row)
-        resolve({ error: 'Username available' });
-			reject({error: 'Username not available'});
-		});
-	});
+    db.get(`SELECT password FROM users WHERE id = ?`, [userId], async (err, row) => {
+      if (err)
+        return reject({error: 'DB error password check'});
+      if (!row)
+        return reject({error: 'User not found'});
+      try
+      {
+        const ok = await bcrypt.compare(password, row.password);
+        if (!ok)
+          return resolve({match: flase});
+        return resolve({match: true});
+      }
+      catch (e) { return reject({error: 'Password check failed'}); }
+    });
+  });
 }
+
+// {
+//   return new Promise((resolve, reject) => {
+//     db.get('SELECT * FROM users WHERE username = ?', [username], (err, row) =>{
+//       if (err)
+//         reject({ error: 'DB error checking username' });
+// 			resolve({taken: !!row});
+// 		});
+// 	});
+// }
 
 async function checkPasswordMatch(password)
 {
   return new Promise((resolve, reject) => {
-    db.get('SELECT * FROM users WHERE password = ?', [password], (err, row) =>{
+    db.get('SELECT * FROM users WHERE password = ?', [password], (err, row) => {
       if (err || !row)
         reject({ error: 'password does not match' });
 			resolve({ok: 'password match'});

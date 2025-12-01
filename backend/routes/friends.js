@@ -33,7 +33,6 @@ async function addFriend(fastify, options) {
 	});
 }
 
-
 async function removeFriend(fastify, options)
 {
 	const {DBdelete} = options;
@@ -54,7 +53,7 @@ async function removeFriend(fastify, options)
 			}
 			catch (err)
 			{
-				reply.code(418).send({status: 'ERROR', error: 'Failed to remiove friend'});
+				reply.code(418).send({status: 'ERROR', error: 'Failed to remove friend'});
 			}
 		}
 	});
