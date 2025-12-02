@@ -26,7 +26,6 @@ const MiniLogin: React.FC<MiniLoginProps> = ({gameId, onLoginSuccess, onCancel }
 		const [errors, setErrors] = useState<{
 			username?: string;
 			password?: string;
-			general?: string;
 		}>({});
 
 		const validateFrontend = () => {
@@ -41,6 +40,8 @@ const MiniLogin: React.FC<MiniLoginProps> = ({gameId, onLoginSuccess, onCancel }
 			}
 
 			setErrors(newErrors);
+			setError(null);
+
 			return Object.keys(newErrors).length === 0;
 		};
 
@@ -72,9 +73,7 @@ const MiniLogin: React.FC<MiniLoginProps> = ({gameId, onLoginSuccess, onCancel }
 
 			 if (res.status === 400) {
 				const data = await res.json().catch(() => null);
-				setErrors({
-					general: data?.error || t("auth.error.invalidCredentials"),
-				});
+				setError(t("auth.error.invalidCredentials"));
 				return;
 			}
 
@@ -88,7 +87,7 @@ const MiniLogin: React.FC<MiniLoginProps> = ({gameId, onLoginSuccess, onCancel }
 			onLoginSuccess(data.playerToken);
 
 		} catch (err: any) {
-			setErrors({ general: err?.message || t("auth.error.secondPlayerLoginFailed") });
+			setError(err?.message || t("auth.error.secondPlayerLoginFailed") );
 		} finally {
 			setLoading(false);
 		}
@@ -168,7 +167,6 @@ const MiniLogin: React.FC<MiniLoginProps> = ({gameId, onLoginSuccess, onCancel }
 								bg="#a48d988a"
 								hoverBg="#a91a5f8a"
 								borderColor="#a91a5f8a"
-								type="button"
 								onClick={onCancel}
 							>
 								{t("common.close")}
@@ -178,7 +176,6 @@ const MiniLogin: React.FC<MiniLoginProps> = ({gameId, onLoginSuccess, onCancel }
 								bg="#58d1b7d9"
 								hoverBg="#1ea58893"
 								borderColor="#177863ff"
-								type="submit"
 							>
 								{loading ? t("auth.loggingIn") : t("auth.logIn")}
 							</SketchyButton>
