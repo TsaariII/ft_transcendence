@@ -56,6 +56,7 @@ async function profileRoutes(fastify, options)
 				avatarFile: profile.avatar_file || profile.avatar || undefined,
 				twoFactor: !!profile.mfa_enabled,
 				rank: profile.rank ?? 0,
+				score: profile.score ?? 0,
 				victories: profile.wins ?? 0,
 				losses: profile.losses ?? 0,
 				totalMatches: profile.total_games ?? 0,
@@ -214,6 +215,52 @@ async function profileRoutes(fastify, options)
 		catch (err)
 		{
 			return reply.code(500).send({status: 'ERROR', error: 'Server error'});
+		}
+	});
+	fastify.get(API_PROTOCOL.GET_OTHER_PLAYER_PROFILE.path, async (request, reply) => {
+		const {user_id} = request.query || {};
+		const viewerId = request.userId;
+		if (!viewerId)
+			return reply.code(401).send({error: 'Authentication required'});
+		if (!user_id)
+			return reply.code(400).send({error: 'Missing user ID'});
+		try
+		{
+			const profile = await DBget.fetchUser(user_id);
+			if (!profile)
+				return reply.code(404).send({error: 'User not found'});
+			const matchHistory = await DBget.getMatchHistory(user_id);
+			const tournamentWins = await new Promise((resolve, reject) => {
+				db.get(
+					`SELECT COUNT(*) AS wins
+						FROM tournaments
+					WHERE winner_id = ?`, [user_id],
+					(err, row)  => {
+						if (err) return reject(err);
+						resolve(row?.wins ?? 0);
+					} 
+				);
+			});
+			const payload = {
+				username: profile.username,
+				avatarFile: profile.avatar_file || profile.avatar || undefined,
+				rank: profile.rank ?? 0,
+				score: profile.score ?? 0,
+				victories: profile.wins ?? 0,
+				losses: profile.losses ?? 0,
+				totalMatches: profile.total_games ?? 0,
+				tournamentWins,
+				matchHistory: matchHistory.map((g) => toMatch(g, user_id))
+			};
+			return reply.code(200).send(payload);
+		}
+		catch (err)
+		{
+			if (err && err.error === 'User not found')
+				return reply.code(404).send({error: 'User not found'});
+			if (err && err.error === 'Failed to fetch match history')
+				return reply.code(500).send({error: 'Failed to fetch match history'});
+			return reply.code(500).send({error: 'Failed to fetch profile'});
 		}
 	});
 }

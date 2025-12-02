@@ -74,24 +74,6 @@ function getMatchHistory(userId, limit = 10)
   });
 }
 
-// function getMatchHistory(userId, limit = 10)
-// {
-//   return new Promise((resolve, reject) => {
-//     db.all(
-//       `SELECT id, p1_id, p2_id, p1_score, p2_score,
-//               mode, created_at
-//        FROM games
-//        WHERE (p1_id = ? AND p2_id IS NOT NULL)
-//           OR (p2_id = ? AND p1_id IS NOT NULL)
-//        ORDER BY created_at DESC
-//        LIMIT ?`, [userId, userId, limit],
-//        (err, rows) => {
-//         if (err) return reject({error: 'Failed to fetch match history', details: err});
-//         resolve(rows);
-//        }
-//     )
-//   })
-// }
 
 // get user by username , ie when adding friend
 async function fetchUserByUsername(username)
@@ -145,15 +127,7 @@ async function checkPasswordMatch(userId, password)
     });
   });
 }
-// {
-//   return new Promise((resolve, reject) => {
-//     db.get('SELECT * FROM users WHERE password = ?', [password], (err, row) => {
-//       if (err || !row)
-//         reject({ error: 'password does not match' });
-// 			resolve({ok: 'password match'});
-// 		});
-// 	});
-// }
+
 // mini example of checking player exists and password matches . 
 
 async function miniLogin(username, password)
