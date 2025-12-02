@@ -287,7 +287,7 @@ const TournamentLobby: React.FC = () => {
 		(tournament.status === "ongoing" && (!tournament.bracket || tournament.bracket.length === 0)));
 
 	const bracketVisible = tournament && 
-		(tournament.status == "ongoing" || tournament.status == "finished") && 
+		(tournament.status === "ongoing" || tournament.status === "finished") && 
 		tournament.bracket && 
 		tournament.bracket.length > 0;
 
@@ -369,7 +369,7 @@ const TournamentLobby: React.FC = () => {
 								</div>
 							)}
 
-							{/* Tournament Bracket - Shown when tournament status is "ongoing" */}
+							{/* Tournament Bracket - Shown when tournament status" */}
 								{bracketVisible &&(
 									<TournamentBracket
 										onStartMatch={handleStartTournamentGame}
