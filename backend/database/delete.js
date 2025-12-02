@@ -1,5 +1,6 @@
 'use strict';
 const db = require('./initDB.js');
+const {recomputeLeaderboardRanks} = require('./update.js');
 const {logger} = require('@logger');
 const flog = logger.child({ fileContext: 'insert.js' }); // scoped logger
 
@@ -36,7 +37,8 @@ function deleteUserById(userId)
 		  function (err) {
 			if (err)
 			  return reject(err);
-			resolve(this.changes);  
+			recomputeLeaderboardRanks().then(() =>
+				resolve(this.changes)).catch(reject);  
 		  }
 		);
 	}).catch(reject);

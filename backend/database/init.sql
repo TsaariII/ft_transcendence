@@ -65,7 +65,60 @@ CREATE TABLE IF NOT EXISTS games
     FOREIGN KEY (winner_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
+CREATE TRIGGER IF NOT EXISTS trg_games_after_delete_adjust_user_stats
+AFTER DELETE ON games
+BEGIN
+    -- Player 1
+    UPDATE users
+    SET
+        wins        = wins
+                      - CASE
+                            WHEN OLD.status = 'finished'
+                             AND OLD.winner_id = OLD.p1_id
+                            THEN 1 ELSE 0
+                        END,
+        losses      = losses
+                      - CASE
+                            WHEN OLD.status = 'finished'
+                             AND OLD.winner_id = OLD.p2_id
+                            THEN 1 ELSE 0
+                        END,
+        total_games = total_games
+                      - CASE
+                            WHEN OLD.status = 'finished'
+                             AND OLD.p1_id IS NOT NULL
+                            THEN 1 ELSE 0
+                        END
+    WHERE id = OLD.p1_id;
 
+    -- Player 2
+    UPDATE users
+    SET
+        wins        = wins
+                      - CASE
+                            WHEN OLD.status = 'finished'
+                             AND OLD.winner_id = OLD.p2_id
+                            THEN 1 ELSE 0
+                        END,
+        losses      = losses
+                      - CASE
+                            WHEN OLD.status = 'finished'
+                             AND OLD.winner_id = OLD.p1_id
+                            THEN 1 ELSE 0
+                        END,
+        total_games = total_games
+                      - CASE
+                            WHEN OLD.status = 'finished'
+                             AND OLD.p2_id IS NOT NULL
+                            THEN 1 ELSE 0
+                        END
+    WHERE id = OLD.p2_id;
+
+    -- Recompute score for both players (10 for win, 5 for loss)
+    UPDATE users
+    SET score = wins * 10 + losses * 5
+    WHERE id IN (OLD.p1_id, OLD.p2_id);
+END;
 
 CREATE TABLE IF NOT  EXISTS tournament_players (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
