@@ -323,7 +323,7 @@ const SettingsPage: React.FC = () => {
 			localStorage.setItem("serverLang", language);
 			setOpenRow(null);
 			await refreshSession();
-			setMsg(t("common.language.updated"));
+			//setMsg(t("common.language.updated"));
 
 		} catch (e: any) {
 			if (e.sessionExpired) return; // let apiFetch handle redirect on 401
