@@ -78,7 +78,7 @@
   "home.cta.logout": "Kirjaudu ulos",
   "home.icon.tournament": "Aloita turnaus",
   "home.icon.pong": "Pelaa Pongia",
-  "home.icon.leaderboard": "Tarkista tulostaulukko ",
+  "home.icon.profilePage": "Oma profiili",
   "home.alert.registerSuccess": "Rekisteröinti onnistui!",
   "home.alert.loginSuccess": "Kirjautuminen onnistui!",
   "home.alert.requestFailed": "Pyyntö epäonnistui. Yritä uudelleen.",

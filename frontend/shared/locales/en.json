@@ -78,7 +78,7 @@
   "home.cta.logout": "Logout",
   "home.icon.tournament": "Start a tournament",
   "home.icon.pong": "Play Pong",
-  "home.icon.leaderboard": "Check leaderboard",
+  "home.icon.profilePage": "Check profile",
   "home.alert.registerSuccess": "Registration successful!",
   "home.alert.loginSuccess": "Login successful!",
   "home.alert.requestFailed": "Request failed. Try again.",

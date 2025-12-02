@@ -79,7 +79,7 @@
   "home.cta.logout": "Logga ut",
   "home.icon.tournament": "Starta en turnering",
   "home.icon.pong": "Spela Pong",
-  "home.icon.leaderboard": "Kolla topplistan",
+  "home.icon.profilePage": "Kolla profilen ",
   "home.alert.registerSuccess": "Registreringen lyckades!",
   "home.alert.loginSuccess": "Inloggningen lyckades!",
   "home.alert.requestFailed": "Begäran misslyckades. Försök igen.",
