@@ -153,6 +153,7 @@
   "tournament.startNew": "Start a new tournament",
   "tournament.error.network": "Network error. Please try again.",
   "tournament.error.create": "Could not create tournament.",
+  "tournament.error.alreadyJoined": "User already joined this tournament",
   "tournament.title": "Tournament",
   "tournament.winner": "Winner",
   "tournament.tbd": "TBD",

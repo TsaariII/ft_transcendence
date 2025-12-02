@@ -252,8 +252,12 @@ const PlayerList: React.FC<PlayerListProps> = ({
 					const parsed = JSON.parse(err.message);
 					if (parsed.error === "Invalid credentials") {
 						 message = t("auth.error.invalidCredentials");
-					} else if (parsed.error) {
-						message = parsed.error; // use backend error otherwise
+					}
+					else if (parsed.error === "User already joined this tournament") {
+						 message = t("tournament.error.alreadyJoined");
+					}
+					else if (parsed.error) {
+						message = parsed.error;
 					}
 				} catch (_) {
 					// keep fallback

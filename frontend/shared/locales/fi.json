@@ -154,6 +154,7 @@
   "tournament.startNew": "Aloita uusi turnaus",
   "tournament.error.network": "Verkkovirhe. Yritä uudelleen.",
   "tournament.error.create": "Turnauksen luominen epäonnistui.",
+  "tournament.error.alreadyJoined": "Käyttäjä on jo liittynyt tähän turnaukseen",
   "tournament.title": "Turnaus",
   "tournament.winner": "Voittaja",
   "tournament.tbd": "Määrittämättä",

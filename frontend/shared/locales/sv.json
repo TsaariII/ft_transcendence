@@ -153,6 +153,7 @@
   "tournament.startNew": "Starta en ny turnering",
   "tournament.error.network": "Nätverksfel. Försök igen.",
   "tournament.error.create": "Kunde inte skapa turnering.",
+  "tournament.error.alreadyJoined": "Användaren har redan gått med i denna turnering",
   "tournament.title": "Turnering",
   "tournament.winner": "Vinnare",
   "tournament.tbd": "Ej bestämd",
