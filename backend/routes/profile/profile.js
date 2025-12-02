@@ -28,7 +28,7 @@ async function profileRoutes(fastify, options)
 		const opponentId = isP1 ? g.p2_id : g.p1_id;
 		const opponentName = isP1 ? g.p2_name : g.p1_name;
 		return {
-			user_id: String(g.id),
+			user_id: opponentId != null ? String(opponentId) : '',
 			opponent: opponentName || String(opponentId ?? ''),
 			result,
 			score: `${myScore ?? 0}-${oppScore ?? 0}`,
@@ -224,6 +224,8 @@ async function profileRoutes(fastify, options)
 			return reply.code(401).send({error: 'Authentication required'});
 		if (!user_id)
 			return reply.code(400).send({error: 'Missing user ID'});
+		if (user_id === viewerId)
+			return reply.code(400).send({error: 'Invalid target'});
 		try
 		{
 			const profile = await DBget.fetchUser(user_id);

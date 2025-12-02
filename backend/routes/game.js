@@ -100,6 +100,14 @@ async function createGame(fastify)
 	fastify.post(API_PROTOCOL.CREATE_GAME.path, async (request, reply) => {
 		const {type, mode} = request.body || {};
 		const hostId = request.userId;
+		if (!hostId)
+			return reply.code(401).send({error: 'Authentiction required'});
+		const allowedTypes = ['login', 'ai', 'guest'];
+		if (!allowedTypes.includes(type))
+			return reply.code(400).send({error: 'Invalid game type'});
+		const allowedModes = ['vs', 'tournament'];
+		if (!allowedModes.includes(mode))
+			return reply.code(400).send({error: 'Invalid game mode'});
 		try
 		{
 			const gameId = await createGameCore(hostId, type, mode, undefined);
@@ -113,13 +121,20 @@ async function joinGame(fastify)
 {
 	fastify.post(API_PROTOCOL.JOIN_GAME.path, async (request, reply) => {
 		const {gameId, type, username, password, player_count} = request.body || {};
+		if (!gameId || typeof gameId !== 'number' && typeof gameId !== 'string')
+			return reply.code(400).send({error: 'Invalid game id'});
+		const game = getGame(String(gameId));
+		if (!game)
+			return reply.code(404).send({error: 'Game not found'});
+		if (game.players.size >= 2)
+			return reply.code(409).send({error: 'Game is already full'});
 		try
 		{
 			let userId;
 			if (type === 'login')
 			{
 				const p2ID = await miniLogin(username, password);
-				userId = String(p2ID.id); //p2ID;
+				userId = String(p2ID.id);
 			}
 			else if (type === 'guest')
 				userId = 'Guest_' + generateRandomId();

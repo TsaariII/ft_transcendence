@@ -3,6 +3,9 @@ const {logger} = require('@logger');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
+const WIN_POINTS = 10;
+const LOSS_POINTS = 5;
+
 const flog = logger.child({fileContext: 'DB/update.js'});
 
 function updateOnlineStatus(userId, status)
@@ -177,47 +180,79 @@ function recomputeLeaderboardRanks()
 
 function updatePlayerGameStats(winner, id)
 {
-	const scoreDelta = winner ? 10 : 5;
 	const incWin = winner ? 1 : 0;
 	const incLoss = winner ? 0 : 1;
+
 	return new Promise((resolve, reject) => {
 		db.serialize(() => {
-			db.run(
-				`UPDATE users
-				 SET wins = wins + ?,
-				 	losses = losses + ?,
-					score = score + ?,
-					total_games = total_games + 1
-				WHERE id = ?`,
-				[incWin, incLoss, scoreDelta, id],
-				function (err) {
-					if (err)
-						return reject({error: 'Failed to update player stats', details: err});
-					if (this.changes === 0)
-						return reject({error: 'User not found, no changes made'});
-					recomputeLeaderboardRanks().then(() => {
-						db.get(
-							`SELECT wins, losses, score, total_games, rank FROM users WHERE id = ?`, [id],
-							(getErr, row) => {
-								if (getErr)
-									return reject({error: 'Failed to fetch updated stats', details: getErr});
-								if (this.changes === 0)
-									return reject({error: 'User not found after stats update'});
-								const payload = {
-									message: 'player game stats updated',
-									userId: id,
-									wins: row.wins,
-									losses: row.losses,
-									score: row.score,
-									total_games: row.total_games,
-									rank: row.rank
-								};
-								return resolve(payload);
-							}
-						);
-					}).catch((rankErr) => { return reject(rankErr); });
-				}
-			);
+
+			const doUpdate = () => {
+				db.run(
+					`UPDATE users
+						 SET wins        = wins + ?,
+						 	losses      = losses + ?,
+						 	total_games = total_games + 1,
+						 	score       = (wins + ?) * ? + (losses + ?) * ?
+						WHERE id = ?`,
+					[incWin, incLoss, incWin, WIN_POINTS, incLoss, LOSS_POINTS, id],
+					function (err) {
+						if (err)
+							return reject({error: 'Failed to update player stats', details: err});
+						if (this.changes === 0)
+							return reject({error: 'User not found, no changes made'});
+
+						recomputeLeaderboardRanks()
+							.then(() => {
+								db.get(
+									`SELECT wins, losses, score, total_games, rank
+									 FROM users
+									 WHERE id = ?`,
+									[id],
+									(getErr, row) => {
+										if (getErr)
+											return reject({error: 'Failed to fetch updated stats', details: getErr});
+										if (!row)
+											return reject({error: 'User not found after stats update'});
+
+										const payload = {
+											message: 'player game stats updated',
+											userId: id,
+											wins: row.wins,
+											losses: row.losses,
+											score: row.score,
+											total_games: row.total_games,
+											rank: row.rank
+										};
+										return resolve(payload);
+									}
+								);
+							})
+							.catch((rankErr) => { return reject(rankErr); });
+					}
+				);
+			};
+			if (gameId) {
+				db.get(
+					`SELECT id FROM games WHERE id = ?`,
+					[gameId],
+					(err, row) => {
+						if (err)
+							return reject({error: 'Failed to verify game before stats update', details: err});
+
+						if (!row)
+						{
+							return resolve({
+								message: 'Game no longer exists, stats not updated',
+								userId: id,
+								skipped: true
+							});
+						}
+						doUpdate();
+					}
+				);
+			}
+			else
+				doUpdate();
 		});
 	});
 }
