@@ -145,7 +145,7 @@ const Profile: React.FC = () => {
 												? "text-rose-400 font-hand"
 												: "text-gray-300 font-hand";
 
-											const opponentId = m.opid;
+											const opponentId = m.user_id
 
 											const resultLabel =
 												result === "win"
