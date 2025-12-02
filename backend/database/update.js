@@ -178,7 +178,7 @@ function recomputeLeaderboardRanks()
 	});
 }
 
-function updatePlayerGameStats(winner, id)
+function updatePlayerGameStats(winner, id, gameId)
 {
 	const incWin = winner ? 1 : 0;
 	const incLoss = winner ? 0 : 1;
