@@ -11,11 +11,11 @@ import type {
 	UpdateProfilePayload,
 	UploadAvatarResponse,
 } from "../../shared/payloads";
-import avatar1 from "../assets/avatars/avatar1.webp";
-import avatar2 from "../assets/avatars/avatar2.webp";
-import avatar3 from "../assets/avatars/avatar3.webp";
-import avatar4 from "../assets/avatars/avatar4.webp";
-import defaultAvatar from "../assets/avatars/default-avatar.webp";
+import avatar1 from "../assets/avatars/avatar1.png";
+import avatar2 from "../assets/avatars/avatar2.png";
+import avatar3 from "../assets/avatars/avatar3.png";
+import avatar4 from "../assets/avatars/avatar4.png";
+import defaultAvatar from "../assets/avatars/default-avatar.png";
 import DoodleButton from "../components/ui/DoodleButton";
 import profile from "../assets/doodles/profile.png";
 import { ArcadeFrame } from "../components/layout/ArcadeFrame";

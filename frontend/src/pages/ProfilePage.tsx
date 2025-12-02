@@ -1,4 +1,4 @@
-import defaultAvatar from "../assets/avatars/default-avatar.webp";
+import defaultAvatar from "../assets/avatars/default-avatar.png";
 import React from "react";
 import { useAuth } from "../context/AuthContext";
 import { useTranslation } from "../shared/Translation";

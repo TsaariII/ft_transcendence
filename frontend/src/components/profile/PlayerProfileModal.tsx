@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import defaultAvatar from "../../assets/avatars/default-avatar.webp";
+import defaultAvatar from "../../assets/avatars/default-avatar.png";
 import { API_PROTOCOL } from "../../../shared/api-protocols";
 import { OtherUserProfilePayload, OtherUserProfileResponse } from "../../../shared/payloads";
 import { useTranslation } from "../../shared/Translation";
