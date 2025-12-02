@@ -761,8 +761,8 @@ return (
 							<option value="sv">{t("lang.swedish")}</option>
 						</select>
 						<div className="mt-8 mb-3 flex gap-6">
-							<PrimaryTiny onClick={saveLanguage} disabled={busy}>{t("common.save")}</PrimaryTiny>
-							<SecondaryTiny onClick={() => closeAndReset("language")} disabled={busy}>{t("common.cancel")}</SecondaryTiny>
+							<PrimaryTiny className="order-2" onClick={saveLanguage} disabled={busy}>{t("common.save")}</PrimaryTiny>
+							<SecondaryTiny className="order-1" onClick={() => closeAndReset("language")} disabled={busy}>{t("common.cancel")}</SecondaryTiny>
 						</div>
 					</div>
 				)}
@@ -797,8 +797,8 @@ return (
 						)}
 
 						<div className="mt-8 mb-3 flex gap-6">
-							<PrimaryTiny onClick={saveUsername} disabled={busy}>{t("common.save")}</PrimaryTiny>
-							<SecondaryTiny onClick={() => closeAndReset("username")} disabled={busy}>{t("common.cancel")}</SecondaryTiny>
+							<PrimaryTiny className="order-2" onClick={saveUsername} disabled={busy}>{t("common.save")}</PrimaryTiny>
+							<SecondaryTiny className="order-1" onClick={() => closeAndReset("username")} disabled={busy}>{t("common.cancel")}</SecondaryTiny>
 						</div>
 					</div>
 				)}
@@ -849,8 +849,8 @@ return (
 							<p className="mt-5 font-body text-white text-sm mt-1">{inlineErrors.password}</p>
 						)}
 						<div className="mt-8 mb-3 flex gap-6">
-							<PrimaryTiny onClick={savePassword} disabled={busy}>{t("common.save")}</PrimaryTiny>
-							<SecondaryTiny onClick={() => closeAndReset("password")} disabled={busy}>{t("common.cancel")}</SecondaryTiny>
+							<PrimaryTiny className="order-2" onClick={savePassword} disabled={busy}>{t("common.save")}</PrimaryTiny>
+							<SecondaryTiny className="order-1" onClick={() => closeAndReset("password")} disabled={busy}>{t("common.cancel")}</SecondaryTiny>
 						</div>
 					</div>
 				)}
@@ -898,12 +898,14 @@ return (
 
 								<div className="pl-4 mt-3 mb-3 flex flex-wrap  gap-6">
 									<PrimaryTiny
+										className="order-2"
 										onClick={uploadAvatarFile}
 										disabled={!uploadFile || uploadBusy}
 									>
 										{t("common.upload")}
 									</PrimaryTiny>
 									<SecondaryTiny
+										className="order-1"
 										onClick={clearPickedFile}
 										disabled={uploadBusy}
 									>
@@ -940,9 +942,9 @@ return (
 							))}
 						</div>
 						<div className="mt-8 mb-3 flex flex-wrap gap-6">
-							<PrimaryTiny onClick={saveAvatar} disabled={busy || uploadBusy}>{t("common.save")}</PrimaryTiny>
+							<PrimaryTiny className="order-2" onClick={saveAvatar} disabled={busy || uploadBusy}>{t("common.save")}</PrimaryTiny>
 							<SecondaryTiny
-								onClick={onCancelAvatarClick} disabled={busy || uploadBusy}>{t("common.cancel")}</SecondaryTiny>
+								className="order-1" onClick={onCancelAvatarClick} disabled={busy || uploadBusy}>{t("common.cancel")}</SecondaryTiny>
 						</div>
 					</div>
 				)}
@@ -1065,12 +1067,14 @@ return (
 					</p>
 					<div className="mt-8 mb-3 flex flex-wrap  gap-6">
 						<SecondaryTiny
+							className="order-2"
 							onClick={handleDeleteProfile}
 							disabled={deleting || deleted}
 						>
 							{deleting ? t("common.deleting") : t("game.action.confirm")}
 						</SecondaryTiny>
 						<PrimaryTiny
+							className="order-1"
 							onClick={() => setConfirmDelete(false)}
 						>
 							{t("common.cancel")}
@@ -1080,12 +1084,14 @@ return (
 			) : (
 				<div className="mt-8 mb-3 flex flex-wrap gap-6">
 				<SecondaryTiny
+					className="order-2"
 					onClick={() => setConfirmDelete(true)}
 					disabled={deleting || deleted}
 				>
 					{deleted ? t("common.deleted") : t("settings.item.delete")}
 				</SecondaryTiny>
 				<PrimaryTiny
+					className="order-1"
 					onClick={() => closeAndReset("delete")}
 					disabled={deleting}
 				>
