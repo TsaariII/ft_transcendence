@@ -250,7 +250,7 @@ const PlayerList: React.FC<PlayerListProps> = ({
 				
 				try {
 					const parsed = JSON.parse(err.message);
-					if (parsed.error === "Verification failed?") {
+					if (parsed.error === "Invalid credentials") {
 						 message = t("auth.error.invalidCredentials");
 					} else if (parsed.error) {
 						message = parsed.error; // use backend error otherwise
