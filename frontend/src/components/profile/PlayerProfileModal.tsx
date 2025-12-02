@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import defaultAvatar from "../../assets/avatars/default-avatar.png";
+import defaultAvatar from "../../assets/avatars/default-avatar.webp";
 import { API_PROTOCOL } from "../../../shared/api-protocols";
 import { OtherUserProfilePayload, OtherUserProfileResponse } from "../../../shared/payloads";
 import { useTranslation } from "../../shared/Translation";
+import CenteredContainer from "..//layout/CenteredContainer";
 
 type PlayerProfileModalProps = {
 	userId: string;
@@ -106,192 +107,182 @@ export default function PlayerProfileModal({ userId, onClose }: PlayerProfileMod
 });
 
 return (
-	<div
+	<CenteredContainer>
+		<div
 		className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
 			onClick={onClose}
-	>
-		<div
-			onClick={(e) => e.stopPropagation()}
-			className="w-full max-w-3xl px-6"
 		>
-			<div className="relative mx-auto mb-4 p-6 border-4 border-[#FFFCC7] bg-[#D54751]"
-          		style={{
-            		borderRadius: '60px',
-            		boxShadow: '4px 6px 0 rgba(89,50,43, 0.9)',
-            		transform: 'rotate(-0.4deg)',
-          		}}
+			<div
+				onClick={(e) => e.stopPropagation()}
+				className="w-full max-w-3xl px-6"
 			>
-
-				{/* Close button */}
-				<button
-					onClick={onClose}
-					className="float-right text-[#FFFCC7] hover:text-white text-xl"
+				<div
+					className="relative p-8 border-8 border-[#FFFCC7] bg-[#6C0E42]"
+						style={{
+							borderRadius: '45px 50px 48px 52px',
+							boxShadow: 'inset 0 0 30px rgba(0,0,0,0.8), 8px 10px 0 rgba(89,50,43,0.9)',
+						}}
 				>
-					✕
-				</button>
+						{/* Screen inner */}
+						<div
+							className="relative border-6 border-[#333] bg-[#] p-4 sm:p-6 md:p-8 overflow-hidden"
+								style={{
+									borderRadius: '35px 40px 38px 42px',
+									boxShadow: 'inset 0 0 50px rgba(255,252,199,0.8)',
+									minHeight: 'clamp(400px, 60vh, 600px)',
+								}}
+							>
+							{/* CRT scanlines effect */}
+							<div
+								className="absolute inset-0 pointer-events-none z-10"
+									style={{
+									background: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px)',
+								}}
+							/>
+							{/* Screen glow */}
+							<div
+								className="absolute inset-0 pointer-events-none z-0"
+									style={{
+										background: 'radial-gradient(ellipse at center, rgba(85,255,170,0.05) 0%, transparent 70%)',
+									}}
+								/>
 
-				{/* Player Header */}
-				<section className="flex flex-col items-center mb-8 mt-4">
-					<div className="flex items-center justify-center gap-4 md:gap-8 flex-wrap mb-4">
-						{/* Rank */}
-						<div className="flex-2 flex justify-start">
-							<span className="inline-flex items-center gap-1 rounded-full border-2 border-[#59322B] bg-[#4DA394] px-3 py-1 text-sm font-body text-[#FFFCC7] shadow-[3px_4px_0_#59322B]">
-								<span className="text-xs md:text-sm text-[#59322B] font-hand">
-									{t("profile.rank")}
-								</span>
-								<span className="font-body text-[#FFFCC7]"> 
-									{profile.rank}
-								</span>
-							</span>
-						</div>
+								{/* Close button */}
+								<button
+									onClick={onClose}
+									className="float-right text-[#FFFCC7] hover:text-white text-xl"
+								>
+									✕
+								</button>
 
-						{/* Avatar */}
-		  				<div className="relative">
-								<div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-[#59322B] border-4 border-[#FFFCC7] flex items-center justify-center shadow-[4px_6px_0_#59322B]">
-									<img
-										src={profile.avatarFile || defaultAvatar}
-										alt={`${profile.username} avatar`}
-										className="w-28 h-28 md:h-36 md:w-40 rounded-full object-cover border-2 border-[#59322B]"
-										onError={(e) => ((e.currentTarget as HTMLImageElement).src = defaultAvatar )}
-									/>
-								</div>
-						</div>
-						
-						{/* Score */}
-						<div className="flex-1 flex justify-end">
-							<span className="inline-flex items-center gap-1 rounded-full border-2 border-[#59322B] bg-[#4DA394] px-3 py-1 text-sm shadow-[3px_4px_0_#59322B]">
-								<span className="text-xs md:text-sm text-[#59322B] font-hand">
-									{t("profile.score")}
-								</span>
-								<span className="font-body text-[#FFFCC7]">
-									{profile.score}
-								</span>
-							</span>
-						</div>
-					</div>
-
-					{/* Username */}
-					<h2 
-						className="mt-2 font-cupcake text-[#FFFCC7] text-3xl md:text-4xl tracking-wider"
-              				style={{ textShadow: `
-                  				-3px 0 #000,
-                  				3px 0 #000,
-                  				0 3px #000,
-                  				0 -3px #000,
-                  				3px 3px #59322B,
-                 				-3px -3px #59322B`
-               				}}
-						>
-							{profile.username}
-					</h2>
-				</section>
-
-				{/* Stats */}
-				<section className="mt-4 w-full">
-					<div className="max-w-2xl mx-auto grid grid-cols-2 sm:grid-cols-3 gap-1 place-items-center">
-						<Stat label={`${t("profile.stats.victories")} `} value={profile.victories} />
-						<Stat label={`${t("profile.stats.losses")} `} value={profile.losses} />
-						<Stat label={`${t("profile.stats.matches")} `} value={profile.totalMatches} />
-					</div>
-				</section>
-
-				{/* Match history */}
-				<section className="mt-6 w-full">
-					<div className="max-w-xl mx-auto">
-						<h3
-							className="mb-4 font-cupcake text-[#FFFCC7] text-2xl tracking-wider"
-              				style={{ textShadow: `
-                  				-3px 0 #000,
-                  				3px 0 #000,
-                  				0 3px #000,
-                  				0 -3px #000,
-                  				3px 3px #59322B,
-                 				-3px -3px #59322B`
-               				}}
-						>
-							{t("profile.history.title")}
-						</h3>
-
-					<div className="rounded-2xl border-2 border-[#59322B]  bg-[#4DA394] shadow-[3px_4px_0_#59322B] overflow-hidden">
-						{!profile.matchHistory || profile.matchHistory.length === 0 ? (
-							<div className="px-4 py-6 text-[#59322B] text-sm font-body">
-								{t("profile.history.empty")}
-							</div>
-						) : (
-							<div className="overflow-x-auto">
-								<table className="w-full text-left border-collapse">
-									<thead className="bg-[#59322B] text-[#FFFCC7]">
-										<tr>
-											<Th>{t("profile.history.opponent")}</Th>
-											<Th>{t("profile.history.result")}</Th>
-											<Th>{t("profile.history.score")}</Th>
-											<Th>{t("profile.history.time")}</Th>
-										</tr>
-									</thead>
-									<tbody className="divide-y divide-[#59322B]/60 bg-[#4DA394]">
-										{matches.slice(0, 10).map((m: any, idx: number) => {
-											const result = (m.result || "").toLowerCase();
-											const resultClass =
-												result === "win"
-													? "text-emerald-400 font-hand"
-													: result === "loss"
-													? "text-rose-400 font-hand"
-													: "text-gray-300 font-hand";
-					
-					
-											const translatedResult =
-												result === "win"
-													? t("profile.result.win")
-													: result === "loss"
-													? t("profile.result.loss")
-													: "-";
-											return (
-												<tr 
-													key={`${m.opponent}-${m.timestamp}-${idx}`}
-													className="border-t border-[#59322B]/40"
-												>
-													<Td>{m.opponent}</Td>
-													<Td className={resultClass}>{translatedResult}</Td>
-													<Td>{m.score}</Td>
-													<Td>{fmt(m.timestamp)}</Td>
-												</tr>
-												);
-											})}
-										</tbody>
-										</table>
+								{/* Avatar + rank + score + username */}
+								<section className="flex flex-col items-center">
+									{/* Avatar */}
+									<div className="relative flex justify-center">
+										<div className="p-[3px] rounded-full shadow-[0_0_25px_rgba(228,83,188,0.65)]"
+											style={{
+												backgroundImage:
+													"linear-gradient(135deg, #280523 0%, #AA007A 50%, #E453BC 100%)",
+											}}
+										>
+											<div className="w-40 h-40 md:w-44 md:h-44 rounded-full bg-[#0b0214] flex items-center justify-center">
+												<img
+													src={profile.avatarFile || defaultAvatar}
+													alt={`${profile.username} avatar`}
+													className="w-40 h-40 w-40 md:h-40 md:w-40 rounded-full object-cover border-2 border-black/40"
+													onError={(e) => { (e.currentTarget as HTMLImageElement).src = defaultAvatar; }}
+												/>
+											</div>
+										</div>
 									</div>
-								)}
-							</div>
+								</section>
+				
+								{/* Username */}
+								<h2 className="mt-4 py-5 text-4xl sm:text-4xl md:text-5xl font-body text-center bg-gradient-to-r from-[#FFFCC7] via-[#110637] to-[#FFFCC7] bg-clip-text text-transparent leading-tight">
+									{profile.username}
+								</h2>
+
+								{/* Stats */}
+								<div className="mt-10 flex flex-wrap justify-center gap-y-2 gap-x-12 text-base sm:text-lg font-body">
+									<div className="space-y-6">
+										<p className="flex items-center gap-2">
+											<span className="opacity-100">{t("profile.rank")}:</span>
+											<span className="font-body">{profile.rank}</span>
+										</p>
+										<p className="flex items-center gap-2">
+											<span className="opacity-100">{t("profile.score")}:</span>
+											<span className="font-body">{profile.score}</span>
+										</p>
+									</div>
+									<div className="space-y-6">
+										<p className="flex items-center gap-2">
+											<span className="opacity-100">{t("profile.stats.victories")}:</span>
+											<span className="font-body">{profile.victories}</span>
+										</p>
+										<p className="flex items-center gap-2">
+											<span className="opacity-100">{t("profile.stats.losses")}:</span>
+											<span className="font-body">{profile.losses}</span>
+										</p>
+										<p className="flex items-center gap-2">
+											<span className="opacity-100">{t("profile.stats.matches")}:</span>
+											<span className="font-body">{profile.totalMatches}</span>
+										</p>
+									</div>
+								</div>
+
+							{/* Match History */}
+							<section className="mt-10 mb-10 w-full">
+								<div className="max-w-xl mx-auto">
+									<h3 className="mb-4 font-cupcake text-[#FFFCC7] text-2xl tracking-wider"
+              							style={{ textShadow: `
+                  							-3px 0 #000,
+                  							3px 0 #000,
+                  							0 3px #000,
+                  							0 -3px #000,
+                  							3px 3px #59322B,
+                 							-3px -3px #59322B`
+               							}}
+									>
+										{t("profile.history.title")}
+									</h3>
+						
+									{!profile.matchHistory || profile.matchHistory.length === 0 ? (
+										<div className="px-0 py-2 text-lg font-body text-gray-200">
+												{t("profile.history.empty")}
+										</div>
+									) : (
+										<div className="overflow-x-auto">
+											<table className="w-full text-left border-collapse text-lg sm:text-lg font-body">
+												<thead className="border-b border-gray-700 text-gray-200">
+													<tr>
+														<Th>{t("profile.history.opponent")}</Th>
+														<Th>{t("profile.history.result")}</Th>
+														<Th>{t("profile.history.score")}</Th>
+														<Th>{t("profile.history.time")}</Th>
+													</tr>
+												</thead>
+													<tbody>
+													{matches.slice(0, 10).map((m: any, idx: number) => {
+														const result = (m.result || "").toLowerCase();
+														const resultClass =
+															result === "win"
+																? "text-emerald-400 font-body"
+																: result === "loss"
+																? "text-rose-400 font-body"
+																: "text-gray-300 font-body";
+
+
+														const translatedResult =
+															result === "win"
+																? t("profile.result.win")
+																: result === "loss"
+																? t("profile.result.loss")
+																: "-";
+														return (
+															<tr key={`${m.opponent}-${m.timestamp}-${idx}`} className="border-t border-gray-800/80">
+																<Td>{m.opponent}</Td>
+																<Td className={resultClass}>{translatedResult}</Td>
+																<Td>{m.score}</Td>
+																<Td>{fmt(m.timestamp)}</Td>
+															</tr>
+														);
+													})}
+												</tbody>
+											</table>
+										</div>
+									)}
+								</div>
+							</section>
 						</div>
-					</section>
+					</div>
 				</div>
 			</div>
-		</div>
+		</CenteredContainer>
 	);
 };
 
-
-/* Small stat card matching profile */
-function Stat({ 
-	label,
-	value,
-	className = "",
-
-} : { 
-	label: string;
-	value: React.ReactNode;
-	className?: string;
-}) {
-	return (
-		<div className={`inline-flex flex-col items-center rounded-2xl border-2 border-[#59322B] bg-[#4DA394] px-4 py-2 md:px-5 md:py-2.5 min-w-[120px] md:min-w-[150px] shadow-[3px_4px_0_#59322B] ${className}`}>
-			<div className="text-xs md:text-sm text-[#59322B] font-hand">{label}</div>
-			<div className="text-2xl md:text-3xl font-body text-[#FFFCC7]">{value ?? 0}</div>
-		</div>
-	);
-}
-
 function Th({ children }: {children: React.ReactNode }) {
-	return <th className="px-3 py-2 text-xs font-hand tracking-wide">{children}</th>;
+	return <th className="px-3 py-2 text-lg font-body tracking-wide text-[#FFFCC7]">{children}</th>;
 }
 
 function Td({
@@ -301,5 +292,5 @@ function Td({
 	children: React.ReactNode;
 	className?: string;
 }) {
-	return <td className={`px-3 py-2 text-xs font-hand text-[#59322B] ${className}`}>{children}</td>;
+	return <td className={`px-3 py-2 text-lg font-body text-[#FFFCC7] ${className}`}>{children}</td>;
 }
