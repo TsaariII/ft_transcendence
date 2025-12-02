@@ -155,34 +155,75 @@ const Friends: React.FC = () => {
 	}
 
 	return (
-  	<div className="flex justify-center px-6 py-6">
-    	{/* Semi-transparent card for content */}
-    	<div className="w-full max-w-4xl bg-gray-900/90 rounded-lg p-6 text-white">
-			<h1 className="text-3xl font-bold mb-4">{t("friends.title")}</h1>
+  	<div className="flex flex-col items-center px-6 py-6">
+    	<div className="w-full max-w-5xl relative mx-auto mb-4 p-6 border-4 border-[#FFFCC7] bg-[#D54751]"
+          style={{
+            width: '85%',
+            borderRadius: '60px',
+            boxShadow: '4px 6px 0 rgba(89,50,43, 0.9)',
+            transform: 'rotate(-0.4deg)',
+          }}>
+			<div className="text-center">
+			<h1 className="font-cupcake text-[#FFFCC7] text-5xl tracking-wider"
+              style={{ textShadow: `
+                  -3px 0 #000,
+                  3px 0 #000,
+                  0 3px #000,
+                  0 -3px #000,
+                  3px 3px #59322B,
+                 -3px -3px #59322B`
+               }}
+			>
+				{t("friends.title")}
+			</h1>
+			</div>
+		</div>
+
+		<div className="w-full flex flex-col relative z-0 mx-auto mb-4 px-1 p-6 border-4 border-[#FFFCC7] bg-[#D54751]"
+          	style={{
+            	width: '85%',
+            	borderRadius: '60px',
+            	boxShadow: '4px 6px 0 rgba(89,50,43, 0.9)',
+            	transform: 'rotate(-0.4deg)',
+          	}}>
 
 			{/* Inline status */}
-			{msg && <p className="mb-3 text-green-300">{msg}</p>}
-			{err && <p className="mb-3 text-red-300">{err}</p>}
+			{msg && <p className="text-center font-body mb-3 text-green-300">{msg}</p>}
+			{err && <p className="text-center font-body mb-3 text-red-300">{err}</p>}
 
 			{/* Actions section */}
-			<section className="bg-gray-800/50 rounded-lg border border-gray-700 divide-y divide-gray-700">
+			<section className="w-full">
 				{/* Add friend by username row */}
-				<SettingButton
-					label={t("friends.add.title")}
-					onClick={() => setOpenAdd((v) => !v)}
-				/>
+				<div className="max-w-2xl mx-auto">
+				{!openAdd && (
+					<div className="mt-4 mb-4 flex justify-center">
+					<PrimaryTiny
+						onClick={() => setOpenAdd(true)}
+					>
+						{t("friends.add.title")}
+					</PrimaryTiny>
+				</div>
+				)}
 				{openAdd && (
-					<div className="px-4 pt-3 pb-4">
-						<label className="block mb-2 text-sm">
+					<div className="mt-2 mx-auto p-6 border-4 border-[#FFFCC7] bg-[#F56A5E]"
+						style={{
+							width: "90%",
+							borderRadius: "40px",
+							boxShadow: "4px 6px 0 rgba(89,50,43,0.9)",
+							transform: "rotate(-0.3deg)",
+						}}
+					>
+						<label className="font-hand text-[#59322B] block mt-3 mb-2">
 							{t("friends.item.username")}
 						</label>
 						<input
 							type="text"
 							value={username}
 							onChange={(e) => setUsername(e.target.value)}
-							className="bg-gray-900 border border-gray-700 rounded px-2 py-1 text-sm w-full md:w-1/2"
+							className="w-full max-w-xs mb-5 font-body bg-[#4DA394] border border-[#59322B] rounded px-2 py-1 text-sm"
 						/>
-						<div className="mt-3 flex gap-2">
+
+						<div className="mt-3 flex flex-wrap gap-2">
 							<PrimaryTiny
 								onClick={handleAdd}
 								disabled={busyAdd || !username.trim() || friends.length >= MAX_FRIENDS}
@@ -197,20 +238,35 @@ const Friends: React.FC = () => {
 							</SecondaryTiny>
 						</div>
 						{friends.length >= MAX_FRIENDS && (
-							<p className="text-xs text-gray-400 mt-2">
+							<p className="text-xs text-[#59322B] mt-2">
 								{t("error.friends.maxNum")}
 							</p>
 						)}
 					</div>
 				)}
+				</div>
 			</section>
 
 			{/* Friends list */}
-			<section className="mt-6 bg-gray-800/50 rounded-lg border border-gray-700 p-4">
-				<h2 className="font-semibold mb-3">{t("friends.list.title")}</h2>
+			<section className="w-full mt-3">
+				<div className="max-w-2xl mx-auto px-4">
+				<h2 className="mb-4 font-cupcake text-[#FFFCC7] text-2xl tracking-wider"
+              				style={{ textShadow: `
+                  				-3px 0 #000,
+                  				3px 0 #000,
+                  				0 3px #000,
+                  				0 -3px #000,
+                  				3px 3px #59322B,
+                 				-3px -3px #59322B`
+               				}}
+						>
+							{t("friends.list.title")}
+				</h2>
+
+				<div className="rounded-2xl border-2 border-[#59322B] bg-[#4DA394] shadow-[3px_4px_0_#59322B] p-5 md:p-6">
 
 				{friends.length === 0 ? (
-					<div className="text-gray-400">{t("friends.list.empty")}</div>
+					<div className="font-body text-sm text-[#59322B]">{t("friends.list.empty")}</div>
 				) : (
 					<div className="space-y-3">
 						{friends.map((f: Friend) => {
@@ -220,13 +276,13 @@ const Friends: React.FC = () => {
 								(f as any).avatar_file ??
 								defaultAvatar;
 							return (
-							<div key={f.user_id} className="space-y-2">
-								<div className="flex items-center justify-between p-3 rounded-lg bg-gray-800/50 border border-gray-700">
+							<div key={f.user_id} className="space-y-3">
+								<div className="flex items-center justify-between p-3 rounded-xl bg-[#D54751] border-2 border-[#59322B] shadow-[2px_3px_0_#59322B]">
 									<div className="flex items-center gap-3">
 										<img
 											src={avatarSrc}
 											alt={`${f.username} avatar`}
-											className="w-10 h-10 rounded-full"
+											className="w-10 h-10 rounded-full border border-[#59322B]"
 											onError={(e) => { 
 												(e.currentTarget as HTMLImageElement).src = defaultAvatar;
 											}}
@@ -236,56 +292,53 @@ const Friends: React.FC = () => {
 											 <button
 												type="button"
 												onClick={() => setSelectedPlayer(f.user_id)}
-												className="font-semibold text-indigo-400 hover:text-indigo-300 underline"
+												className="font-body text-[#59322B] underline hover:no-underline"
 											>
 												{f.username}
 											</button>
-											<div className="flex items-center gap-1 text-sm">
+											<div className="flex items-center gap-1 text-sm font-body mt-1">
 												<span
 													className={
 														"inline-block w-2 h-2 rounded-full " +
-															(f.online_status ? "bg-green-400" : "bg-gray-500")
+															(f.online_status ? "bg-green-400" : "bg-[#59322B]")
 														}
 													/>
-												<span className={f.online_status ? "text-green-300" : "text-gray-400"}>
+												<span className={f.online_status ? "text-green-300" : "text-[#59322B]"}>
 													{f.online_status ? t("common.online") : t("common.offline")}
 												</span>
 											</div>
 										</div>
 									</div>
 
-									<button
-										type="button"
-										onClick={() => toggleRemove(f.user_id)}
-										className="px-2 py-1 text-sm rounded-md text-white bg-gray-800 hover:bg-gray-700 border border-gray-700"
-									>
+									<SecondaryTiny
+										onClick={() => toggleRemove(f.user_id)}>
 										{t("friends.item.remove")}
-									</button>
+									</SecondaryTiny>
 								</div>
 
 								{/* Remove confirmation */}
 								{removeConfirmId === f.user_id && (
-									<div className="px-4 pb-4">
-										<div className="border border-red-500/30 bg-red-900/10 rounded p-4">
-											<h3 className="text-red-400 font-semibold mb-2">
+									<div className="px-1 pb-1">
+										<div className="rounded-xl bg-[#C04D57] border-2 border-[#59322B] p-4 shadow-[2px_3px_0_#59322B]">
+											<h3 className="font-body text-[#FFFCC7] mb-2">
 												{t("friends.confirmRemove.title")}
 											</h3>
-											<p className="text-sm text-red-200 mb-3">
+											<p className="text-sm font-body text-[#FFFCC7] mb-3">
 												{t("friends.confirmRemove.text")}
 											</p>
-											<div className="flex gap-2">
-												<PrimaryTiny
+											<div className="flex flex-wrap gap-2">
+												<SecondaryTiny
 													onClick={() => confirmRemove(f.user_id)}
 													disabled={removing}
 													>
 													{t("common.remove")}
-												</PrimaryTiny>
-												<SecondaryTiny
+												</SecondaryTiny>
+												<PrimaryTiny
 													onClick={() => setRemoveConfirmId(null)}
 													disabled={removing}
 													>
 													{t("common.cancel")}
-											</SecondaryTiny>
+												</PrimaryTiny>
 											</div>
 										</div>
 									</div>
@@ -295,8 +348,10 @@ const Friends: React.FC = () => {
 						})}
 					</div>
 				)}
+				</div>
+				</div>
 			</section>
-		</div>
+			</div>
 			{selectedPlayer && (
 				<PlayerProfileModal
 					userId={selectedPlayer}
@@ -319,10 +374,11 @@ function SettingButton({
 			<button
 				type="button"
 				onClick={onClick}
-				className="px-3 py-1.5 text-sm rounded-md text-white bg-blue-600 hover:bg-blue-700"
+				className="w-full flex justify-between items-center px-4 py-3 font-hand text-[#59322B] text-base bg-[#49A394]"
 
 			>
-				{label}
+				<span>{label}</span>
+				<span className="text-lg">1</span>
 			</button>
 		</div>
 	);
@@ -343,8 +399,10 @@ function PrimaryTiny({
 			onClick={onClick}
 			disabled={disabled}
 			className={
-				"px-3 py-1.5 text-sm rounded-md text-white " +
-				(disabled ? "bg-blue-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700")
+				"font-hand px-4 py-1.5 text-sm rounded-lg font-semibold  tracking-wide " +
+				(disabled
+					? "bg-[#F9B4A5] text-[#59322B] cursor-not-allowed" 
+					: "bg-[#FFFCC7] text-[#59322B] shadow-[3px_4px_0_#59322B] hover:translate-y-[1px] hover:shadow-[2px_3px_0_#59322B]")
 			}
 		>
 			{children}
@@ -366,7 +424,12 @@ function SecondaryTiny({
 			type="button"
 			onClick={onClick}
 			disabled={disabled}
-			className="px-3 py-1.5 text-sm rounded-md text-white bg-gray-700 hover:bg-gray-600 disabled:opacity-50"
+			className={
+				"font-hand px-4 py-1.5 text-sm rounded-lg font-semibold  tracking-wide " +
+				(disabled
+					? "bg-[#C04D57] text-[#FFFCC7] opacity-60 cursor-not-allowed" 
+					: "bg-[#C04D57] text-[#FFFCC7] shadow-[3px_4px_0_#59322B] hover:translate-y-[1px] hover:shadow-[2px_3px_0_#59322B]")
+				}
 		>
 			{children}
 		</button>
