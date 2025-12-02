@@ -130,10 +130,22 @@ const Profile: React.FC = () => {
 			   </div>
 			</section>
 
-			Match History
-			<section className="mt-6">
-				<h3 className="font-semibold mb-2">{t("profile.history.title")}</h3>
-					<div className="rounded-lg border border-gray-700 bg-gray-800/40 overflow-hidden">
+			{/* Match History */}
+			<section className="mt-6 w-full">
+				<div className="max-w-xl mx-auto">
+				<h3 className="mb-4 font-cupcake text-[#FFFCC7] text-2xl tracking-wider"
+              				style={{ textShadow: `
+                  				-3px 0 #000,
+                  				3px 0 #000,
+                  				0 3px #000,
+                  				0 -3px #000,
+                  				3px 3px #59322B,
+                 				-3px -3px #59322B`
+               				}}
+						>
+						{t("profile.history.title")}
+					</h3>
+					<div className="rounded-2xl border-2 border-[#59322B]  bg-[#4DA394] shadow-[3px_4px_0_#59322B] overflow-hidden">
 					{matches.length === 0 ? (
 						<div className="px-4 py-6 text-[#59322B] text-sm font-body">
 							{t("profile.history.empty")}

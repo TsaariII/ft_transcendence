@@ -5,6 +5,7 @@ import defaultAvatar from "../assets/avatars/default-avatar.png";
 import { useAuth } from "../context/AuthContext";
 import PlayerProfileModal from "../components/profile/PlayerProfileModal";
 import { useApiFetch } from "../utils/apiFetch"
+import { ArcadeFrame } from "../components/layout/ArcadeFrame";
 
 
 type Friend = {
