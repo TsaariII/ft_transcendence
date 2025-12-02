@@ -167,9 +167,9 @@ function createMessageHandler(db)
 					if (dbP1Id !== null && dbP2Id !== null && dbP1Id !== dbP2Id)
 					{
 						if (dbP1Id !== null)
-							promises.push(updatePlayerGameStats(player1Won, dbP1Id));
+							promises.push(updatePlayerGameStats(player1Won, dbP1Id, gameId));
 						if (dbP2Id !== null)
-							promises.push(updatePlayerGameStats(!player1Won, dbP2Id));
+							promises.push(updatePlayerGameStats(!player1Won, dbP2Id, gameId));
 					}
 				}
 				promises.push(updateGameResult(gameId, {
