@@ -100,6 +100,11 @@ export const API_PROTOCOL = {
     path:'/api/tournament/:id/start',
     method: 'POST',
   },
+
+  CLOSE_TOURNAMENT: {
+    path: '/api/tournament/close',
+    method: 'POST'
+  },
   
   CANCEL_TOURNAMENT: {
     path: '/api/tournament/cancel',

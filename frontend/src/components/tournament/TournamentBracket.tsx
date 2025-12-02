@@ -185,27 +185,33 @@ const TournamentBracket: React.FC<TournamentBracketProps> = ({
 			))}
 		</div>
 
-				{/* Close Tournament temporarily commented out until backend is ready */}
+				{/* Cancel/Close Tournament*/}
 				<div className="mt-8">
-					{/*
-					{allMatchesFinished ? (
-						<Button onClick={onClose}>
+					{tournament.status === "finished" && (
+						<SketchyButton
+							variant="shadow"
+							bg="#a48d988a"
+							hoverBg="#a91a5f8a"
+							borderColor="#a91a5f8a"
+							className="text-white"
+							onClick={onClose}
+						>
 							{t("tournament.close")}
-						</Button>
+						</SketchyButton >
 					)}
-					*/}
-						{onCancel && (
-							<SketchyButton 
-								variant="shadow"
-								bg="#a48d988a"
-								hoverBg="#a91a5f8a"
-								borderColor="#a91a5f8a"
-								className="text-white"
-								onClick={onCancel}
-							>	
-								{t("tournament.cancel")}
-							</SketchyButton>
-						)}
+
+					{tournament.status === "ongoing" && onCancel && (
+						<SketchyButton
+							variant="shadow"
+							bg="#a48d988a"
+							hoverBg="#a91a5f8a"
+							borderColor="#a91a5f8a"
+							className="text-white"
+							onClick={onCancel}
+						>
+							{t("tournament.cancel")}
+						</SketchyButton>
+					)}
 				</div>
 			
 		</div>

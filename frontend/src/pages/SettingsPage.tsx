@@ -18,6 +18,9 @@ import avatar4 from "../assets/avatars/avatar4.png";
 import defaultAvatar from "../assets/avatars/default-avatar.png";
 import DoodleButton from "../components/ui/DoodleButton";
 import profile from "../assets/doodles/profile.png";
+import { ArcadeFrame } from "../components/layout/ArcadeFrame";
+import CenteredContainer from "../components/layout/CenteredContainer";
+import SketchyButton from "../components/ui/SketchyButtons";
 
 const USERNAME_REGEX = /^[a-zA-Z][a-zA-Z0-9_]{5,11}$/;
 const PASSWORD_REGEX = /^[a-zA-Z0-9!@#$%^&*()_\-+=.]{8,16}$/;
@@ -60,8 +63,6 @@ const SettingsPage: React.FC = () => {
 	const [qrCode, setQrCode] = useState<string | null>(null);
 	const [otp, setOtp] = useState<string>("");
 	const [showDisableConfirm, setShowDisableConfirm] = useState(false);
-	//const [twoFactor, setTwoFactor] = useState<boolean>(false);
-	//const [loadingTwoFA, setLoadingTwoFA] = useState<boolean>(false); //may need to update the code to remove this with the AuthContext additio
 
 	// Delete Profile state
 	const [deleting, setDeleting] = useState(false);
@@ -509,35 +510,6 @@ const SettingsPage: React.FC = () => {
 		}
 	}
 
-	/*
-	async function saveTwoFactor() {
-		setBusy(true);
-		setMsg(null);
-		setErr(null);
-		try {
-			const payload: ChangeTwoFactorPayload = { twoFactor };
-			const res = await fetch(API_PROTOCOL.CHANGE_2FA.path, {
-				method: API_PROTOCOL.CHANGE_2FA.method,
-				headers: { "Content-Type": "application/json" },
-				credentials: "include",
-				body: JSON.stringify(payload),
-			});
-			if (!res.ok) throw new Error("Failed to update 2FA.");
-			
-			const data = (await res.json()) as ChangeTwoFactorResponse;
-			if (data.status !== "UPDATED") throw new Error(data.error || "Failed to update 2FA.");
-
-			setMsg(twoFactor ? t("common.twofa.enabled") : t("common.twofa.disabled"));
-			setOpenRow(null);
-			await refreshSession();
-		} catch (e: any) {
-			setErr(t("error.twofa.updateFailed"));
-		} finally {
-			setBusy(false);
-		}
-	}
-	*/
-
 	//2FA handlers
 	const handle2faCheckboxChange = async () => {
 		setMsg(null);
@@ -601,22 +573,6 @@ const SettingsPage: React.FC = () => {
 		setShowDisableConfirm(false);
 	};
 
-		
-		//else if (twoFactor) { //  disabling 2FA
-		//	if (window.confirm("Are you sure you want to disable 2FA?")) {
-		//		try {
-		//			const res = await fetch(API_PROTOCOL.TFA_DISABLE.path, {
-		//				method: API_PROTOCOL.TFA_DISABLE.method,
-		//				credentials: "include"
-		//			});
-		//			const data = await res.json();
-		//			if (!res.ok) throw new Error(data.error || "Failed to disable 2FA.");
-		//			if (data.disabled) { alert("2FA disabled."); setTwoFactor(false); setOpenRow(null); await refreshSession(); }
-		//		} catch (err: any) { alert(err.message || "Failed to disable 2FA."); }
-		//	}
-		//}
-	//};
-
 	const handleVerify2fa = async () => {
 		setMsg(null);
 		setErr(null);
@@ -679,40 +635,8 @@ const SettingsPage: React.FC = () => {
 		null;
 				
 return (
-  <div className="flex flex-col items-center px-6 py-6">
-	{/* Settings header box */}
-	<div className="w-full max-w-5xl relative mx-auto mb-4 p-6 border-4 border-[#FFFCC7] bg-[#D54751]"
-          style={{
-            width: '85%',
-            borderRadius: '60px',
-            boxShadow: '4px 6px 0 rgba(89,50,43, 0.9)',
-            transform: 'rotate(-0.4deg)',
-          }}>
-			<div className="text-center">
-			<h1 className="font-cupcake text-[#FFFCC7] text-5xl tracking-wider"
-              style={{ textShadow: `
-                  -3px 0 #000,
-                  3px 0 #000,
-                  0 3px #000,
-                  0 -3px #000,
-                  3px 3px #59322B,
-                 -3px -3px #59322B`
-               }}
-			>
-				{t("settings.title")}
-			</h1>
-		</div>
-		</div>
-
-		{/* Main settings box */}
-		<div className="w-full flex flex-col relative z-0 mx-auto mb-4 px-1 p-6 border-4 border-[#FFFCC7] bg-[#D54751]"
-          style={{
-            width: '85%',
-            borderRadius: '60px',
-            boxShadow: '4px 6px 0 rgba(89,50,43, 0.9)',
-            transform: 'rotate(-0.4deg)',
-          }}>
-
+	<ArcadeFrame title={t("settings.title")}>
+		<CenteredContainer>
 			{/* Inline status */}
 			{msg && <p className="text-center font-body mb-3 text-green-300">{msg}</p>}
 			{err && <p className="text-center font-body mb-3 text-red-300">{err}</p>}
@@ -727,7 +651,7 @@ return (
 					height="h-44"
 					rotate="-rotate-1"
 					borderRadius="rounded-[22px_18px_26px_18px]"
-					strokeColor="#FFFCC7"
+					strokeColor="#6ee7b7"
 					strokeWidth={2}
 					animationDuration={200}
 					hoverText={t("settings.title.language")}
@@ -740,7 +664,7 @@ return (
 					height="h-44"
 					rotate="-rotate-1"
 					borderRadius="rounded-[22px_18px_26px_18px]"
-					strokeColor="#FFFCC7"
+					strokeColor="#6ee7b7"
 					strokeWidth={2}
 					animationDuration={200}
 					hoverText={t("settings.title.username")}
@@ -753,7 +677,7 @@ return (
 					height="h-44"
 					rotate="-rotate-1"
 					borderRadius="rounded-[22px_18px_26px_18px]"
-					strokeColor="#FFFCC7"
+					strokeColor="#6ee7b7"
 					strokeWidth={2}
 					animationDuration={200}
 					hoverText={t("settings.title.password")}
@@ -766,7 +690,7 @@ return (
 					height="h-44"
 					rotate="-rotate-1"
 					borderRadius="rounded-[22px_18px_26px_18px]"
-					strokeColor="#FFFCC7"
+					strokeColor="#6ee7b7"
 					strokeWidth={2}
 					animationDuration={200}
 					hoverText={t("settings.title.avatar")}
@@ -779,7 +703,7 @@ return (
 					height="h-44"
 					rotate="-rotate-1"
 					borderRadius="rounded-[22px_18px_26px_18px]"
-					strokeColor="#FFFCC7"
+					strokeColor="#6ee7b7"
 					strokeWidth={2}
 					animationDuration={200}
 					hoverText={t("settings.change2fa")}
@@ -792,7 +716,7 @@ return (
 					height="h-44"
 					rotate="-rotate-1"
 					borderRadius="rounded-[22px_18px_26px_18px]"
-					strokeColor="#FFFCC7"
+					strokeColor="#6ee7b7"
 					strokeWidth={2}
 					animationDuration={200}
 					hoverText={t("settings.title.delete")}
@@ -803,11 +727,9 @@ return (
 
 		{openRow && (
 			<div
-				className="mt-2 mx-auto p-6 border-4 border-[#FFFCC7] bg-[#F56A5E]"
+				className="mt-2 mx-auto p-6"
 				style={{
 					width: "90%",
-					borderRadius: "40px",
-					boxShadow: "4px 6px 0 rgba(89,50,43,0.9)",
 					transform: "rotate(-0.3deg)",
 				}}
 			>
@@ -832,13 +754,13 @@ return (
 						<select
 							value={language}
 							onChange={(e) => setLanguage(e.target.value as "en" | "fi" | "sv")}
-							className="font-hand mb-5 font-semibold bg-[#4DA394] border border-[#59322B] rounded px-2 py-1"
+							className="w-full maw-w-xs md-5 font-body placeholder-[#B088A3] bg-[#4A0A2E] text-[#FFFCC7] focus:ring-4 focus:ring-[#F472B6] focus-border-[#F0C4E0] rounded px-2 py-2 text-sm"
 						>
 							<option value="en">{t("lang.english")}</option>
 							<option value="fi">{t("lang.finnish")}</option>
 							<option value="sv">{t("lang.swedish")}</option>
 						</select>
-						<div className="mt-3 flex gap-2">
+						<div className="mt-8 mb-3 flex gap-6">
 							<PrimaryTiny onClick={saveLanguage} disabled={busy}>{t("common.save")}</PrimaryTiny>
 							<SecondaryTiny onClick={() => closeAndReset("language")} disabled={busy}>{t("common.cancel")}</SecondaryTiny>
 						</div>
@@ -847,7 +769,7 @@ return (
 
 				{/* Username */}
 				{openRow === "username" && (
-					<div className="w-full">
+					<div className="w-full max-w-md">
 						<h2 
 							className="mb-6 font-cupcake text-[#FFFCC7] text-2xl tracking-wider"
               				style={{ textShadow: `
@@ -866,15 +788,15 @@ return (
 							name="settings-username"
 							value={usernameInput}
 							onChange={(e) => setUsernameInput(e.target.value)}
-							className="mb-5 w-full max-w-xs font-body bg-[#4DA394] border border-[#59322B] rounded px-2 py-1 text-sm"
+							className="w-full maw-w-xs md-5 font-body placeholder-[#B088A3] bg-[#4A0A2E] text-[#FFFCC7] focus:ring-4 focus:ring-[#F472B6] focus-border-[#F0C4E0] rounded px-2 py-2 text-sm"
 							autoComplete="off"
 						/>
 						{/* Inline error shown under the input */}
 						{inlineErrors.username && (
-							<p className="font-body text-[#59322B] text-xs mt-1">{inlineErrors.username}</p>
+							<p className="mt-5 font-body text-white text-sm mt-1">{inlineErrors.username}</p>
 						)}
 
-						<div className="mt-3 flex flex-wrap gap-2">
+						<div className="mt-8 mb-3 flex gap-6">
 							<PrimaryTiny onClick={saveUsername} disabled={busy}>{t("common.save")}</PrimaryTiny>
 							<SecondaryTiny onClick={() => closeAndReset("username")} disabled={busy}>{t("common.cancel")}</SecondaryTiny>
 						</div>
@@ -883,7 +805,7 @@ return (
 
 				{/* Password */}
 				{openRow === "password" && (
-					<div className="w-full">
+					<div className="w-full max-w-md">
 						<h2 
 							className="mb-6 font-cupcake text-[#FFFCC7] text-2xl tracking-wider"
               				style={{ textShadow: `
@@ -897,7 +819,7 @@ return (
 						>
 							{t("settings.item.password")}
 						</h2>
-						<label className="font-hand text-[#59322B] block mb-2">{t("settings.item.passwordCurrent")}</label>
+						<label className="font-hand text-lg text-white block mb-2">{t("settings.item.passwordCurrent")}</label>
 						<input
 							type="password"
 							name="settings-current-password"
@@ -906,27 +828,27 @@ return (
 							onFocus={e => (e.currentTarget.readOnly = false)}
 							value={currentPassword}
 							onChange={(e) => setCurrentPassword(e.target.value)}
-							className="w-full max-w-xs mb-5 font-body bg-[#4DA394] border border-[#59322B] rounded px-2 py-1 text-sm"
+							className="w-full maw-w-xs md-5 font-body placeholder-[#B088A3] bg-[#4A0A2E] text-[#FFFCC7] focus:ring-4 focus:ring-[#F472B6] focus-border-[#F0C4E0] rounded px-2 py-2 text-sm"
 						/>
-						<label className="font-hand text-[#59322B] block mt-3 mb-2">{t("settings.item.passwordNew")}</label>
+						<label className="font-hand text-white text-lg block mt-3 mb-2">{t("settings.item.passwordNew")}</label>
 						<input
 							type="password"
 							value={newPassword}
 							onChange={(e) => setNewPassword(e.target.value)}
-							className="w-full max-w-xs mb-5 font-body bg-[#4DA394] border border-[#59322B] rounded px-2 py-1 text-sm"
+							className="w-full maw-w-xs md-5 font-body placeholder-[#B088A3] bg-[#4A0A2E] text-[#FFFCC7] focus:ring-4 focus:ring-[#F472B6] focus-border-[#F0C4E0] rounded px-2 py-2 text-sm"
 						/>
-						<label className="font-hand text-[#59322B] block mt-3 mb-2">{t("settings.item.passwordConfirm")}</label>
+						<label className="font-hand text-white text-lg block mt-3 mb-2">{t("settings.item.passwordConfirm")}</label>
 						<input
 							type="password"
 							value={confirmNewPassword}
 							onChange={(e) => setConfirmNewPassword(e.target.value)}
-							className="w-full max-w-xs mb-5 font-body bg-[#4DA394] border border-[#59322B] rounded px-2 py-1 text-sm"
+							className="w-full maw-w-xs md-5 font-body placeholder-[#B088A3] bg-[#4A0A2E] text-[#FFFCC7] focus:ring-4 focus:ring-[#F472B6] focus-border-[#F0C4E0] rounded px-2 py-2 text-sm"
 						/>
 						{/* Inline error shown under the input */}
 						{inlineErrors.password && (
-							<p className="font-body text-[#59322B] text-xs mt-1">{inlineErrors.password}</p>
+							<p className="mt-5 font-body text-white text-sm mt-1">{inlineErrors.password}</p>
 						)}
-						<div className="mt-3 flex gap-2">
+						<div className="mt-8 mb-3 flex gap-6">
 							<PrimaryTiny onClick={savePassword} disabled={busy}>{t("common.save")}</PrimaryTiny>
 							<SecondaryTiny onClick={() => closeAndReset("password")} disabled={busy}>{t("common.cancel")}</SecondaryTiny>
 						</div>
@@ -935,7 +857,7 @@ return (
 
 				{/* Avatar*/}
 				{openRow === "avatar" && (
-					<div className="w-full">
+					<div className="w-full max-w-md">
 						<h2 
 							className="mb-6 font-cupcake text-[#FFFCC7] text-2xl tracking-wider"
               				style={{ textShadow: `
@@ -951,18 +873,18 @@ return (
 						</h2>
 
 						<div className="mb-5">
-							<label className="font-hand text-[#59322B] block mt-3 mb-5">{t("settings.item.avatarCustomAvatar")}</label>
+							<label className="mb-5 font-hand text-white text-lg block">{t("settings.item.avatarCustomAvatar")}</label>
 							<input
 								ref={fileInputRef}
 								type="file"
 								accept="image/png,image/jpeg,image/webp"
 								onChange={onPickFile}
-								className="w-full max-w-xs block bg-[#4DA394] border border-[#59322B] rounded font-body text-[#59322B] text-sm"
+								className="w-full maw-w-xs md-5 font-body placeholder-[#B088A3] bg-[#4A0A2E] text-[#FFFCC7] focus:ring-4 focus:ring-[#F472B6] focus-border-[#F0C4E0] rounded px-2 py-2 text-sm"
 							/>
 
-							<div className="mt-5 w-full max-w-xs block flex flex-wrap items-center gap-3 rounded-lg border-2 border-[#59322B] bg-[#4DA394] px-4 py-3">
+							<div className="mt-5 w-full max-w-md flex flex-wrap items-center gap-4 rounded-xl border border-[#F0C4E0] bg-[#4A0A2E] px-4 py-3">
 								{previewSrc ? ( 
-									<div className="w-16 h-16 rounded-full bg-[#4DA394] overflow-hidden flex items-center justify-center">
+									<div className="w-16 h-16 rounded-full bg-[#4A0A2E] overflow-hidden flex items-center justify-cente border border-[#F0C4E0]">
 									<img
 										src={previewSrc}
 										alt="Preview"
@@ -971,49 +893,41 @@ return (
 									/>
 								</div>
 								) : (
-									<div className="w-16 h-16 rounded-full bg-[#4DA394] border border-[#59322B]" />
+									<div className="w-16 h-16 rounded-full bg-[[#4A0A2E] border border-[#F0C4E0]" />
 								)}
-								<button
-									type="button"
-									onClick={uploadAvatarFile}
-									disabled={!uploadFile || uploadBusy}
-									className={
-										"font-hand px-4 py-1.5 text-sm rounded-lg font-semibold  tracking-wide " +
-										(uploadBusy 
-											? "bg-[#F9B4A5] text-[#59322B] cursor-not-allowed" 
-											: "bg-[#FFFCC7] text-[#59322B] shadow-[3px_4px_0_#59322B] hover:translate-y-[1px] hover:shadow-[2px_3px_0_#59322B]")
-									}
-								>
-									{t("common.upload")}
-								</button>
-								<button
-									type="button"
-									onClick={clearPickedFile}
-									className={
-										"font-hand px-4 py-1.5 text-sm rounded-lg font-semibold  tracking-wide " +
-										(uploadBusy
-										 ? "bg-[#C04D57] text-[#FFFCC7] opacity-60 cursor-not-allowed"
-										 : "bg-[#C04D57] text-[#FFFCC7] shadow-[3px_4px_0_#59322B] hover:translate-y-[1px] hover:shadow-[2px_3px_0_#59322B]")
-									}
-								>
-									{t("common.clear")}
-								</button>
+
+								<div className="pl-4 mt-3 mb-3 flex flex-wrap  gap-6">
+									<PrimaryTiny
+										onClick={uploadAvatarFile}
+										disabled={!uploadFile || uploadBusy}
+									>
+										{t("common.upload")}
+									</PrimaryTiny>
+									<SecondaryTiny
+										onClick={clearPickedFile}
+										disabled={uploadBusy}
+									>
+										{t("common.clear")}
+									</SecondaryTiny>
+								</div>
 							</div>
 
-							<p className="font-body mt-1 text-xs text-[#59322B]">{t("settings.item.avatarUploadHint")}</p>
+							<p className="font-body mt-3 text-sm text-white">{t("settings.item.avatarUploadHint")}</p>
 						</div>
 
 						{/* Built-in avatar */}
-						<p className="font-hand text-[#59322B] mb-5">{t("settings.item.avatarBuiltIn")}</p>
-						<div className="grid gap-2 grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+						<p className="font-hand text-white text-lg mb-5">{t("settings.item.avatarBuiltIn")}</p>
+						<div className="grid gap-2 grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
 							{availableAvatars.map((av) => (
 								<button
 									key={av}
 									type="button"
 									onClick={() => { setSelectedAvatar(av); setAvatarDirty(av !== currentAvatar); }}
 									className={
-										"rounded-lg p-1 border flex items-center justify-center " +
-										(selectedAvatar === av ? "bg-[#4DA394] border-[#FFFCC7]" : "bg-[#4DA394] border-[#59322B]")
+										"rounded-xl p-1 border flex items-center justify-center transition-transform duration-150 " +
+										(selectedAvatar === av 
+											? "bg-[#4A0A2E] border-[#F0C4E0] scale-[1.03]"
+											: "bg-[#4A0A2E] border-[#59322B] hover:border-[#F0C4E0] hover-translate-y-[1px]")
 									}
 									aria-label="Select avatar"
 								>
@@ -1025,7 +939,7 @@ return (
 								</button>
 							))}
 						</div>
-						<div className="mt-8 flex gap-2">
+						<div className="mt-8 mb-3 flex flex-wrap gap-6">
 							<PrimaryTiny onClick={saveAvatar} disabled={busy || uploadBusy}>{t("common.save")}</PrimaryTiny>
 							<SecondaryTiny
 								onClick={onCancelAvatarClick} disabled={busy || uploadBusy}>{t("common.cancel")}</SecondaryTiny>
@@ -1057,15 +971,15 @@ return (
 								onChange={handle2faCheckboxChange}
 								disabled={!!qrCode}
 							/>
-							<span className="font-hand text-[#59322B] text-sm">{t("settings.twofaLabel")}</span>
+							<span className="font-hand text-white text-lg">{t("settings.twofaLabel")}</span>
 						</label>
 						{showDisableConfirm && (
 							<div className="mt-3 p-4 rounded-lg border border-[#59322B] bg-gray-900/30">
-								<h3 className="font-body text-[#FFFCC7] text-lg">{t("settings.twofaDisableConfirmTitle")}</h3>
-								<p className="font-body text-sm mt-1 text-[#FFFCC7]">
+								<h3 className="font-body text-white text-lg">{t("settings.twofaDisableConfirmTitle")}</h3>
+								<p className="font-body text-sm mt-4 text-white">
 									{t("settings.twofaDisableConfirmText")}
 								</p>
-								<div className="mt-3 flex gap-2">
+								<div className="mt-8 mb-3 flex flex-wrap gap-6">
 									<PrimaryTiny onClick={confirmDisable2fa} disabled={busy}>
 										{t("common.disable")}
 									</PrimaryTiny>
@@ -1077,34 +991,36 @@ return (
 						)}
 						{qrCode && (
 							<div className="mt-4 p-4 border border-[#59322B] rounded-lg bg-gray-900/30 text-white">
-								<h3 className="font-body text-lg text-[#FFFCC7]">{t("settings.twofaEnableTitle")}</h3>
-								<p className="text-sm mt-1 font-body text-[#FFFCC7]">{t("settings.twofaScanQR")}</p>
+								<h3 className="font-body text-lg text-white">{t("settings.twofaEnableTitle")}</h3>
+								<p className="text-sm mt-1 font-body text-white">{t("settings.twofaScanQR")}</p>
 								<img
 									src={qrCode}
 									alt="2FA QR Code"
 									className="my-3 mx-auto bg-white p-1 rounded"
 								/>
-								<p className="text-sm font-body text-[#FFFCC7]">{t("settings.twofaEnterCode")}</p>
-								<div className="flex items-center gap-2 mt-2">
+								<p className="text-sm font-body text-white">{t("settings.twofaEnterCode")}</p>
+								<div className="flex flex-wrap items-center gap-2 mt-2">
 									<input
 										type="text"
-										className="border border-[#59322B] bg-[#4DA394] text-[#59322B] p-2 rounded-md w-32 text-center tracking-widest"
+										className="maw-w-xs md-5 font-body placeholder-[#B088A3] bg-[#4A0A2E] text-[#FFFCC7] focus:ring-4 focus:ring-[#F472B6] focus-border-[#F0C4E0] rounded px-2 py-2 text-sm"
 										placeholder="123456"
 										value={otp}
 										onChange={(e) => setOtp(e.target.value.replace(/\D/g,''))}
 										maxLength={6}
 									/>
+									<div className="pl-5 mt-8 mb-3 flex flex-wrap gap-6">
 									<PrimaryTiny onClick={handleVerify2fa} disabled={busy}>
 										{t("common.verifyEnable")}
 									</PrimaryTiny>
 									<SecondaryTiny onClick={cancel2faSetup} disabled={busy}>
 										{t("settings.twofaCancelSetup")}
 									</SecondaryTiny>
+									</div>
 								</div>
 							</div>
 						)}
 						{!qrCode && !showDisableConfirm && (
-							<div className="mt-3 flex gap-2">
+							<div className="mt-8 mb-3 flex flex-wrap gap-6">
 								<SecondaryTiny onClick={() => closeAndReset("twofa")} disabled={busy}>
 									{t("common.cancel")}
 								</SecondaryTiny>
@@ -1115,7 +1031,7 @@ return (
 
 			{/* Delete */}
 			{openRow === "delete" && (
-				<div className="w-full max-w-md">
+				<div className="w-full">
 						<h2 
 							className="mb-6 font-cupcake text-[#FFFCC7] text-2xl tracking-wider"
               				style={{ textShadow: `
@@ -1143,11 +1059,11 @@ return (
 
 				{/* Delete confirmation logic */}
 				{confirmDelete ? (
-					<div className="font-body text-[#59322B] border border-[#59322B] bg-[#4DA394] rounded p-4 mt-3">
-					<p className="text-sm text-[#FFFCC7] text-red-200 mb-3">
+					<div className="mt-3 p-4 rounded-lg border border-[#59322B] bg-gray-900/30">
+					<p className="text-lg text-white font-body text-red-200 mb-3">
 						{t("settings.delete.text")}
 					</p>
-					<div className="mt-3 flex flex-wrap gap-2">
+					<div className="mt-8 mb-3 flex flex-wrap  gap-6">
 						<SecondaryTiny
 							onClick={handleDeleteProfile}
 							disabled={deleting || deleted}
@@ -1162,7 +1078,7 @@ return (
 					</div>
 				</div>
 			) : (
-				<div className="mt-3 flex flex-wrap gap-2">
+				<div className="mt-8 mb-3 flex flex-wrap gap-6">
 				<SecondaryTiny
 					onClick={() => setConfirmDelete(true)}
 					disabled={deleting || deleted}
@@ -1181,54 +1097,34 @@ return (
 		)}
 		</div>
 		)}
-		</div>
-		</div>
+		</CenteredContainer>
+		</ArcadeFrame>
 	);
 };
-
-/*function SettingButton({
-	label,
-	onClick,
-}: {
-	label: string;
-	onClick: () => void;
-}) {
-	return (
-		<div className="px-4 py-3">
-			<button
-				type="button"
-				onClick={onClick}
-  				className="px-3 py-1.5 text-sm rounded-md text-white bg-blue-600 hover:bg-blue-700"
-			>
-				{label}
-			</button>
-		</div>
-	);
-}*/
 
 function PrimaryTiny({
 	children,
 	onClick,
 	disabled,
-}: {
-	children: React.ReactNode;
-	onClick: () => void;
-	disabled?: boolean;
-}) {
+	className = "",
+}: TinyButtonProps) {
 	return (
-		<button
-			type="button"
-			onClick={onClick}
-			disabled={disabled}
+		<SketchyButton
+			variant="shadow"
+			bg="#58d1b7d9"
+			hoverBg="#1ea58893"
+			borderColor="#177863ff"
+			onClick={!disabled ? onClick : undefined}
 			className={
-				"font-hand px-4 py-1.5 text-sm rounded-lg font-semibold  tracking-wide " +
+				"font-body px-4 py-1.5 text-sm rounded-lg font-semibold tracking-wide w-32 " +
 				(disabled
-					? "bg-[#F9B4A5] text-[#59322B] cursor-not-allowed" 
-					: "bg-[#FFFCC7] text-[#59322B] shadow-[3px_4px_0_#59322B] hover:translate-y-[1px] hover:shadow-[2px_3px_0_#59322B]")
-			}
+					? "opacity-60 cursor-not-allowed"
+					: "") +
+				(className ? " " + className : "")
+				}
 		>
 			{children}
-		</button>
+		</SketchyButton>
 	);
 }
 
@@ -1236,25 +1132,25 @@ function SecondaryTiny({
 	children,
 	onClick,
 	disabled,
-}: {
-	children: React.ReactNode;
-	onClick: () => void;
-	disabled?: boolean;
-}) {
+	className = "",
+}: TinyButtonProps) {
 	return (
-		<button
-			type="button"
-			onClick={onClick}
-			disabled={disabled}
+		<SketchyButton
+			variant="shadow"
+			bg="#a48d988a"
+			hoverBg="#a91a5f8a"
+			borderColor="#a91a5f8a"
+			onClick={!disabled ? onClick : undefined}
 			className={
-				"font-hand px-4 py-1.5 text-sm rounded-lg font-semibold  tracking-wide " +
+				"font-body px-4 py-1.5 text-sm rounded-lg font-semibold  tracking-wide w-32 " +
 				(disabled
-					? "bg-[#C04D57] text-[#FFFCC7] opacity-60 cursor-not-allowed" 
-					: "bg-[#C04D57] text-[#FFFCC7] shadow-[3px_4px_0_#59322B] hover:translate-y-[1px] hover:shadow-[2px_3px_0_#59322B]")
+					? "opcaity-60 cursor-not-allowed"
+					: "") +
+				(className ? " " + className : "")
 				}
 		>
 			{children}
-		</button>
+		</SketchyButton>
 	);
 }
 

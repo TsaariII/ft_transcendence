@@ -171,17 +171,19 @@ const HomePage: React.FC = () => {
 			if (!res.ok ) {
 				const backendError = resData?.error;
 				switch (backendError) {
-					case "Database error":
-						throw new Error("Could not log in.");
+					case "DATABASE_ERROR":
+						throw new Error(t("auth.error.loginFailed"));
+					case "REGISTER_FAILED":
+						throw new Error(t("auth.error.registerFailed"));
 					case "Hash comparison failed":
-						throw new Error("Server error, please try again later.");
+						throw new Error(t("auth.error.serverError"));
 					case "User not found":
 						throw new Error(t("auth.error.invalidCredentials"));
-					case "Invalid password":
+					case "Invalid username or password":
 						throw new Error(t("auth.error.invalidCredentials"));
-					case "Failed to add user":
+					case "Username already taken":
 						throw new Error(t("error.username.taken"));
-					case "VALIDATION_FAILED":
+					case "VALIDATION_ERROR":
 						throw new Error(t("auth.error.invalidCredentials"));
 					default:
 						throw new Error(t("Could not log in, please try again later."));

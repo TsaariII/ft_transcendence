@@ -144,7 +144,6 @@ const Modal: React.FC<ModalProps> = ({
 							hoverBg="#a91a5f8a"
 							borderColor="#a91a5f8a"
 							className="text-lg"
-							type="button"
 							onClick={onClose}
 						>
 							{t("common.close")}
@@ -155,7 +154,6 @@ const Modal: React.FC<ModalProps> = ({
 							hoverBg="#1ea58893"
 							borderColor="#177863ff"
 							className="text-lg"
-							type="submit"
 							>
 								{buttonText}
 						</SketchyButton>

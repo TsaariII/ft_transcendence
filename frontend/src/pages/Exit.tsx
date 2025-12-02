@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import CenteredContainer from "../components/layout/CenteredContainer";
 import { useAuth } from "../context/AuthContext";
 import { useTranslation } from "../shared/Translation";
+import { ArcadeFrame } from "../components/layout/ArcadeFrame";
+import SketchyButton from "../components/ui/SketchyButtons";
 
 const Exit: React.FC = () => {
 	const { t } = useTranslation();
@@ -39,94 +41,65 @@ const Exit: React.FC = () => {
 	const arrivedLoggedOut = !isLoggedIn && !done;
 
 		return (
-		<CenteredContainer>
-			<div className="w-full flex flex-col items-center px-6 py-6">
-				<div className="w-full max-w-5xl relative mx-auto mb-4 p-6 border-4 border-[#FFFCC7] bg-[#D54751]"
-          			style={{
-            			borderRadius: '60px',
-           				boxShadow: '4px 6px 0 rgba(89,50,43, 0.9)',
-           				 transform: 'rotate(-0.4deg)',
-          			}}>
-					<div className="text-center">
-						<h1 className="font-cupcake text-[#FFFCC7] text-5xl tracking-wider"
-              				style={{ textShadow: `
-                  				-3px 0 #000,
-                  				3px 0 #000,
-                  				0 3px #000,
-                  				0 -3px #000,
-                 				3px 3px #59322B,
-                 				-3px -3px #59322B`
-               				}}
-						>
-							{t("exit.title")}
-						</h1>
-					</div>
-				</div>
-
-				<div className="w-full flex flex-col relative z-0 mx-auto mb-4 px-1 p-6 border-4 border-[#FFFCC7] bg-[#D54751]"
-          			style={{
-            			borderRadius: '60px',
-            			boxShadow: '4px 6px 0 rgba(89,50,43, 0.9)',
-            			transform: 'rotate(-0.4deg)',
-          			}}>
-
-					<div className="text-center px-2">
-						{err && (
-							<p className="mb-3 text-sm font-body text-[#FFFCC7] bg-[#C04D57] border-2 border-[#59322B] rounded-2xl px-3 py-2 inline-block shadow-[2px_3px_0_#59322B]">
-								{err}
-							</p>
-						)}
+			<ArcadeFrame title={t("exit.title")}>
+				<CenteredContainer>
+					<div className="w-full max-w-md p-8 text-white flex flex-col items-center space-y-6 text-center">
+					{/* Inline status */}
+					{err && <p className="text-center font-body mb-3 text-red-300">{err}</p>}
 
 				{done ? (
 					// Case 1: user just logged out
 					<>
-						<p className="font-body text-[#FFFCC7] mb-1">{t("exit.loggedOut")}</p>
-						<p className="font-body text-sm text-[#FFFCC7]/90">{t("exit.redirectHome")}</p>
+						<p className="font-body text-white text-lg mb-1">{t("exit.loggedOut")}</p>
+						<p className="font-body text-lg text-white/90">{t("exit.redirectHome")}</p>
 					</>
 				) : sessionExpired ? (
 					// Case 2: session expired
 					<>
-						<p className="font-body text-[#FFFCC7] mb-1">{t("exit.sessionExpired")}</p>
-						<p className="font-body text-sm text-[#FFFCC7]/90">{t("exit.redirectHome")}</p>
+						<p className="font-body text-white text-lg mb-1">{t("exit.sessionExpired")}</p>
+						<p className="font-body text-lg text-white/90">{t("exit.redirectHome")}</p>
 					</>
 				) : arrivedLoggedOut ? (
 					// Case 3: user opened exit while logged out
 					<>
-						<p className="font-body text-[#FFFCC7] mb-1">{t("exit.alreadyLoggedOut")}</p>
-						<p className="font-body text-sm text-[#FFFCC7]/90">{t("exit.loginPrompt")}</p>
-						<button
-							type="button"
+						<p className="font-body text-white text-lg mb-1">{t("exit.alreadyLoggedOut")}</p>
+						<p className="font-body text-lg text-white/90 mb-4">{t("exit.loginPrompt")}</p>
+						<SketchyButton
+							variant="shadow"
+							bg="#58d1b7d9"
+							hoverBg="#1ea58893"
+							borderColor="#177863ff"
 							onClick={() => navigate("/")}
-							className="font-body mt-1 px-5 py-2 text-sm rounded-xl font-body tracking-wide bg-[#FFFCC7] text-[#59322B] shadow-[3px_4px_0_#59322B] hover:translated-y-[1px] hover:shadow-[2px_3px_0_#59322B]"
+							className="mt-2 px-6 py-2 text-white text-sm"
 						>
 							{t("nav.home")}
-						</button>
+						</SketchyButton>
 					</>
 				) : (
 					// Case 4: user is logged in and wants to log out
 					<>
-						<p className="font-body text-[#FFFCC7] mb-3">
+						<p className="font-body text-white text-lg mb-3">
 							{busy ? t("exit.loggingOut") : t("exit.goodbye")}
 						</p>
-						<button
-							type="button"
+						<SketchyButton
+							variant="shadow"
+							bg="#a48d988a"
+							hoverBg="#a91a5f8a"
+							borderColor="#a91a5f8a"
 							onClick={handleLogout}
 							disabled={busy}
 							className={
-								"font-hand px-4 py-1.5 text-sm rounded-lg font-semibold  tracking-wide " +
-								(busy
-									? "bg-[#C04D57] text-[#FFFCC7] opacity-60 cursor-not-allowed" 
-									: "bg-[#C04D57] text-[#FFFCC7] shadow-[3px_4px_0_#59322B] hover:translate-y-[1px] hover:shadow-[2px_3px_0_#59322B]")
+								"px-6 py-2 text-sm text-white " +
+								(busy ? "opacity-60 cursor-not-allowd" : "")
 							}
 						>
 							{busy ? t("exit.loggingOut") : t("nav.exit")}
-						</button>
+						</SketchyButton>
 					</>
 				)}
-			</div>
-			</div>
-			</div>
+				</div>
 		</CenteredContainer>
+		</ArcadeFrame>
 	);
 };
 
