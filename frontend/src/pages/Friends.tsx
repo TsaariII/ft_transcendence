@@ -237,9 +237,9 @@ const Friends: React.FC = () => {
 						</section>
 
 						{/* Friends list */}
-						<section className="w-full mt-6">
-							<div className="max-w-2xl mx-auto px-4">
-								<h2 className="mb-4 font-cupcake text-[#FFFCC7] text-2xl tracking-wider"
+						<section className="w-full mt-6 py-8">
+							<div className="max-w-2xl mx-auto px-6">
+								<h2 className="mb-2 font-cupcake text-[#FFFCC7] text-2xl tracking-wider"
 									style={{ textShadow: `
 										-3px 0 #000,
 										3px 0 #000,
@@ -252,10 +252,10 @@ const Friends: React.FC = () => {
 									{t("friends.list.title")}
 								</h2>
 
-							<div className="p-5 md:p-6">
+							<div className="mt-6">
 
 							{friends.length === 0 ? (
-								<div className="font-body text-sm">{t("friends.list.empty")}</div>
+								<div className="font-body text-white text-lg">{t("friends.list.empty")}</div>
 							) : (
 								<div className="space-y-3">
 									{friends.map((f: Friend) => {

@@ -4,6 +4,8 @@ import { API_PROTOCOL } from "../../../shared/api-protocols";
 import { OtherUserProfilePayload, OtherUserProfileResponse } from "../../../shared/payloads";
 import { useTranslation } from "../../shared/Translation";
 import CenteredContainer from "..//layout/CenteredContainer";
+import { PiRanking } from "react-icons/pi";
+import { MdOutlineSportsScore } from "react-icons/md"
 
 type PlayerProfileModalProps = {
 	userId: string;
@@ -165,7 +167,7 @@ return (
 													"linear-gradient(135deg, #280523 0%, #AA007A 50%, #E453BC 100%)",
 											}}
 										>
-											<div className="w-40 h-40 md:w-44 md:h-44 rounded-full bg-[#0b0214] flex items-center justify-center">
+											<div className="w-40 h-40 md:w-44 md:h-44 rounded-full flex items-center justify-center">
 												<img
 													src={profile.avatarFile || defaultAvatar}
 													alt={`${profile.username} avatar`}
@@ -182,33 +184,43 @@ return (
 									{profile.username}
 								</h2>
 
-								{/* Stats */}
-								<div className="mt-10 flex flex-wrap justify-center gap-y-2 gap-x-12 text-base sm:text-lg font-body">
-									<div className="space-y-6">
-										<p className="flex items-center gap-2">
-											<span className="opacity-100">{t("profile.rank")}:</span>
-											<span className="font-body">{profile.rank}</span>
-										</p>
-										<p className="flex items-center gap-2">
-											<span className="opacity-100">{t("profile.score")}:</span>
-											<span className="font-body">{profile.score}</span>
-										</p>
+							{/* Stats */}
+							<div className="flex justify-center w-full mt-8">
+								<div className="w-full max-w-md bg-[#0b0214]/25 border border-[#FFFCC7]/40 rounded-lg p-2">
+									{/* Top row: Rank + Score */}
+									<div className="flex justify-around items-center mb-4 pb-2 border-b border-[#FFFCC7]/20">
+									<div className="flex items-center gap-2">
+										<p className="text-xs uppercase tracking-wide">{t("profile.rank")}:</p>
+										<PiRanking className="text-2xl text-[#FFFCC7]" />
+										<p className="text-2xl font-bold text-[#FFFCC7]">{profile.rank}</p>
 									</div>
-									<div className="space-y-6">
-										<p className="flex items-center gap-2">
-											<span className="opacity-100">{t("profile.stats.victories")}:</span>
-											<span className="font-body">{profile.victories}</span>
-										</p>
-										<p className="flex items-center gap-2">
-											<span className="opacity-100">{t("profile.stats.losses")}:</span>
-											<span className="font-body">{profile.losses}</span>
-										</p>
-										<p className="flex items-center gap-2">
-											<span className="opacity-100">{t("profile.stats.matches")}:</span>
-											<span className="font-body">{profile.totalMatches}</span>
-										</p>
+
+									<div className="flex items-center gap-2">
+										<p className="text-xs uppercase tracking-wide">{t("profile.score")}:</p>
+										<MdOutlineSportsScore className="text-2xl text-[#FFFCC7]" />
+										<p className="text-2xl font-bold text-[#FFFCC7]">{profile.score ?? 0}</p>
+									</div>
+									</div>
+
+									{/* Bottom row: Victories, Losses, Matches */}
+									<div className="flex justify-around items-center">
+									<div className="flex items-center gap-2">
+										<p className="text-xs uppercase tracking-wide">{t("profile.stats.victories")}:</p>
+										<span className="text-xl font-bold text-[#FFFCC7]">{profile.victories ?? 0}</span>
+									</div>
+
+									<div className="flex items-center gap-2">
+										<p className="text-xs uppercase tracking-wide">{t("profile.stats.losses")}:</p>
+										<span className="text-xl font-bold text-[#FFFCC7]">{profile.losses ?? 0}</span>
+									</div>
+
+									<div className="flex items-center gap-2">
+										<p className="text-xs uppercase tracking-wide">{t("profile.stats.matches")}:</p>
+										<span className="text-xl font-bold text-[#FFFCC7]">{(profile.totalMatches ?? matches.length) ?? 0}</span>
+									</div>
 									</div>
 								</div>
+							</div>
 
 							{/* Match History */}
 							<section className="mt-10 mb-10 w-full">

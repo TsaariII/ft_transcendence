@@ -17,6 +17,7 @@ import trophy2 from "../assets/doodles/trophy2.png";
 import telly from "../assets/doodles/telly.png";
 import collection from "../assets/doodles/collection.png";
 import { ArcadeFrame } from "../components/layout/ArcadeFrame";
+import { HiOutlineUser } from "react-icons/hi2";
 
 const setServerLang = (code: "en" | "fi" | "sv") => localStorage.setItem("serverLang", code);
 
@@ -301,7 +302,7 @@ const HomePage: React.FC = () => {
 					<div className="max-w-4xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 p-4">
 						{/* Tournament */}
 						<DoodleButton
-							imageSrc={trophy2}
+							imageSrc={podium}
 							width="w-56"
 							height="h-56"
 							scale="scale-80"
@@ -324,13 +325,11 @@ const HomePage: React.FC = () => {
 							strokeColor="#6ee7b7"
 							animationDuration={200}
 						/>
-						{/* Leaderboard */}
+						{/* Profile */}
 						<DoodleButton
-							imageSrc={podium}
-							width="w-56"
-							height="h-56"
-							onClick={() => navigate("/leaderboard")}
-							hoverText={t("home.icon.leaderboard")}
+							icon={<HiOutlineUser size={96}/>}
+							onClick={() => navigate("/profile")}
+							hoverText={t("home.icon.profilePage")}
 							hoverTextSize="text-3xl"
 							strokeColor="#6ee7b7"
 							animationDuration={200}

@@ -24,7 +24,7 @@ export default function AnimatedText({
 
 	return (
 		<div className={`flex justify-center ${className} font-hand ${fontSize}`}
-			style={{ whiteSpace: "pre" }}
+			style={{ whiteSpace: "pre", wordBreak: "break-word" }}
 		>
 			{letters.map((char, i) => (
 				<span

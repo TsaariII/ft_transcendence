@@ -21,6 +21,13 @@ import profile from "../assets/doodles/profile.png";
 import { ArcadeFrame } from "../components/layout/ArcadeFrame";
 import CenteredContainer from "../components/layout/CenteredContainer";
 import SketchyButton from "../components/ui/SketchyButtons";
+import { GrLanguage } from "react-icons/gr";
+import { FaUserAltSlash } from "react-icons/fa";
+import { TbLockPassword } from "react-icons/tb";
+import { TbPassword } from "react-icons/tb";
+import { RxAvatar } from "react-icons/rx";
+import { Si2Fas } from "react-icons/si";
+import { FaUser } from "react-icons/fa";
 
 const USERNAME_REGEX = /^[a-zA-Z][a-zA-Z0-9_]{5,11}$/;
 const PASSWORD_REGEX = /^[a-zA-Z0-9!@#$%^&*()_\-+=.]{8,16}$/;
@@ -646,80 +653,74 @@ return (
 				<div className="grid grid-cols-2 sm:grid-cols-3 gap-6 justify-items-center">
 				{/* Language row */}
 				<DoodleButton
-					imageSrc={profile}
-					width="w-44"
-					height="h-44"
+					icon={<GrLanguage size={88} />}
 					rotate="-rotate-1"
 					borderRadius="rounded-[22px_18px_26px_18px]"
 					strokeColor="#6ee7b7"
 					strokeWidth={2}
 					animationDuration={200}
 					hoverText={t("settings.title.language")}
+					disableMovement={true}
 					onClick={() => toggle("language")}
 				/>
 				{/* Username row */}
 				<DoodleButton
-					imageSrc={profile}
-					width="w-44"
-					height="h-44"
+					icon={<FaUser size={88} />}
 					rotate="-rotate-1"
 					borderRadius="rounded-[22px_18px_26px_18px]"
 					strokeColor="#6ee7b7"
 					strokeWidth={2}
 					animationDuration={200}
 					hoverText={t("settings.title.username")}
+					disableMovement={true}
 					onClick={() => toggle("username")}
 				/>
 				{/* Password row */}
 				<DoodleButton
-					imageSrc={profile}
-					width="w-44"
-					height="h-44"
+					icon={<TbPassword size={88} />}
 					rotate="-rotate-1"
 					borderRadius="rounded-[22px_18px_26px_18px]"
 					strokeColor="#6ee7b7"
 					strokeWidth={2}
 					animationDuration={200}
 					hoverText={t("settings.title.password")}
+					disableMovement={true}
 					onClick={() => toggle("password")}
 				/>
 				{/* Avatar row */}
 				<DoodleButton
-					imageSrc={profile}
-					width="w-44"
-					height="h-44"
+					icon={<RxAvatar size={88} />}
 					rotate="-rotate-1"
 					borderRadius="rounded-[22px_18px_26px_18px]"
 					strokeColor="#6ee7b7"
 					strokeWidth={2}
 					animationDuration={200}
 					hoverText={t("settings.title.avatar")}
+					disableMovement={true}
 					onClick={() => toggle("avatar")}
 				/>
 				{/* 2FA row */}
 				<DoodleButton
-					imageSrc={profile}
-					width="w-44"
-					height="h-44"
+					icon={<Si2Fas size={88} />}
 					rotate="-rotate-1"
 					borderRadius="rounded-[22px_18px_26px_18px]"
 					strokeColor="#6ee7b7"
 					strokeWidth={2}
 					animationDuration={200}
 					hoverText={t("settings.change2fa")}
+					disableMovement={true}
 					onClick={() => toggle("twofa")}
 				/>
 				{/* Delete row */}
 				<DoodleButton
-					imageSrc={profile}
-					width="w-44"
-					height="h-44"
+					icon={<FaUserAltSlash size={88} />}
 					rotate="-rotate-1"
 					borderRadius="rounded-[22px_18px_26px_18px]"
 					strokeColor="#6ee7b7"
 					strokeWidth={2}
 					animationDuration={200}
 					hoverText={t("settings.title.delete")}
+					disableMovement={true}
 					onClick={() => toggle("delete")}
 				/>
 			</div>
@@ -727,7 +728,7 @@ return (
 
 		{openRow && (
 			<div
-				className="mt-2 mx-auto p-6"
+				className="mx-auto p-12"
 				style={{
 					width: "90%",
 					transform: "rotate(-0.3deg)",
@@ -819,7 +820,7 @@ return (
 						>
 							{t("settings.item.password")}
 						</h2>
-						<label className="font-hand text-lg text-white block mb-2">{t("settings.item.passwordCurrent")}</label>
+						<label className="font-body text-medium text-white block mb-2">{t("settings.item.passwordCurrent")}</label>
 						<input
 							type="password"
 							name="settings-current-password"
@@ -830,14 +831,14 @@ return (
 							onChange={(e) => setCurrentPassword(e.target.value)}
 							className="w-full maw-w-xs md-5 font-body placeholder-[#B088A3] bg-[#4A0A2E] text-[#FFFCC7] focus:ring-4 focus:ring-[#F472B6] focus-border-[#F0C4E0] rounded px-2 py-2 text-sm"
 						/>
-						<label className="font-hand text-white text-lg block mt-3 mb-2">{t("settings.item.passwordNew")}</label>
+						<label className="font-body text-medium text-white block mt-3 mb-2">{t("settings.item.passwordNew")}</label>
 						<input
 							type="password"
 							value={newPassword}
 							onChange={(e) => setNewPassword(e.target.value)}
 							className="w-full maw-w-xs md-5 font-body placeholder-[#B088A3] bg-[#4A0A2E] text-[#FFFCC7] focus:ring-4 focus:ring-[#F472B6] focus-border-[#F0C4E0] rounded px-2 py-2 text-sm"
 						/>
-						<label className="font-hand text-white text-lg block mt-3 mb-2">{t("settings.item.passwordConfirm")}</label>
+						<label className="font-body text-medium text-white block mt-3 mb-2">{t("settings.item.passwordConfirm")}</label>
 						<input
 							type="password"
 							value={confirmNewPassword}
@@ -873,7 +874,7 @@ return (
 						</h2>
 
 						<div className="mb-5">
-							<label className="mb-5 font-hand text-white text-lg block">{t("settings.item.avatarCustomAvatar")}</label>
+							<label className="mb-5 font-body text-white text-lg block">{t("settings.item.avatarCustomAvatar")}</label>
 							<input
 								ref={fileInputRef}
 								type="file"
@@ -884,7 +885,7 @@ return (
 
 							<div className="mt-5 w-full max-w-md flex flex-wrap items-center gap-4 rounded-xl border border-[#F0C4E0] bg-[#4A0A2E] px-4 py-3">
 								{previewSrc ? ( 
-									<div className="w-16 h-16 rounded-full bg-[#4A0A2E] overflow-hidden flex items-center justify-cente border border-[#F0C4E0]">
+									<div className="w-16 h-16 rounded-full bg-[#4A0A2E] overflow-hidden flex items-center justify-center border border-[#F0C4E0]">
 									<img
 										src={previewSrc}
 										alt="Preview"
@@ -893,10 +894,10 @@ return (
 									/>
 								</div>
 								) : (
-									<div className="w-16 h-16 rounded-full bg-[[#4A0A2E] border border-[#F0C4E0]" />
+									<div className="w-16 h-16 rounded-full bg-[#4A0A2E] border border-[#F0C4E0]" />
 								)}
 
-								<div className="pl-4 mt-3 mb-3 flex flex-wrap  gap-6">
+								<div className="pl-4 mt-3 mb-3 flex flex-wrap gap-6">
 									<PrimaryTiny
 										className="order-2"
 										onClick={uploadAvatarFile}
@@ -918,8 +919,8 @@ return (
 						</div>
 
 						{/* Built-in avatar */}
-						<p className="font-hand text-white text-lg mb-5">{t("settings.item.avatarBuiltIn")}</p>
-						<div className="grid gap-2 grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+						<p className="font-body text-white text-lg mb-5">{t("settings.item.avatarBuiltIn")}</p>
+						<div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
 							{availableAvatars.map((av) => (
 								<button
 									key={av}

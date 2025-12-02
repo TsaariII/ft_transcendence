@@ -15,6 +15,7 @@ interface DoodleBoxProps {
 	strokeColor?: string; // color of the animated text stroke
 	strokeWidth?: number;
 	animationDuration?: number; // duration of the text animation
+	disableMovement?: boolean;
 }
 
 const DoodleBox: React.FC<DoodleBoxProps> = ({
@@ -31,6 +32,7 @@ const DoodleBox: React.FC<DoodleBoxProps> = ({
 	strokeColor = "yellow",
 	strokeWidth = 2,
 	animationDuration = 2000,
+	disableMovement = false,
 }) => {
 	const [isHovered, setIsHovered] = useState(false);
 	
@@ -40,7 +42,7 @@ const DoodleBox: React.FC<DoodleBoxProps> = ({
 			onMouseEnter={() => setIsHovered(true)}
 			onMouseLeave={() => setIsHovered(false)}
 			className={`group p-0 ${borderRadius} ${rotate} ${scale}
-				flex flex-col items-center justify-center`}
+				flex flex-col items-center justify-center relative`} 
 			>
 			<div className={`${width} ${height} relative flex items-center justify-center`}>
 				{imageSrc && (
@@ -55,7 +57,11 @@ const DoodleBox: React.FC<DoodleBoxProps> = ({
 
 			{/* Show AnimatedText on hover */}
 			{hoverText && isHovered && (
-				<div className="w-full">
+				<div
+					className={`w-full text-center ${
+					disableMovement ? "absolute bottom-0 left-1/2 transform -translate-x-1/2" : "mt-2"
+					} max-w-[40px]`}
+				>
 					<AnimatedText
 						text={hoverText}
 						strokeColor={strokeColor}

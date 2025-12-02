@@ -5,6 +5,8 @@ import { useTranslation } from "../shared/Translation";
 import PlayerProfileModal from "../components/profile/PlayerProfileModal";
 import { ArcadeFrame } from "../components/layout/ArcadeFrame";
 import CenteredContainer from "../components/layout/CenteredContainer";
+import { PiRanking } from "react-icons/pi";
+import { MdOutlineSportsScore } from "react-icons/md"
 
 const Profile: React.FC = () => {
 	const { t } = useTranslation();
@@ -59,7 +61,7 @@ const Profile: React.FC = () => {
 										"linear-gradient(135deg, #280523 0%, #AA007A 50%, #E453BC 100%)",
 								}}
 							>
-							<div className="w-40 h-40 md:w-44 md:h-44 rounded-full bg-[#0b0214] flex items-center justify-center">
+							<div className="w-40 h-40 md:w-44 md:h-44 rounded-full flex items-center justify-center">
 								<img
 									src={user.avatarFile || defaultAvatar}
 									alt={`${user.username} avatar`}
@@ -72,37 +74,48 @@ const Profile: React.FC = () => {
 				</section>
 				
 						{/* Username */}
-							<h2 className="mt-4 py-5 text-4xl sm:text-4xl md:text-5xl font-body text-center bg-gradient-to-r from-[#FFFCC7] via-[#110637] to-[#FFFCC7] bg-clip-text text-transparent leading-tight">
+							<h2 className="mt-4 py-3 text-4xl sm:text-4xl md:text-5xl font-body text-center bg-gradient-to-r from-[#FFFCC7] via-[#110637] to-[#FFFCC7] bg-clip-text text-transparent leading-tight">
 								{user.username}
 							</h2>
 
-						{/* Stats */}
-						<div className="mt-10 flex flex-wrap justify-center gap-y-2 gap-x-12 text-base sm:text-lg font-body">
-							<div className="space-y-6">
-								<p className="flex items-center gap-2">
-									<span className="opacity-100">{t("profile.rank")}:</span>
-								<span className="font-body">{user.rank}</span>
-								</p>
-								<p className="flex items-center gap-2">
-									<span className="opacity-100">{t("profile.score")}:</span>
-									<span className="font-body">{user.score ?? 0}</span>
-								</p>
+					{/* Stats */}
+					<div className="mt-8 w-full max-w-md bg-[#0b0214]/25 border border-[#FFFCC7]/40 rounded-lg p-2">
+					{/* Top row: Rank + Score */}
+						<div className="flex justify-around items-center mb-4 pb-2 border-b border-[#FFFCC7]/20">
+							<div className="flex items-center gap-2">
+							<p className="text-xs uppercase tracking-wide">{t("profile.rank")}:</p>
+							<PiRanking className="text-2xl text-[#FFFCC7]" />
+							<p className="text-2xl font-bold text-[#FFFCC7]">{user.rank}</p>
 							</div>
-							<div className="space-y-6">
-								<p className="flex items-center gap-2">
-									<span className="opacity-100">{t("profile.stats.victories")}:</span>
-									<span className="font-body">{user.victories ?? 0}</span>
-								</p>
-								<p className="flex items-center gap-2">
-									<span className="opacity-100">{t("profile.stats.losses")}:</span>
-									<span className="font-body">{user.losses ?? 0}</span>
-								</p>
-								<p className="flex items-center gap-2">
-									<span className="opacity-100">{t("profile.stats.matches")}:</span>
-									<span className="font-body">{(user.totalMatches ?? matches.length) ?? 0}</span>
-								</p>
+
+							<div className="flex items-center gap-2">
+							<p className="text-xs uppercase tracking-wide">{t("profile.score")}:</p>
+							<MdOutlineSportsScore className="text-2xl text-[#FFFCC7]" />
+							<p className="text-2xl font-bold text-[#FFFCC7]">{user.score ?? 0}</p>
 							</div>
 						</div>
+
+						{/* Bottom row: Victories, Losses, Matches */}
+						<div className=" flex justify-around items-center">
+							<div className="flex items-center gap-2">
+							<p className="text-xs uppercase tracking-wide">{t("profile.stats.victories")}:</p>
+
+							<span className="text-xl font-bold text-[#FFFCC7]">{user.victories ?? 0}</span>
+							</div>
+
+							<div className="flex items-center gap-2">
+							<p className="text-xs first:uppercase tracking-wide">{t("profile.stats.losses")}:</p>
+							<span className="text-xl font-bold text-[#FFFCC7]">{user.losses ?? 0}</span>
+							</div>
+
+							<div className="flex items-center gap-2">
+							<p className="text-xs uppercase tracking-wide">{t("profile.stats.matches")}:</p>
+							<span className="text-xl font-bold text-[#FFFCC7]">{(user.totalMatches ?? matches.length) ?? 0}</span>
+							</div>
+						</div>
+					</div>
+
+
 
 				{/* Match History */}
 				<section className="mt-10 mb-10 w-full">
