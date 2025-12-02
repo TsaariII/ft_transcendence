@@ -10,12 +10,10 @@ import { useTranslation } from "../shared/Translation";
 import { Gamepad2, Trophy, Users, ListOrdered, Settings as SettingsIcon } from "lucide-react";
 import DoodleButton from "../components/ui/DoodleButton";
 import SketchyButton from "../components/ui/SketchyButtons";
-import SketchyPanel from "../components/layout/SketchyPanel";
 import arcade from "../assets/doodles/arcade.png";
 import podium from "../assets/doodles/podium.png";
-import trophy2 from "../assets/doodles/trophy2.png";
-import telly from "../assets/doodles/telly.png";
-import collection from "../assets/doodles/collection.png";
+import TrophyIcon from "../assets/doodles/trophy.svg?react";
+import ArcadeIcon from "../assets/doodles/arcade.svg?react";
 import { ArcadeFrame } from "../components/layout/ArcadeFrame";
 
 const setServerLang = (code: "en" | "fi" | "sv") => localStorage.setItem("serverLang", code);
@@ -55,9 +53,7 @@ const LanguageToggle: React.FC<{ compact?: boolean }> = ({ compact = true }) => 
 			type="button"
 			onClick={() => changeLang(code)}
 			aria-label={label}
-			className="inline-flex items-center gap-2 px-2 py-1 rounded-md bg-[#FFFCC7]
-				hover:bg-[#58d1b7] border-2 border-black font-hand text-black
-				shadow-[4px_4px_0_0_#000]"
+			className="inline-flex items-center gap-2 px-2 py-1 rounded-md bg-gray-800 hover:bg-gray-700 border border-gray-700"
 		>
 			<span className="text-xl">{flag}</span>
 			{!compact && <span className="text-sm">{label}</span>}
@@ -130,7 +126,7 @@ const HomePage: React.FC = () => {
 		setFormError(null);
 		setInlineErrors({});
 
-		let errors: { username?: string; password?: string } = {};
+		let errors;
 
 		if (modalMode === "register") {
 			errors = validateRegisterInput(data.username, data.password, t);
@@ -246,160 +242,148 @@ const HomePage: React.FC = () => {
 	return (
 		<>
 		<ArcadeFrame>
-			<CenteredContainer>
-				<div className="w-full max-w-md p-8 text-white flex flex-col items-center space-y-20">
-					{/* Language flags */}
-					{!isLoggedIn && (
-						<div className="w-full flex justify-end">
-							<LanguageToggle compact />
-						</div>
-					)}
-
-					{!isLoggedIn && (
-						<>
-							<img
-								src={collection}
-							/>
-							<div className="flex gap-10 font-cupcake sm:text-xl md:text-3xl text-[#FFFCC7]">
-								<button
-									className="hover:text-[#58d1b7]"
-									style={{ textShadow: `
-										-3px 0 #000,
-										3px 0 #000,
-										0 3px #000,
-										0 -3px #000`}}
-									onClick={() => {
-										setModalMode("register");
-										setIsModalOpen(true);
-									}}
-								>
-									{t("home.cta.register")}
-								</button>
-
-								<button
-									className="hover:text-[#58d1b7]"
-									style={{ textShadow: `
-										-3px 0 #000,
-										3px 0 #000,
-										0 3px #000,
-										0 -3px #000`}}
-									onClick={() => {
-										setModalMode("login");
-										setIsModalOpen(true);
-									}}
-								>
-									{t("home.cta.login")}
-								</button>
-							</div>
-						 </>
-					)}
+		<CenteredContainer> 
+		{/* Semi-transparent card wrapper for Home page content */}
+		<div className="w-full max-w-md rounded-xl p-8 text-white flex flex-col items-center space-y-20">
+			{/* Language flags */}
+			{!isLoggedIn && (
+				<div className="w-full flex justify-end">
+					<LanguageToggle compact />
 				</div>
-				
-				{isLoggedIn && (
-					<div className="max-w-4xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 p-4">
-						{/* Tournament */}
-						<DoodleButton
-							imageSrc={trophy2}
-							width="w-56"
-							height="h-56"
-							scale="scale-80"
-							onClick={() => navigate("/tournament")}
-							hoverText={t("home.icon.tournament")}
-							hoverTextSize="text-3xl"
-							strokeColor="#6ee7b7"
-							animationDuration={200}
-						/>
+			)}
+
+			
+
+			{!isLoggedIn && (
+				<div className="flex gap-4">
+					<SketchyButton
+						variant="striped"
+						bg="#D9897A"
+						hoverBg="#C8553E"
+						onClick={() => {
+							setModalMode("register");
+							setIsModalOpen(true);
+						}}
+					>
+						{t("home.cta.register")}
+					</SketchyButton>
+
+					<SketchyButton
+						variant="striped"
+						bg="#D9897A"
+						hoverBg="#C8553E"
+						className="transition-colors"
+						onClick={() => {
+							setModalMode("login");
+							setIsModalOpen(true);
+						}}
+					>
+						{t("home.cta.login")}
+					</SketchyButton>
+				</div>
+			)}
+		</div>
+		
+			{isLoggedIn && (
+				<div className="w-full max-w-2xl mx-auto mt-12 grid grid-cols-2 md:grid-cols-3 gap-8 p-4 bg-transparent">
 
 						{/* Game */}
-						<DoodleButton	
+						<DoodleButton
 							imageSrc={arcade}
 							width="w-56"
 							height="h-56"
-							scale="scale-150"
 							onClick={() => navigate("/game")}
-							hoverText={t("home.icon.pong")}
-							hoverTextSize="text-2xl"
-							strokeColor="#6ee7b7"
+							rotate="-rotate-2"
+							borderRadius="rounded-[25px_15px_28px_18px]"
+							hoverText="Pong"
+							strokeColor="#61bfbf"
+							strokeWidth={1.5}
 							animationDuration={200}
 						/>
-						{/* Leaderboard */}
+
+						<DoodleButton
+							icon={<Trophy strokeWidth={0.4} className="w-44 h-44 stroke-white" />}
+							width="w-56"
+							height="h-56"
+							onClick={() => navigate("/tournament")}
+							rotate="rotate-1.5"
+							borderRadius="rounded-[18px_28px_15px_22px]"
+							hoverText="Tournament"
+							strokeColor="#61bfbf"
+							strokeWidth={1.5}
+							animationDuration={200}
+						/>
+						{/*
+						<DoodleButton
+							icon={<Users strokeWidth={1} className="w-44 h-44 stroke-white" />}
+							hoverStrokeClass="stroke-[#ffb7bb]"
+							width="w-44"
+							height="h-44"
+							onClick={() => navigate("/friends")}
+							rotate="-rotate-1"
+							borderRadius="rounded-[22px_12px_26px_16px]"
+							hoverText="Friends"
+							strokeColor="#61bfbf"
+							strokeWidth={1.5}
+							animationDuration={200}
+						/>*/}
+
 						<DoodleButton
 							imageSrc={podium}
 							width="w-56"
 							height="h-56"
 							onClick={() => navigate("/leaderboard")}
-							hoverText={t("home.icon.leaderboard")}
-							hoverTextSize="text-3xl"
-							strokeColor="#6ee7b7"
+							rotate="-rotate-1"
+							borderRadius="rounded-[15px_24px_18px_20px]"
+							hoverText="Leaderboard"
+							strokeColor="#61bfbf"
+							strokeWidth={1.5}
 							animationDuration={200}
 						/>
-					</div>
-				)}
-			<Modal
-				isOpen={isModalOpen}
-				onClose={() => {
-					setIsModalOpen(false);
-					setFormError(null);
-					setInlineErrors({});
-				}}
-				onFormSubmit={handleSubmit}
-				mode={modalMode}
-				error={formError}
-				inlineErrors={inlineErrors}
-			/>
-			{is2faStep && (
-			<div className="fixed inset-0 z-50 flex items-center justify-center">
-				<div
-					className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-				/>
-				<SketchyPanel
-						className="relative w-[90%] max-w-[22rem] sm:max-w-[24rem] md:max-w-[28rem] lg:max-w-[32rem] 
-									xl:max-w-[34rem] min-h-[20rem] sm:min-h-[22rem] md:min-h-[24rem] lg:min-h-[26rem]"
-						bg="#6C0E42"
-						stroke="#FFFCC7"
-						padding="0.25rem"
-						borderRadius="20px"
-						>
-						 <div className="text-[#FFFCC7] flex flex-col items-center px-12 pt-8">
-							<h2 className="text-xl sm:text-2xl font-bold mb-2">{t("home.2fa.title")}</h2>
-							<p className="pt-2 text-sm text-[#FFFCC7] mb-4">{t("home.2fa.instructions")}</p>
-								
-							<input
-								type="text"
-								value={otp}
-								onChange={(e) => setOtp(e.target.value)}
-								className="mt-1 lg:mt-6 mb-1 lg:mb-6 w-full max-w-[14rem] p-3 border border-gray-700 bg-gray-900 rounded-md
-									text-center text-2xl tracking-widest focus:outline-none focus:ring-2 focus:ring-[#58d1b7]"
-								maxLength={6}
-								placeholder="123456"
-							/>
-								
-							<SketchyButton
-								variant="shadow"
-								bg="#58d1b7d9"
-								hoverBg="#1ea58893"
-								borderColor="#177863ff"
-								onClick={handle2faVerifySubmit}
-								className="w-full max-w-[14rem] mt-2 px-6 py-2 text-white"
-							>
-								{t("home.2fa.verify")}
-								
-							</SketchyButton>
-							<SketchyButton
-								variant="shadow"
-								bg="#a48d988a"
-								hoverBg="#a91a5f8a"
-								borderColor="#a91a5f8a"
-								onClick={() => setIs2faStep(false)}
-								className="w-full max-w-[14rem] mt-2 px-6 py-2 text-white"
-								>
-								{t("common.cancel")}
-							</SketchyButton>
-						</div>
-					</SketchyPanel>
 				</div>
 			)}
-		</CenteredContainer>
+	<Modal
+		isOpen={isModalOpen}
+		onClose={() => {
+			setIsModalOpen(false);
+			setFormError(null);
+			setInlineErrors({});
+		}}
+		onFormSubmit={handleSubmit}
+		mode={modalMode}
+		error={formError}
+		inlineErrors={inlineErrors}
+	/>
+	{is2faStep && (
+		<div className="fixed inset-0 bg-black/60 flex justify-center items-center z-50">
+			<div className="w-full max-w-md bg-gray-900/90 border border-gray-700 rounded-xl p-6 text-white shadow-2xl">
+				<h2 className="text-2xl font-bold mb-2">{t("home.2fa.title")}</h2>
+				<p className="text-sm text-gray-300 mb-4">{t("home.2fa.instructions")}</p>
+				<input
+					type="text"
+					value={otp}
+					onChange={(e) => setOtp(e.target.value)}
+					className="w-full p-3 border border-gray-700 bg-gray-900 rounded-md text-center text-2xl tracking-widest focus:outline-none focus:ring-2 focus:ring-blue-600"
+					maxLength={6}
+					placeholder="123456"
+				/>
+				<button
+					onClick={handle2faVerifySubmit}
+					className="w-full mt-4 px-6 py-3 bg-green-600 text-white rounded hover:bg-green-700 transition"
+					
+				>
+					{t("home.2fa.verify")}
+				</button>
+				<button
+					onClick={() => setIs2faStep(false)}
+					className="w-full mt-2 px-6 py-3 bg-gray-700 text-white rounded hover:bg-gray-600 transition"
+					>
+					{t("common.cancel")}
+				</button>
+			</div>
+		</div>
+	)}
+	</CenteredContainer>
 	</ArcadeFrame>
 	</>
 );
