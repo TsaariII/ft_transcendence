@@ -55,7 +55,6 @@ module.exports = async function tournamentRoutes(fastify, options) {
 		const token = request.cookies?.auth_token;
 		if (!token) return reply.code(401).send({ status: 'ERROR', error: 'Not authenticated' });
 		let userId; try { userId = getUserIdFromToken(token); } catch { return reply.code(401).send({ status: 'ERROR', error: 'Invalid auth token' }); }
-
 		const t = await getActiveTournamentForUser(db, userId);
 		if (!t) return reply.send({ status: 'OK', tournament: null });
 		const state = await buildTournamentState(db, t.id, userId);

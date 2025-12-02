@@ -41,6 +41,13 @@ async function profileRoutes(fastify, options)
 			return reply.code(401).send({error: 'Authentication required'});
 		try
 		{
+			let freshStats = null;
+			try
+			{
+				if (DBupdate && typeof DBupdate.resyncPlayerScoreAndRank === '')
+					freshStats = await DBupdate.resyncPlayerScoreAndRank(userId);
+			}
+			catch (syncErr) {}
 			const profile = await DBget.fetchUser(userId);
 			if (!profile)
 				return reply.code(404).send({error: 'User not found'});
@@ -50,16 +57,17 @@ async function profileRoutes(fastify, options)
 			]);
 			const active = await getActiveTournamentForUser(db, userId);
 			const tournament = active ? await buildTournamentState(db, active.id, userId) : null;
+			const statsSource = freshStats || profile;
 			const payload = {
 				user_id: userId,
 				username: profile.username,
 				avatarFile: profile.avatar_file || profile.avatar || undefined,
 				twoFactor: !!profile.mfa_enabled,
-				rank: profile.rank ?? 0,
-				score: profile.score ?? 0,
-				victories: profile.wins ?? 0,
-				losses: profile.losses ?? 0,
-				totalMatches: profile.total_games ?? 0,
+				rank: statsSource.rank ?? 0,
+				score: statsSource.score ?? 0,
+				victories: statsSource.wins ?? 0,
+				losses: statsSource.losses ?? 0,
+				totalMatches: statsSource.total_games ?? 0,
 				tournamentWins: undefined,
 				friends: friendsRows.map(toFriend),
 				matchHistory: matchHistoryRows.map((g) => toMatch(g, userId)),
@@ -127,7 +135,7 @@ async function profileRoutes(fastify, options)
 	});
 	fastify.patch(API_PROTOCOL.CHANGE_AVATAR.path, async (request, reply) => {
 		const {avatar} = request.body || {};
-		const userId = request.userId; //getUserIdFromToken(request.cookies.auth_token);
+		const userId = request.userId;
 		if (!userId)
 			return reply.code(401).send({status: 'ERROR', error: 'Invalid auth token'});
 		if (!avatar || typeof avatar !== 'string')
@@ -146,7 +154,7 @@ async function profileRoutes(fastify, options)
 	});
 	fastify.post(API_PROTOCOL.UPLOAD_AVATAR.path, async (request, reply) => {
 		let newAvatarUrl = null;
-		const userId = request.userId; //getUserIdFromToken(request.cookies.auth_token);
+		const userId = request.userId;
 		if (!userId)
 			return reply.code(401).send({status: 'ERROR', error: 'Invalid auth token'});
 		try
@@ -182,7 +190,7 @@ async function profileRoutes(fastify, options)
 	});
 	fastify.patch(API_PROTOCOL.CHANGE_LANGUAGE.path, async (request, reply) => {
 		const {language} = request.body || {};
-		const userId = request.userId; //getUserIdFromToken(request.cookies.auth_token);
+		const userId = request.userId;
 		if (!userId)
 			return reply.code(401).send({status: 'ERROR', error: 'Invalid auth token'});
 		if (!language || typeof language !== 'string')
@@ -201,7 +209,7 @@ async function profileRoutes(fastify, options)
 	});
 	fastify.post(API_PROTOCOL.CHANGE_2FA.path, async (request, reply) => {
 		const {twoFactor} = request.body || {};
-		const userId = request.userId; //getUserIdFromToken(request.cookies.auth_token);
+		const userId = request.userId;
 		if (!userId)
 			return reply.code(401).send({status: 'ERROR', error: 'Invalid auth token'});
 		try

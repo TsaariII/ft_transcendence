@@ -17,8 +17,6 @@ function updateOnlineStatus(userId, status)
 			function (err) {
 				if (err)
 					return reject({error: 'Failed to update status', code: 418, details: err});
-				// if (this.changes === 0)
-				// 	return reject({error: 'No changes made', code: 401});
 				return resolve({updated: this.changes, status: status});
 			}
 		);
@@ -257,6 +255,69 @@ function updatePlayerGameStats(winner, id, gameId)
 	});
 }
 
+function resyncPlayerScoreAndRank(userId)
+{
+	return new Promise((resolve, reject) => {
+		db.get(
+			`SELECT wins, losses, total_games, score, rank
+				FROM users
+			WHERE id = ?`, [userId],
+			(err, row) => {
+				if (err)
+					return reject({error: 'Failed to fetch player for resync', details: err});
+				if (!row)
+					return reject({error: 'User not found for resync'});
+				const wins = row.wins || 0;
+				const losses = row.losses || 0;
+				const games = row.total_games || 0;
+				const oldScore = row.score || 0;
+				const newScore = wins * WIN_POINTS + losses * LOSS_POINTS;
+				if (newScore === oldScore)
+				{
+					return resolve({
+						wins,
+						losses,
+						score: oldScore,
+						total_games: games,
+						rank: row.rank
+					});
+				}
+				db.run(
+					`UPDATE users
+						SET score = ?,
+					 WHERE id = ?`,[newScore, userId],
+					 function (updateErr) {
+						if (updateErr)
+							return reject({error: 'Failed to update score during resync', details: updateErr});
+						if (this.changes === 0)
+							return reject({error: 'User not found, no chenges made during resync'});
+						recomputeLeaderboardRanks().then(() => {
+							db.get(
+								`SELECT wins losses, score, total_games, rank
+									FROM users
+								WHERE id = ?`, [userId],
+								(finalErr, updatedRow) => {
+									if (finalErr)
+										return reject({error: 'Failed to fetch updated player stats after resync', details: finalErr});
+									if (!updatedRow)
+										return reject({error: 'User not found after resync'});
+									return resolve({
+										wins: updatedRow.wins,
+										losses: updatedRow.losses,
+										score: updatedRow.score,
+										total_games: updatedRow.total_games,
+										rank: updatedRow.rank
+									});
+								}
+							);
+						}).catch((rankErr) => reject(rankErr));
+					 }
+				);
+			}
+		);
+	});
+}
+
 module.exports = {
 	updateOnlineStatus,
 	updateUserScore,
@@ -265,5 +326,6 @@ module.exports = {
 	changeAvatar,
 	changeLanguage,
 	update2fa,
-	updatePlayerGameStats
+	updatePlayerGameStats,
+	resyncPlayerScoreAndRank
 }

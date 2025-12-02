@@ -42,7 +42,7 @@ async function getActiveTournamentForUser(db, userId) {
      FROM tournaments t
      JOIN tournament_players tp ON tp.tournament_id = t.id
      WHERE tp.user_id = ?
-       AND t.status IN ('waiting','ongoing')
+       AND t.status IN ('waiting','ongoing', 'finished')
      ORDER BY t.id DESC LIMIT 1`, [userId]
 	);
 }
