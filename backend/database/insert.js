@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt');
 const { randomUUID } = require('crypto');
 const { existsSync } = require('fs');
 
-function insertUser({ username, password, score = 0, status = 'online', avatarFile = 'frontend/src/assets/avatars/avatar1.png'}) {
+function insertUser({ username, password, score = 0, status = 'online', avatarFile = 'frontend/src/assets/avatars/default-avatar.png'}) {
   flog.info({function: 'insertUser'}, 'Creating user');
   return new Promise(async (resolve, reject) => {
     try
