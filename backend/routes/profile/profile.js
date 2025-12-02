@@ -228,15 +228,15 @@ async function profileRoutes(fastify, options)
 			return reply.code(400).send({error: 'Invalid target'});
 		try
 		{
-			const profile = await DBget.fetchUser(viewerId);
+			const profile = await DBget.fetchUser(user_id);
 			if (!profile)
 				return reply.code(404).send({error: 'User not found'});
-			const matchHistory = await DBget.getMatchHistory(viewerId);
+			const matchHistory = await DBget.getMatchHistory(user_id);
 			const tournamentWins = await new Promise((resolve, reject) => {
 				db.get(
 					`SELECT COUNT(*) AS wins
 						FROM tournaments
-					WHERE winner_id = ?`, [viewerId],
+					WHERE winner_id = ?`, [user_id],
 					(err, row)  => {
 						if (err) return reject(err);
 						resolve(row?.wins ?? 0);
