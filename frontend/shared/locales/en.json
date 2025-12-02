@@ -98,9 +98,12 @@
   "auth.error.passwordFormat": "Password must be 8-16 characters and may include letters, numbers, and !@#$%^&*()_-+=.",
   "auth.error.invalidCredentials": "Invalid username or password.",
   "auth.error.alreadyLoggedIn": "You are already logged in with this username.",
+  "auth.error.loginFailed": "Could not log in user",
+  "auth.error.registerFailed": "Could not register user",
+  "auth.error.serverError": "Server error, please try again later",
   "auth.error.secondPlayerLoginFailed": "Second player login failed.",
+  "auth.error.defaultError": "Could not log in, please try again later",
   "auth.error.requestFailed": "Request failed.",
-
   "exit.title": "Logout",
   "exit.loggingOut": "Logging out... Goodbye!",
   "exit.loggedOut": "You're now logged out.",
