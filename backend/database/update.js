@@ -326,6 +326,7 @@ module.exports = {
 	changeAvatar,
 	changeLanguage,
 	update2fa,
+	recomputeLeaderboardRanks,
 	updatePlayerGameStats,
 	resyncPlayerScoreAndRank
 }

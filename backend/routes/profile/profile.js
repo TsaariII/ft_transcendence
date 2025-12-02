@@ -44,7 +44,7 @@ async function profileRoutes(fastify, options)
 			let freshStats = null;
 			try
 			{
-				if (DBupdate && typeof DBupdate.resyncPlayerScoreAndRank === '')
+				if (DBupdate && typeof DBupdate.resyncPlayerScoreAndRank === 'function')
 					freshStats = await DBupdate.resyncPlayerScoreAndRank(userId);
 			}
 			catch (syncErr) {}
