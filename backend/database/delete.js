@@ -1,22 +1,45 @@
+'use strict';
 const db = require('./initDB.js');
 const {logger} = require('@logger');
 const flog = logger.child({ fileContext: 'insert.js' }); // scoped logger
 
-'use strict';
+function closeActiveTournamentForUser(userId) {
+	return new Promise((resolve, reject) => {
+		if (!userId || typeof userId !== 'string')
+			return reject(new Error('Invalid user ID'));
+		db.run(
+			`UPDATE tournaments
+				SET status = 'closed'
+			WHERE id IN (
+			SELECT t.id
+			FROM tournaments t
+			JOIN tournament_players tp ON tp.tournament_id = t.id
+			WHERE tp.user_id = ?
+				AND t.status = 'ongoing')`, [userId],
+			function (err) {
+				if (err)
+					return reject(err);
+				resolve(this.changes);
+			}
+		);
+	});
+}
 
 function deleteUserById(userId)
 {
   return new Promise((resolve, reject) => {
     if (!userId || typeof userId !== 'string')
       return reject(new Error('Invalid user ID'));
-    db.run(
-      `DELETE FROM users WHERE id = ?`, [userId],
-      function (err) {
-        if (err)
-          return reject(err);
-        resolve(this.changes);  
-      }
-    );
+	closeActiveTournamentForUser(userId).then(() => {
+		db.run(
+		  `DELETE FROM users WHERE id = ?`, [userId],
+		  function (err) {
+			if (err)
+			  return reject(err);
+			resolve(this.changes);  
+		  }
+		);
+	}).catch(reject);
   });
 }
 
@@ -25,12 +48,19 @@ function deleteUserByUsername(username)
   return new Promise((resolve, reject) => {
     if (!username || typeof username !== 'string')
       return reject(new Error('Invalid username'));
-    db.run(
-      `DELETE FROM users WHERE username = ?`, [username],
-      function (err) {
+    db.get(
+      `SELECT id FROM users WHERE username = ?`, [username],
+      async function (err, row) {
         if (err)
           return reject(err);
-        resolve(this.changes);
+		if (!row)
+			return resolve(0);
+		try
+		{
+			const changes = await deleteUserById(row.id);
+			resolve(changes);
+		}
+		catch (e) { reject(e); }
       }
     );
   });

@@ -33,7 +33,7 @@ const API_PROTOCOL = {
 		method: 'GET',
 	},
 
-	GET_OTHER_PLAYER_PROFILE: {
+	_PLAYER_PROFILE: {
 		path: '/api/profile/other-user',
 		method: 'GET',
 	},
