@@ -258,60 +258,70 @@ function updatePlayerGameStats(winner, id, gameId)
 function resyncPlayerScoreAndRank(userId)
 {
 	return new Promise((resolve, reject) => {
+		if (!userId)
+			return reject({error: 'Invalid user ID for resync'});
+
+		// 1) Recompute wins / losses / total_games from the games table
 		db.get(
-			`SELECT wins, losses, total_games, score, rank
-				FROM users
-			WHERE id = ?`, [userId],
+			`SELECT
+				COALESCE(SUM(CASE WHEN winner_id = ? THEN 1 ELSE 0 END), 0)               AS wins,
+				COALESCE(SUM(CASE WHEN winner_id IS NOT NULL AND winner_id != ? THEN 1 ELSE 0 END), 0) AS losses,
+				COALESCE(COUNT(*), 0)                                                   AS total_games
+			 FROM games
+			 WHERE status = 'finished'
+			   AND (p1_id = ? OR p2_id = ?)`,
+			[userId, userId, userId, userId],
 			(err, row) => {
 				if (err)
-					return reject({error: 'Failed to fetch player for resync', details: err});
-				if (!row)
-					return reject({error: 'User not found for resync'});
-				const wins = row.wins || 0;
-				const losses = row.losses || 0;
-				const games = row.total_games || 0;
-				const oldScore = row.score || 0;
+					return reject({error: 'Failed to compute stats from games', details: err});
+
+				const wins = row ? row.wins : 0;
+				const losses = row ? row.losses : 0;
+				const totalGames = row ? row.total_games : 0;
 				const newScore = wins * WIN_POINTS + losses * LOSS_POINTS;
-				if (newScore === oldScore)
-				{
-					return resolve({
-						wins,
-						losses,
-						score: oldScore,
-						total_games: games,
-						rank: row.rank
-					});
-				}
+
+				// 2) Update the users table with freshly computed stats
 				db.run(
 					`UPDATE users
-						SET score = ?,
-					 WHERE id = ?`,[newScore, userId],
-					 function (updateErr) {
+					 SET wins        = ?,
+					     losses      = ?,
+					     total_games = ?,
+					     score       = ?
+					 WHERE id = ?`,
+					[wins, losses, totalGames, newScore, userId],
+					function (updateErr) {
 						if (updateErr)
-							return reject({error: 'Failed to update score during resync', details: updateErr});
+							return reject({error: 'Failed to update user stats during resync', details: updateErr});
 						if (this.changes === 0)
-							return reject({error: 'User not found, no chenges made during resync'});
-						recomputeLeaderboardRanks().then(() => {
-							db.get(
-								`SELECT wins losses, score, total_games, rank
-									FROM users
-								WHERE id = ?`, [userId],
-								(finalErr, updatedRow) => {
-									if (finalErr)
-										return reject({error: 'Failed to fetch updated player stats after resync', details: finalErr});
-									if (!updatedRow)
-										return reject({error: 'User not found after resync'});
-									return resolve({
-										wins: updatedRow.wins,
-										losses: updatedRow.losses,
-										score: updatedRow.score,
-										total_games: updatedRow.total_games,
-										rank: updatedRow.rank
-									});
-								}
-							);
-						}).catch((rankErr) => reject(rankErr));
-					 }
+							return reject({error: 'User not found, no changes made during resync'});
+
+						// 3) Recompute global ranks
+						recomputeLeaderboardRanks()
+							.then(() => {
+								// 4) Return the fresh row for this user
+								db.get(
+									`SELECT wins, losses, score, total_games, rank
+									 FROM users
+									 WHERE id = ?`,
+									[userId],
+									(finalErr, updatedRow) => {
+										if (finalErr)
+											return reject({error: 'Failed to fetch updated player stats after resync', details: finalErr});
+										if (!updatedRow)
+											return reject({error: 'User not found after resync'});
+
+										return resolve({
+											wins: updatedRow.wins,
+											losses: updatedRow.losses,
+											score: updatedRow.score,
+											total_games: updatedRow.total_games,
+											rank: updatedRow.rank
+										});
+									}
+								);
+							})
+							.catch((rankErr) => reject(rankErr));
+					}
 				);
 			}
 		);
