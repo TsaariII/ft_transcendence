@@ -210,7 +210,7 @@ const TournamentBracket: React.FC<TournamentBracketProps> = ({
 							onClick={onCancel}
 						>
 							{t("tournament.cancel")}
-							</SketchyButton>
+						</SketchyButton>
 					)}
 				</div>
 			

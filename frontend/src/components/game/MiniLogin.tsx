@@ -69,6 +69,7 @@ const MiniLogin: React.FC<MiniLoginProps> = ({gameId, onLoginSuccess, onCancel }
 				}),
 			});
 
+
 			 if (res.status === 400) {
 				const data = await res.json().catch(() => null);
 				setErrors({
@@ -164,9 +165,9 @@ const MiniLogin: React.FC<MiniLoginProps> = ({gameId, onLoginSuccess, onCancel }
 						<div className="flex justify-between items-center text-black pl-8 pr-8 pt-10">
 							<SketchyButton
 								variant="shadow"
-								bg="#fffcc7"
-								hoverBg="#ce71606d"
-								borderColor="#cd877aff"
+								bg="#a48d988a"
+								hoverBg="#a91a5f8a"
+								borderColor="#a91a5f8a"
 								type="button"
 								onClick={onCancel}
 							>
@@ -176,7 +177,7 @@ const MiniLogin: React.FC<MiniLoginProps> = ({gameId, onLoginSuccess, onCancel }
 								variant="shadow"
 								bg="#58d1b7d9"
 								hoverBg="#1ea58893"
-								borderColor="#1ea588"
+								borderColor="#177863ff"
 								type="submit"
 							>
 								{loading ? t("auth.loggingIn") : t("auth.logIn")}
