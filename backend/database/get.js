@@ -129,7 +129,6 @@ async function checkPasswordMatch(userId, password)
 }
 
 // mini example of checking player exists and password matches . 
-
 async function miniLogin(username, password)
 {
   return new Promise((resolve, reject) => {

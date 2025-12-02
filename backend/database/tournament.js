@@ -98,7 +98,6 @@ async function upsertHostAlias(db, tid, alias) {
 
 async function insertPlayer(db, tid, userId, alias, role) {
 	const { run } = _wrap(db);
-
 	return run(
 		`INSERT INTO tournament_players (tournament_id, user_id, alias, ${ROLE_COL}, status, verified)
      VALUES (?, ?, ?, ?, 'ready', 1)`, [tid, userId, alias, role]
@@ -109,9 +108,9 @@ function removePlayerFromTournament(db, tournamentId, role) {
 	const { run } = _wrap(db);
 	return run(
 		`DELETE FROM tournament_players
-     WHERE tournament_id = ?
-      AND player_role = ?`,
-		[tid, role]
+		WHERE tournament_id = ?
+		AND ${ROLE_COL} = ?`,
+		[tournamentId, role]
 	);
 }
 
@@ -236,7 +235,8 @@ async function buildTournamentState(db, tid, viewingUserId) {
 			const p1 = toTournamentPlayer(playersById.get(g.p1_id), viewingUserId, 'player1');
 			const p2 = toTournamentPlayer(playersById.get(g.p2_id), viewingUserId, 'player2');
 			const score = (g.p1_score != null || g.p2_score != null) ? { player1: g.p1_score ?? 0, player2: g.p2_score ?? 0 } : undefined;
-			const winner = g.winner_id ? (playersById.get(g.winner_id)?.username || '') : undefined;
+			const winnerRow = g.winner_id ? playersById.get(g.winner_id) : null;
+			const winner = winnerRow ? (winnerRow.alias || winnerRow.username || '') : undefined;
 			return { match_id: String(g.game_id), player1: p1, player2: p2, winner, score, status: ['pending', 'ongoing', 'finished'].includes((g.status || '').toLowerCase()) ? g.status : 'pending' };
 		});
 	}) : [];
@@ -251,9 +251,10 @@ async function buildTournamentState(db, tid, viewingUserId) {
 	};
 	const current = bracket.flat().find(m => m.status === 'ongoing');
 	if (current) state.currentMatch = current;
-	if (t.winner_id) {
+	if (t.winner_id)
+	{
 		const w = playersById.get(t.winner_id);
-		if (w?.username) state.winner = w.username;
+		if (w) state.winner = w.alias || w.username || '';
 	}
 	return state;
 }
@@ -320,10 +321,10 @@ async function closeTournament(db, tid, userId) {
 	const w = _wrap(db);
 	return w.tx(async ({ get, run }) => {
 		const t = await get(`SELECT id, status FROM tournaments WHERE id = ?`, [tid]);
-		if (!t) { const e = new Error('Tournament not found'); e.statusCode = 403; throw e; }
+		if (!t) { const e = new Error('Tournament not found'); e.statusCode = 404; throw e; }
 		if (t.status === 'closed') { const e = new Error('Tournament already closed'); e.statusCode = 409; throw e; }
 		const host = await get(
-			`SELECT userd_id FROM tournament_players WHERE tournament_id = ? AND role = 1`, [tid]);
+			`SELECT user_id FROM tournament_players WHERE tournament_id = ? AND role = 1`, [tid]);
 		if (!host || host.user_id !== userId) {
 			const e = new Error('Only host can close'); e.statusCode = 403; throw e;
 		}
