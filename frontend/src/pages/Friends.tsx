@@ -5,7 +5,9 @@ import defaultAvatar from "../assets/avatars/default-avatar.png";
 import { useAuth } from "../context/AuthContext";
 import PlayerProfileModal from "../components/profile/PlayerProfileModal";
 import { useApiFetch } from "../utils/apiFetch"
+import CenteredContainer from "../components/layout/CenteredContainer";
 import { ArcadeFrame } from "../components/layout/ArcadeFrame";
+import SketchyButton from "../components/ui/SketchyButtons";
 
 
 type Friend = {
@@ -156,210 +158,210 @@ const Friends: React.FC = () => {
 	}
 
 	return (
-  	<div className="flex flex-col items-center px-6 py-6">
-    	<div className="w-full max-w-5xl relative mx-auto mb-4 p-6 border-4 border-[#FFFCC7] bg-[#D54751]"
-          style={{
-            width: '85%',
-            borderRadius: '60px',
-            boxShadow: '4px 6px 0 rgba(89,50,43, 0.9)',
-            transform: 'rotate(-0.4deg)',
-          }}>
-			<div className="text-center">
-			<h1 className="font-cupcake text-[#FFFCC7] text-5xl tracking-wider"
-              style={{ textShadow: `
-                  -3px 0 #000,
-                  3px 0 #000,
-                  0 3px #000,
-                  0 -3px #000,
-                  3px 3px #59322B,
-                 -3px -3px #59322B`
-               }}
-			>
-				{t("friends.title")}
-			</h1>
-			</div>
-		</div>
+		<ArcadeFrame title={t("friends.title")}>
+			<CenteredContainer>
+				{/* Inline status */}
+				{msg && <p className="text-center text-font-body mb-3 text-green-300">{msg}</p>}
+				{err && <p className="text-center font-body mb-3 text-red-300">{err}</p>}
 
-		<div className="w-full flex flex-col relative z-0 mx-auto mb-4 px-1 p-6 border-4 border-[#FFFCC7] bg-[#D54751]"
-          	style={{
-            	width: '85%',
-            	borderRadius: '60px',
-            	boxShadow: '4px 6px 0 rgba(89,50,43, 0.9)',
-            	transform: 'rotate(-0.4deg)',
-          	}}>
-
-			{/* Inline status */}
-			{msg && <p className="text-center font-body mb-3 text-green-300">{msg}</p>}
-			{err && <p className="text-center font-body mb-3 text-red-300">{err}</p>}
-
-			{/* Actions section */}
-			<section className="w-full">
-				{/* Add friend by username row */}
-				<div className="max-w-2xl mx-auto">
-				{!openAdd && (
-					<div className="mt-4 mb-4 flex justify-center">
-					<PrimaryTiny
-						onClick={() => setOpenAdd(true)}
-					>
-						{t("friends.add.title")}
-					</PrimaryTiny>
-				</div>
-				)}
-				{openAdd && (
-					<div className="mt-2 mx-auto p-6 border-4 border-[#FFFCC7] bg-[#F56A5E]"
-						style={{
-							width: "90%",
-							borderRadius: "40px",
-							boxShadow: "4px 6px 0 rgba(89,50,43,0.9)",
-							transform: "rotate(-0.3deg)",
-						}}
-					>
-						<label className="font-hand text-[#59322B] block mt-3 mb-2">
-							{t("friends.item.username")}
-						</label>
-						<input
-							type="text"
-							value={username}
-							onChange={(e) => setUsername(e.target.value)}
-							className="w-full max-w-xs mb-5 font-body bg-[#4DA394] border border-[#59322B] rounded px-2 py-1 text-sm"
-						/>
-
-						<div className="mt-3 flex flex-wrap gap-2">
-							<PrimaryTiny
-								onClick={handleAdd}
-								disabled={busyAdd || !username.trim() || friends.length >= MAX_FRIENDS}
-							>
-								{t("common.add")}
-							</PrimaryTiny>
-							<SecondaryTiny
-								onClick={() => { resetAddForm(); setOpenAdd(false); }}
-								disabled={busyAdd}
-							>
-								{t("common.cancel")}
-							</SecondaryTiny>
-						</div>
-						{friends.length >= MAX_FRIENDS && (
-							<p className="text-xs text-[#59322B] mt-2">
-								{t("error.friends.maxNum")}
-							</p>
-						)}
-					</div>
-				)}
-				</div>
-			</section>
-
-			{/* Friends list */}
-			<section className="w-full mt-3">
-				<div className="max-w-2xl mx-auto px-4">
-				<h2 className="mb-4 font-cupcake text-[#FFFCC7] text-2xl tracking-wider"
-              				style={{ textShadow: `
-                  				-3px 0 #000,
-                  				3px 0 #000,
-                  				0 3px #000,
-                  				0 -3px #000,
-                  				3px 3px #59322B,
-                 				-3px -3px #59322B`
-               				}}
-						>
-							{t("friends.list.title")}
-				</h2>
-
-				<div className="rounded-2xl border-2 border-[#59322B] bg-[#4DA394] shadow-[3px_4px_0_#59322B] p-5 md:p-6">
-
-				{friends.length === 0 ? (
-					<div className="font-body text-sm text-[#59322B]">{t("friends.list.empty")}</div>
-				) : (
-					<div className="space-y-3">
-						{friends.map((f: Friend) => {
-							const avatarSrc =
-								f.avatar ??
-								(f as any).avatarFile ??
-								(f as any).avatar_file ??
-								defaultAvatar;
-							return (
-							<div key={f.user_id} className="space-y-3">
-								<div className="flex items-center justify-between p-3 rounded-xl bg-[#D54751] border-2 border-[#59322B] shadow-[2px_3px_0_#59322B]">
-									<div className="flex items-center gap-3">
-										<img
-											src={avatarSrc}
-											alt={`${f.username} avatar`}
-											className="w-10 h-10 rounded-full border border-[#59322B]"
-											onError={(e) => { 
-												(e.currentTarget as HTMLImageElement).src = defaultAvatar;
-											}}
-										/>
-										<div>
-											{/* Username button opens the modal */}
-											 <button
-												type="button"
-												onClick={() => setSelectedPlayer(f.user_id)}
-												className="font-body text-[#59322B] underline hover:no-underline"
-											>
-												{f.username}
-											</button>
-											<div className="flex items-center gap-1 text-sm font-body mt-1">
-												<span
-													className={
-														"inline-block w-2 h-2 rounded-full " +
-															(f.online_status ? "bg-green-400" : "bg-[#59322B]")
-														}
-													/>
-												<span className={f.online_status ? "text-green-300" : "text-[#59322B]"}>
-													{f.online_status ? t("common.online") : t("common.offline")}
-												</span>
-											</div>
-										</div>
-									</div>
-
-									<SecondaryTiny
-										onClick={() => toggleRemove(f.user_id)}>
-										{t("friends.item.remove")}
-									</SecondaryTiny>
-								</div>
-
-								{/* Remove confirmation */}
-								{removeConfirmId === f.user_id && (
-									<div className="px-1 pb-1">
-										<div className="rounded-xl bg-[#C04D57] border-2 border-[#59322B] p-4 shadow-[2px_3px_0_#59322B]">
-											<h3 className="font-body text-[#FFFCC7] mb-2">
-												{t("friends.confirmRemove.title")}
-											</h3>
-											<p className="text-sm font-body text-[#FFFCC7] mb-3">
-												{t("friends.confirmRemove.text")}
-											</p>
-											<div className="flex flex-wrap gap-2">
-												<SecondaryTiny
-													onClick={() => confirmRemove(f.user_id)}
-													disabled={removing}
-													>
-													{t("common.remove")}
-												</SecondaryTiny>
-												<PrimaryTiny
-													onClick={() => setRemoveConfirmId(null)}
-													disabled={removing}
-													>
-													{t("common.cancel")}
-												</PrimaryTiny>
-											</div>
-										</div>
-									</div>
-								)}
+					{/* Actions section */}
+					<section className="w-full">
+						{/* Add friend by username row */}
+						<div className="max-w-2xl mx-auto">
+						{!openAdd && (
+							<div className="mt-4 mb-4 flex justify-center">
+								<SketchyButton
+									variant="shadow"
+									bg="#58d1b7d9"
+									hoverBg="#1ea58893"
+									borderColor="#177863ff"
+									onClick={() => setOpenAdd(true)}
+								>
+									{t("friends.add.title")}
+								</SketchyButton>
 							</div>
-							);
-						})}
-					</div>
-				)}
-				</div>
-				</div>
-			</section>
-			</div>
-			{selectedPlayer && (
-				<PlayerProfileModal
-					userId={selectedPlayer}
-					onClose={() => setSelectedPlayer(null)}
-				/>
-			)}
-		</div>
+						)}
+						{openAdd && (
+							<div className="mt-2 mx-auto p-6 border-4 border-[#FFFCC7]"
+								style={{
+									width: "90%",
+									borderRadius: "40px",
+									boxShadow: "4px 6px 0 rgba(89,50,43,0.9)",
+									transform: "rotate(-0.3deg)",
+								}}
+							>
+								<label className="font-hand text-xl text-white block mt-3 mb-2">
+										{t("friends.item.username")}
+									</label>
+									<input
+										type="text"
+										value={username}
+										placeholder={t("auth.username")}
+										onChange={(e) => setUsername(e.target.value)}
+										className="w-full max-w-xs mb-5 font-body placeholder-[#b088a3] bg-[#4a0a2e] 
+											text-[#fffcc7] focus:ring-4 focus:ring-[#f472b6] focus:border-[#f0c4e0] rounded px-2 py-2 text-sm"
+									/>
+
+									<div className="mt-3 flex flex-wrap gap-6">
+										<SketchyButton
+											variant="shadow"
+											bg="#a48d988a"
+											hoverBg="#a91a5f8a"
+											borderColor="#a91a5f8a"
+											className="w-32"
+											onClick={() => { resetAddForm(); setOpenAdd(false); }}
+											disabled={busyAdd}
+										>
+											{t("common.cancel")}
+										</SketchyButton>
+										<SketchyButton
+											variant="shadow"
+											bg="#58d1b7d9"
+											hoverBg="#1ea58893"
+											borderColor="#177863ff"
+											className="w-32"
+											onClick={handleAdd}
+											disabled={busyAdd || !username.trim() || friends.length >= MAX_FRIENDS}
+										>
+											{t("common.add")}
+										</SketchyButton>
+									</div>
+									{friends.length >= MAX_FRIENDS && (
+										<p className="text-xs text-[#59322B] mt-2">
+											{t("error.friends.maxNum")}
+										</p>
+									)}
+								</div>
+							)}
+							</div>
+						</section>
+
+						{/* Friends list */}
+						<section className="w-full mt-6">
+							<div className="max-w-2xl mx-auto px-4">
+								<h2 className="mb-4 font-cupcake text-[#FFFCC7] text-2xl tracking-wider"
+									style={{ textShadow: `
+										-3px 0 #000,
+										3px 0 #000,
+										0 3px #000,
+										0 -3px #000,
+										3px 3px #59322B,
+										-3px -3px #59322B`
+									}}
+									>
+									{t("friends.list.title")}
+								</h2>
+
+							<div className="p-5 md:p-6">
+
+							{friends.length === 0 ? (
+								<div className="font-body text-sm">{t("friends.list.empty")}</div>
+							) : (
+								<div className="space-y-3">
+									{friends.map((f: Friend) => {
+										const avatarSrc =
+											f.avatar ??
+											(f as any).avatarFile ??
+											(f as any).avatar_file ??
+											defaultAvatar;
+										return (
+										<div key={f.user_id} className="space-y-3">
+											<div className="flex flex-col sm:flex-row items-center justify-between p-3 rounded-xl text-[#fffcc7] bg-[#5a0c37]/70 shadow-[2px_3px_0_#59322B]">
+												<div className="flex items-center gap-3">
+													<img
+														src={avatarSrc}
+														alt={`${f.username} avatar`}
+														className="w-10 h-10 rounded-full border border-[#59322B]"
+														onError={(e) => { 
+															(e.currentTarget as HTMLImageElement).src = defaultAvatar;
+														}}
+													/>
+													<div>
+														{/* Username button opens the modal */}
+														<button
+															type="button"
+															onClick={() => setSelectedPlayer(f.user_id)}
+															className="font-body text-[#fffcc7] underline hover:no-underline"
+														>
+															{f.username}
+														</button>
+														<div className="flex items-center gap-1 text-sm font-body mt-1">
+															<span
+																className={
+																	"inline-block w-2 h-2 rounded-full " +
+																		(f.online_status ? "bg-[#58d1b7d9]" : "bg-[#a48d988a]")
+																	}
+																/>
+															<span className={f.online_status ? "text-[#58d1b7d9]" : "text-[#a48d988a]"}>
+																{f.online_status ? t("common.online") : t("common.offline")}
+															</span>
+														</div>
+													</div>
+												</div>
+
+												<SketchyButton
+													variant="shadow"
+													bg="#a48d988a"
+													hoverBg="#a91a5f8a"
+													borderColor="#a91a5f8a"
+													onClick={() => toggleRemove(f.user_id)}>
+													{t("friends.item.remove")}
+												</SketchyButton>
+											</div>
+
+											{/* Remove confirmation */}
+											{removeConfirmId === f.user_id && (
+												<div className="px-1 pb-1">
+													<div className="rounded-xl border-2 border-[#fffcc7] p-4 shadow-[2px_3px_0_#59322B]">
+														<h3 className="font-body text-[#FFFCC7] mb-2">
+															{t("friends.confirmRemove.title")}
+														</h3>
+														<p className="text-sm font-body text-[#FFFCC7] mb-3">
+															{t("friends.confirmRemove.text")}
+														</p>
+														<div className="flex flex-wrap gap-6">
+															<SketchyButton
+																variant="shadow"
+																bg="#a48d988a"
+																hoverBg="#a91a5f8a"
+																borderColor="#a91a5f8a"
+																onClick={() => setRemoveConfirmId(null)}
+																disabled={removing}
+																>
+																{t("common.cancel")}
+															</SketchyButton>
+															<SketchyButton
+																variant="shadow"
+																bg="#58d1b7d9"
+																hoverBg="#1ea58893"
+																borderColor="#177863ff"
+																onClick={() => confirmRemove(f.user_id)}
+																disabled={removing}
+																>
+																{t("common.remove")}
+															</SketchyButton>
+														</div>
+													</div>
+												</div>
+											)}
+										</div>
+										);
+									})}
+								</div>
+							)}
+							</div>
+							</div>
+						</section>
+						
+						{selectedPlayer && (
+							<PlayerProfileModal
+								userId={selectedPlayer}
+								onClose={() => setSelectedPlayer(null)}
+							/>
+						)}
+					
+			</CenteredContainer>
+		</ArcadeFrame>	
 	);
 };
 
