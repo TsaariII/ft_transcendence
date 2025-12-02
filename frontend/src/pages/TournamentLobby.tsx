@@ -246,7 +246,7 @@ const TournamentLobby: React.FC = () => {
 		const payload: TournamentResetPayload = {tournamentID: tournament.tournament_id};
 		
 		try {
-			const res = await fetch(API_PROTOCOL.TOURNAMENT_RESET.path, {
+			const res = await fetch(API_PROTOCOL.CLOSE_TOURNAMENT.path, {
 				method: API_PROTOCOL.TOURNAMENT_RESET.method,
 				credentials: "include",
 				headers: { "Content-Type": "application/json" },
