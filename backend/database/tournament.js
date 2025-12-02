@@ -122,7 +122,7 @@ async function getUserByCredentials(db, username, password) {
 		[username]
 	);
 	if (!row) return null;
-	const ok = bcrypt.compare(password, row.password);
+	const ok = await bcrypt.compare(password, row.password);
 	if (!ok) return null;
 	return {
 		id: row.id,

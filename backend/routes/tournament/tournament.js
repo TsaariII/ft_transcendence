@@ -103,9 +103,9 @@ module.exports = async function tournamentRoutes(fastify, options) {
 		const roleNum = roleStringToNumber(role);
 		if (await isRoleTaken(db, tid, roleNum)) return reply.code(409).send({ status: 'ERROR', error: `Role ${role} already taken` });
 		const u = await getUserByCredentials(db, username, password);
+		if (!u) return reply.code(400).send({ status: 'ERROR', error: 'Invalid credentials' });
 		if (await isUserInTournament(db, tid, u.id))
 			return reply.code(409).send({status: 'ERROR', error: 'User already joined this tournament'});
-		if (!u) return reply.code(400).send({ status: 'ERROR', error: 'Invalid credentials' });
 		await insertPlayer(db, tid, u.id, String(alias).trim(), roleNum);
 		await markOngoingIfFull(db, tid);
 		const state = await buildTournamentState(db, tid, userId);
