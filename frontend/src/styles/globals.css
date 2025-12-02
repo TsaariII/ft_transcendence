@@ -41,13 +41,72 @@ body, html, #root {
 .sketch-border {
 padding: 0.7rem 0.7rem;
 	margin: 0 0.5rem;
-	border: 2px solid;
+	border: 1px solid;
 	
-	border-top-left-radius: var(--tl-x, 20px) var(--tl-y, 8px);
-	border-top-right-radius: var(--tr-x, 12px) var(--tr-y, 22px);
-	border-bottom-right-radius: var(--br-x, 25px) var(--br-y, 10px);
-	border-bottom-left-radius: var(--bl-x, 10px) var(--bl-y, 23px);
+	border-top-left-radius: var(--tl-x, 7px) var(--tl-y, 10px);
+	border-top-right-radius: var(--tr-x, 11px) var(--tr-y, 8px);
+	border-bottom-right-radius: var(--br-x, 10px) var(--br-y, 7px);
+	border-bottom-left-radius: var(--bl-x, 7px) var(--bl-y, 10px);
 	
 	box-shadow: 1px 1px 0px currentColor, -1px -1px 0px currentColor;
 	transition: all 0.2s ease;
 }
+
+.doodle-slider {
+  -webkit-appearance: none; /* remove default style */
+  -moz-appearance: none;
+  width: 100%;
+  height: 12px;
+  border-radius: 6px;
+  outline: none;
+  margin-top: 6px;
+  cursor: pointer;
+  background: #FFFCC7;
+  position: relative;
+  --percent: 50%;
+}
+
+/* Pseudo-element for filled stripes */
+.doodle-slider::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: var(--percent); /* fill width */
+  background: repeating-linear-gradient(-45deg, #FFFCC7 0 2px, #333 4px 4px);
+  border-radius: 6px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Chrome / Safari */
+.doodle-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 24px;
+  height: 24px;
+  background: #0B9FBD;
+  border: 2px solid #FFFCC7;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px #000 inset;
+  cursor: pointer;
+  position: relative;
+  z-index: 2;
+}
+
+/* Firefox */
+.doodle-slider::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  background: #0B9FBD;
+  border: 2px solid #FFFCC7;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px #000 inset;
+  cursor: pointer;
+  position: relative;
+  z-index: 2;
+}
+
+
+
+

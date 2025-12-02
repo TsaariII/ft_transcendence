@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import { useTranslation } from "../../shared/Translation";
+import SketchyButton from "../ui/SketchyButtons";
+import SketchyPanel from "../layout/SketchyPanel";
+import { useAuth } from "../../context/AuthContext";
 
 interface MiniLoginProps {
 		gameId:string;
@@ -12,6 +15,8 @@ const PASSWORD_REGEX = /^[a-zA-Z0-9!@#$%^&*()_\-+=.]{8,16}$/; // 8–16 chars
 
 const MiniLogin: React.FC<MiniLoginProps> = ({gameId, onLoginSuccess, onCancel }) => {
 		const { t } = useTranslation();
+		const { user } = useAuth(); // currently logged-in user
+
 		const [username, setUsername] = useState("");
 		const [password, setPassword] = useState("");
 		const [loading, setLoading] = useState(false);
@@ -27,12 +32,12 @@ const MiniLogin: React.FC<MiniLoginProps> = ({gameId, onLoginSuccess, onCancel }
 		const validateFrontend = () => {
 			const newErrors: typeof errors = {};
 
-			if (!USERNAME_REGEX.test(username.trim())) {
-				newErrors.username = t("auth.error.usernameFormat");
+			if (!PASSWORD_REGEX.test(password.trim()) || !USERNAME_REGEX.test(username.trim())) {
+				newErrors.password = t("auth.error.invalidCredentials");
 			}
-
-			if (!PASSWORD_REGEX.test(password.trim())) {
-				newErrors.password = t("auth.error.passwordFormat");
+			// Frontend check: prevent logging in as already logged-in user
+			if (user?.username && username.trim() === user.username) {
+				newErrors.password = t("auth.error.alreadyLoggedIn");
 			}
 
 			setErrors(newErrors);
@@ -64,78 +69,122 @@ const MiniLogin: React.FC<MiniLoginProps> = ({gameId, onLoginSuccess, onCancel }
 				}),
 			});
 
-			const data = await res.json();
-
-			if (!res.ok || data.error) {
-				throw new Error(data.error || t("error.auth.miniLoginFailed"));
+			 if (res.status === 400) {
+				const data = await res.json().catch(() => null);
+				setErrors({
+					general: data?.error || t("auth.error.invalidCredentials"),
+				});
+				return;
 			}
-			
+
+			// Handle other non-OK responses
+			if (!res.ok) {
+				const text = await res.text().catch(() => "Unknown error");
+				throw new Error(text);
+			}
+
+			const data = await res.json();
 			onLoginSuccess(data.playerToken);
+
 		} catch (err: any) {
 			setErrors({ general: err?.message || t("auth.error.secondPlayerLoginFailed") });
 		} finally {
 			setLoading(false);
 		}
-	};
+	}
 
 	return (
-		<div className="w-full max-w-md bg-gray-900/90 rounded-xl p-6 text-white shadow-lg">
-			<h2 className="text-teal-400 text-2xl font-bold mb-2 text-center">{t("auth.loginAsPlayer2")}</h2>
-			<form onSubmit={handleSubmit} className="flex flex-col space-y-4">
-				{/* Username */}
-				<div>
-					<input
-						type="text"
-						placeholder={t("auth.username")}
-						value={username}
-						onChange={(e) => setUsername(e.target.value)}
-						className={`w-full rounded-md border border-gray-700 bg-gray-800/60 px-3 py-2 placeholder-gray-400
-						${errors.username ? "border-red-500" : "border-gray-700"}
-						focus:outline-none focus:ring-2 focus:ring-blue-500`}
-					/>
-					{errors.username && (
-						<p className="text-xs text-red-400 mt-1">{errors.username}</p>
-					)}
-				</div>
-				
-				{/* Password */}
-				<div>
-					<input
-						type="password"
-						placeholder={t("auth.password")}
-						value={password}
-						onChange={(e) => setPassword(e.target.value)}
-						className={`w-full rounded-md border border-gray-700 bg-gray-800/60 px-3 py-2 placeholder-gray-400 
-							${errors.password ? "border-red-500" : "border-gray-700"}
-							focus:outline-none focus:ring-2 focus:ring-blue-500`}
-					/>
-					{errors.password && (
-						<p className="text-xs text-red-400 mt-1">{errors.password}</p>
-					)}
-				</div>
-				
-				{/* Backend error */}
-				{errors.general && (
-					<div className="text-red-400 text-sm">{errors.general}</div>
-				)}
+		<div className="fixed inset-0 z-50 flex items-center justify-center">
+			<div
+				className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+				onClick={onCancel}
+			/>
+			<SketchyPanel
+				className="relative w-[90%] max-w-[20rem] sm:max-w-[22rem] md:max-w-[26rem] lg:max-w-[30rem] 
+						xl:max-w-[32rem] min-h-[18rem] sm:min-h-[20rem] md:min-h-[22rem] lg:min-h-[24rem]"
+				bg="#6C0E42"
+				stroke="#FFFCC7"
+				padding="0.25rem"
+				borderRadius="20px"
+			>
+				<div className="text-[#FFFCC7]">
+					<div className="px-12 pt-16">
+						<h2 className="font-cupcake text-2xl text-center"
+							style={{
+								textShadow: `
+								-3px 0 #000,
+								3px 0 #000,
+								0 3px #000,
+								0 -3px #000`,
+							}}
+						>
+							{t("auth.loginAsPlayer2")}
+						</h2>
+					</div>
 
-				<div className="flex justify-between items-center">
-					<button
-						type="submit"
-						disabled={loading}
-						className="px-6 py-2 bg-indigo-600 rounded hover:bg-indigo-700 transition"
-					>
-						{loading ? t("auth.loggingIn") : t("auth.logIn")}
-					</button>
-					<button
-						type="button"
-						onClick={onCancel}
-						className="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600 transition"
-					>
-						{t("common.cancel")}
-					</button>
+					<form className="pl-12 pr-14 pb-10 pt-12 space-y-6" onSubmit={handleSubmit}>
+						{/* Username */}
+						<div>
+							<input
+								type="text"
+								placeholder={t("auth.placeholder.username")}
+								value={username}
+								onChange={(e) => setUsername(e.target.value)}
+								className="w-full h-[3rem] sketch-border border-[#FFFCC7] font-body
+										bg-gray-800/60 px-3 py-2 placeholder-gray-400 focus:outline-none
+										focus:ring-4 focus:ring-[#3F839C]"
+								required
+							/>
+							{errors.username && (
+								<p className="text-lg text-[#FFFCC7] mt-3 pl-2">{errors.username}</p>
+							)}
+						</div>
+
+						{/* Password */}
+						<div>
+							<input
+								type="password"
+								placeholder={t("auth.placeholder.password")}
+								value={password}
+								onChange={(e) => setPassword(e.target.value)}
+								className="w-full h-[3rem] sketch-border border-[#FFFCC7] font-body
+										bg-gray-800/60 px-3 py-2 placeholder-gray-400 focus:outline-none
+										focus:ring-4 focus:ring-[#3F839C]"
+								required
+							/>
+							{errors.password && (
+								<p className="text-medium text-[#FFFCC7] mt-3 pl-2">{errors.password}</p>
+							)}
+						</div>
+
+						{/* Backend error */}
+						{error && <p className="text-medium text-[#FFFCC7] mt-3 pl-2">{error}</p>}
+
+						{/* Buttons */}
+						<div className="flex justify-between items-center text-black pl-8 pr-8 pt-10">
+							<SketchyButton
+								variant="shadow"
+								bg="#fffcc7"
+								hoverBg="#ce71606d"
+								borderColor="#cd877aff"
+								type="button"
+								onClick={onCancel}
+							>
+								{t("common.close")}
+							</SketchyButton>
+							<SketchyButton
+								variant="shadow"
+								bg="#58d1b7d9"
+								hoverBg="#1ea58893"
+								borderColor="#1ea588"
+								type="submit"
+							>
+								{loading ? t("auth.loggingIn") : t("auth.logIn")}
+							</SketchyButton>
+						</div>
+					</form>
 				</div>
-			</form>
+			</SketchyPanel>
 		</div>
 	);
 };

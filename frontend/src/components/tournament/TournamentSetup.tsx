@@ -61,8 +61,7 @@ const TournamentSetup: React.FC<TournamentSetupProps> = ({ onCancel, onTournamen
 		}
 		);
 
-		console.log("lets see return after remove player", data);
-		 if (data.status === "OK" && data.tournament) {
+		if (data.status === "OK" && data.tournament) {
 			setTournament(data.tournament);
 			} else {
 			console.error("Error removing player:", data.error);
@@ -147,11 +146,10 @@ const TournamentSetup: React.FC<TournamentSetupProps> = ({ onCancel, onTournamen
 			allPlayersReady;
 
 	return (
-			<div className="mt-3 space-y-6">
+			<div className="mt-3 space-y-14">
 				{setupInProgress && (
-				<div>
-					<p className="font-body text-2xl text-gray-300 mb-4 ml-8">{t("tournament.players")}</p>
-
+				<div className="w-full max-w-full">
+					<p className="font-hand text-4xl text-[#6ee7b7] mt-10 mb-8 ml-4">{t("tournament.players")}</p>
 					<PlayerList
 						tournament={tournament}
 						onRemovePlayer={handleRemovePlayer}
@@ -160,28 +158,29 @@ const TournamentSetup: React.FC<TournamentSetupProps> = ({ onCancel, onTournamen
 				</div>
 				)}
 
-				<div className="flex gap-8 mt-6 ml-7">
+				<div className="flex flex-col md:flex-row justify-center gap-2 md:gap-12 mt-6 ml-0 md:ml-7 px-4 md:px-0">
 					<SketchyButton
-						variant="double-line"
-						bg="#61bfbf"
-						hoverBg="#C8553E"
-						className="text-xl px-6 py-3 rounded-lg w-64" 
-						onClick={onCancel} disabled={loading}>
+						variant="shadow"
+						bg="#a48d988a"
+						hoverBg="#a91a5f8a"
+						borderColor="#a91a5f8a"
+						className="text-black text-lg px-6 py-3 w-full md:w-48"
+						onClick={onCancel}
+						disabled={loading}>
 						{t("tournament.cancel")}
 					</SketchyButton>
 
 					<SketchyButton
-						variant="double-line"
-						bg="#9991cdff"
-						hoverBg="#C8553E"
-						className="text-xl px-6 py-3 rounded-lg w-64" 
+						variant="shadow"
+						bg={allPlayersReady ? "#58d1b7d9" : "#9ecbbf"}
+						hoverBg={allPlayersReady ? "#1ea58893" : "#9ecbbf"} 
+						borderColor="#177863ff"
+						className="text-black text-lg px-6 py-3 w-full md:w-48"
+						disabled={!allPlayersReady || loading || aliasChanged}
 						onClick={handleStartTournament}
-						disabled={!tournamentCanStart || loading || aliasChanged}
 					>
-						{loading
+						{loading 
 							? t("common.processing")
-							: tournament.can_start
-							? t("tournament.start")
 							: t("tournament.start")}
 					</SketchyButton>
 				</div>

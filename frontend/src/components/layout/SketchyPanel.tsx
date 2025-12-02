@@ -1,72 +1,68 @@
 import React from "react";
 
 interface SketchyPanelProps {
-  children?: React.ReactNode;
-  className?: string;
-  bg?: string;     // panel fill color
-  stroke?: string; // border stroke color
+	children?: React.ReactNode;
+	className?: string;
+	bg?: string;
+	stroke?: string;
+	padding?: string;
+	borderRadius?: string;
 }
 
 const SketchyPanel: React.FC<SketchyPanelProps> = ({
-  children,
-  className = "",
-  bg = "white",
-  stroke = "white",
+	children,
+	className = "",
+	bg = "#6C0E42",
+	stroke = "#FFFCC7",
+	padding = "1rem",
+	borderRadius = "45x 50px 48px 52px", // curved corners
 }) => {
-  return (
-    <div className={`relative ${className}`}>
-      {/* SVG Border & Sketchy Lines */}
-      <svg
-        className="absolute inset-0 w-full h-full pointer-events-none"
-        viewBox="0 0 100 100"
-        preserveAspectRatio="none"
-      >
-        {/* Base Hand-drawn Border */}
-        <rect
-          x="5"
-          y="5"
-          width="90"
-          height="90"
-          rx="12"
-          ry="18"
-          fill={bg}
-          stroke={stroke}
-          strokeWidth="2.3"
-          strokeLinecap="round"
-        />
+	return (
+		<div
+			className={`relative ${className}`}
+			style={{
+				// Base colors
+				background: bg,
+				border: `3px solid ${stroke}`,
+				borderRadius,
 
-        {/* Slightly imperfect inner line */}
-        <rect
-          x="8"
-          y="8"
-          width="84"
-          height="84"
-          rx="10"
-          ry="14"
-          fill="none"
-          stroke={stroke}
-          strokeWidth="1.4"
-          strokeDasharray="3 5 2 4"
-          opacity="0.65"
-        />
+				// Outer shadow
+				boxShadow: `
+					inset 0 0 3px rgba(0,0,0,0.6),   /* inner dark bevel */
+					3px 3px 0 rgba(89,50,43,0.9),    /* exterior brown drop shadow */
+					0 0 10px rgba(255,252,199,0.5)    /* soft ambient glow */
+				`,
 
-        {/* 3D sketch shadow */}
-        <path
-          d="M 5 30 L 5 85 Q 5 95 22 95 L 95 95"
-          fill="none"
-          stroke={stroke}
-          strokeWidth="2"
-          strokeLinecap="round"
-          opacity="0.9"
-        />
-      </svg>
+				padding,
+			}}
+		>
 
-      {/* Panel content */}
-      <div className="relative z-10 p-4">
-        {children}
-      </div>
-    </div>
-  );
+			{/* Inner bezel line */}
+			<div
+				className="absolute inset-0 pointer-events-none"
+				style={{
+					border: `0.5px solid #333`,
+					borderRadius: `calc(${borderRadius} - 2px)`,
+					margin: "10px",
+					boxShadow: `
+						inset 0 0 40px rgba(255,252,199,0.4) /* warm inner glow */
+					`,
+				}}
+			/>
+
+			{/* Radial glow*/}
+			<div
+				className="absolute inset-0 pointer-events-none"
+				style={{
+					background:
+						"radial-gradient(ellipse at center, rgba(85,255,170,0.05) 0%, transparent 70%)",
+				}}
+			/>
+
+			{/* Content */}
+			<div className="relative z-10">{children}</div>
+		</div>
+	);
 };
 
 export default SketchyPanel;

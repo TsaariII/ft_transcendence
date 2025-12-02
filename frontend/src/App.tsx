@@ -19,7 +19,8 @@ import Friends from "./pages/Friends";
 import Profile from "./pages/ProfilePage";
 import SettingsPage from "./pages/SettingsPage";
 import ProtectedRoute from "./components/layout/ProtectedRoute";
-import collection from "./assets/doodles/collection.png";
+import collage2 from "./assets/doodles/collage2.png";
+import background3 from "./assets/background3.jpg";
 import Exit from "./pages/Exit";
 import NotFound from "./pages/NotFound";
 
@@ -51,28 +52,28 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 			<div
 				className="fixed inset-0"
 				style={{
-					backgroundImage: `url(${collection})`,
-					backgroundRepeat: "repeat",       // repeat the image
-					backgroundSize: "175px 175px",           // keeps original size
+					backgroundImage: `url(${background3})`,
+					
+					backgroundSize: "2000px 400px",           // keeps original size
 					backgroundPosition: "top left",   // optional start position
 					backgroundAttachment: "fixed",    // stays fixed while scrolling
 					backgroundBlendMode: "overlay",   // optional overlay
-					backgroundColor: "rgba(17, 60, 67)",
+					backgroundColor: "rgba(2, 80, 103, 0.9)",
 				}}
 			/>
 
 			{/* Foreground content */}
-			<div className="relative z-10 flex flex-col h-full p-6">
+			<div className="relative z-10 flex flex-col min-h-screen">
 				{showNavbar && (
-					<div className="mb-6">
-						<div className="rounded-xl overflow-hidden shadow-lg">
+					<div className="px-4 pt-4"> 
+						<div className="rounded-xl shadow-lg">
 							<Navbar />
 						</div>
 					</div>
 				)}
 
 				{/* Main content area */}
-				<main className="flex-grow py-0">{children}</main>
+				<main className="flex-grow">{children}</main>
 			</div>
 		</div>
 	);
