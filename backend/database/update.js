@@ -287,7 +287,8 @@ function resyncPlayerScoreAndRank(userId)
 					     losses      = ?,
 					     total_games = ?,
 					     score       = ?
-					 WHERE id = ?`,
+					 WHERE id = ?
+					 AND type = 'login'`,
 					[wins, losses, totalGames, newScore, userId],
 					function (updateErr) {
 						if (updateErr)
