@@ -1,11 +1,8 @@
 DOCKER_COMPOSE_FILE := ./docker-compose.yml
 
-dev:
-	docker compose --profile dev -f docker-compose.yml up --build
-
 # Target to create the custom network
 #start-network:
-#	@docker network inspect custom-network >/dev/null 2>&1 || docker network create inceptionnet
+#	@docker network inspect custom-network >/dev/null 2>&1 || docker network create 
 # Build the Docker images defined in the Dockerfile
 build:
 	docker compose -f $(DOCKER_COMPOSE_FILE) up --build -d

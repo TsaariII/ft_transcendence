@@ -1,20 +1,5 @@
 
 services:
- # frontend-dev - only for development purposes 
-  frontend-dev: 
-    profiles: ["dev"]
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile.dev
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    ports:
-      - "5173:5173"
-    command: ["npm", "run", "dev", "--", "--host"]
-    networks:
-    - transcendence
-
   waf:
     container_name: modsecurity
     build:

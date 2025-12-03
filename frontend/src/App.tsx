@@ -19,12 +19,9 @@ import Friends from "./pages/Friends";
 import Profile from "./pages/ProfilePage";
 import SettingsPage from "./pages/SettingsPage";
 import ProtectedRoute from "./components/layout/ProtectedRoute";
-import collage2 from "./assets/doodles/collage2.png";
 import background3 from "./assets/background3.jpg";
 import Exit from "./pages/Exit";
 import NotFound from "./pages/NotFound";
-
-
 
 // Import shared layout components
 import Navbar from "./components/layout/Navbar";
