@@ -307,6 +307,14 @@ const TournamentLobby: React.FC = () => {
 		tournament.bracket && 
 		tournament.bracket.length > 0;
 
+	// Check if tournament is finished
+	const isFinished = tournament && tournament.status === "finished";
+
+	// Check if all players have a username
+	const anyPlayerNoUsername = tournament && tournament.players?.some(
+		(player) => !player.username || player.username.trim() === ""
+		);
+
 	const Key = ({ children }: { children: React.ReactNode }) => (
 		<span className="inline-flex items-center justify-center px-1 sm:px-1.5 md:px-2 py-0.5 sm:py-1 
 					rounded bg-gray-700 text-white font-mono text-[10px] sm:text-xs md:text-sm w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6">
@@ -386,13 +394,13 @@ const TournamentLobby: React.FC = () => {
 							)}
 
 							{/* Tournament Bracket - Shown when tournament status" */}
-								{bracketVisible &&(
+								{bracketVisible && (isFinished && anyPlayerNoUsername)} (
 									<TournamentBracket
 										onStartMatch={handleStartTournamentGame}
 										onCancel={handleCancelTournament}
 										onClose={closeTournament}
 									/>
-							)}
+							)
 						</div>
 					)}
 
