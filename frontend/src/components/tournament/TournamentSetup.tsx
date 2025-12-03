@@ -5,7 +5,6 @@ import { API_PROTOCOL } from "../../../shared/api-protocols";
 import { TBD_PLAYER } from "../../../shared/constants";
 import { useAuth } from "../../context/AuthContext";
 import { StartTournamentPayload, StartTournamentResponse, RemovePlayerPayload, RemovePlayerResponse } from '../../../shared/payloads';
-import Button from "../ui/Button";
 import { useApiFetch } from "../../utils/apiFetch";
 import { useTranslation } from "../../shared/Translation";
 import SketchyButton from "../../components/ui/SketchyButtons";

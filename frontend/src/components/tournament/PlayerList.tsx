@@ -3,10 +3,8 @@ import type { TournamentPlayer, TournamentState } from "../../types/tournament";
 import { API_PROTOCOL } from "../../../shared/api-protocols";
 import { VerifyPlayerPayload, VerifyPlayerResponse } from "../../../shared/payloads";
 import { useAuth } from "../../context/AuthContext";
-import Button from "../ui/Button";
 import { useApiFetch } from "../../utils/apiFetch";
 import { useTranslation } from "../../shared/Translation";
-import { useRandomBorderRadius } from "../../hooks/useRandomBorderRadius";
 import SketchyButton from "../../components/ui/SketchyButtons";
 import { TbCircleNumber1Filled, TbCircleNumber2Filled, TbCircleNumber3Filled, TbCircleNumber4Filled } from "react-icons/tb"
 

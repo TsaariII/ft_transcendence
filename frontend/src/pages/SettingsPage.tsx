@@ -23,7 +23,6 @@ import CenteredContainer from "../components/layout/CenteredContainer";
 import SketchyButton from "../components/ui/SketchyButtons";
 import { GrLanguage } from "react-icons/gr";
 import { FaUserAltSlash } from "react-icons/fa";
-import { TbLockPassword } from "react-icons/tb";
 import { TbPassword } from "react-icons/tb";
 import { RxAvatar } from "react-icons/rx";
 import { Si2Fas } from "react-icons/si";

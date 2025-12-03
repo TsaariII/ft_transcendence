@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useRef } from "react";
-import TournamentHeader from "../components/tournament/TournamentHeader";
 import TournamentBracket from "../components/tournament/TournamentBracket";
 import TournamentSetup from "../components/tournament/TournamentSetup";
 import GameSettings from "../components/game/GameSettings";
@@ -9,7 +8,6 @@ import SketchyButton from "../components/ui/SketchyButtons";
 import DoodleButton from "../components/ui/DoodleButton";
 import { ArcadeFrame } from "../components/layout/ArcadeFrame";
 import type { TournamentState, Match } from "../types/tournament";
-import Button from "../components/ui/Button";
 import { API_PROTOCOL } from "../../shared/api-protocols";
 import { useAuth } from "../context/AuthContext";
 import { CreateTournamentPayload,
