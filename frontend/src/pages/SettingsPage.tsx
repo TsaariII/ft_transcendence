@@ -435,7 +435,7 @@ const SettingsPage: React.FC = () => {
 			console.log("Caught error in savePassword:", backendError);
 			if (backendError.error === "Current password does not match") {
 				setInlineErrors({ password: t("error.password.currentIncorrect") });
-			} else if (e.sessionExpired) {
+ 			} else if (e.sessionExpired) {
 				// Let apiFetch handle redirect
 				return;
 			} else {
