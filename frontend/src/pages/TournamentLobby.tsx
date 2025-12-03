@@ -88,6 +88,24 @@ const TournamentLobby: React.FC = () => {
 		}
 	}, [tournament]);
 
+	useEffect(() => {
+		if (!tournament) return;
+
+		// Check if tournament is finished
+		const isFinished = tournament.status === "finished";
+
+		// Check if all players have a username
+		const anyPlayerNoUsername = tournament.players?.some(
+		(player) => !player.username || player.username.trim() === ""
+		);
+
+		if (isFinished && anyPlayerNoUsername) {
+			console.log("Tournament finished and at least one player has no username, closing tournament...");
+			closeTournament();
+	}
+	}, [tournament]); // runs whenever tournament state changes
+
+
   /*
    * Creates a new tournament
    *  Triggered when user clicks "Start a new tournament"
