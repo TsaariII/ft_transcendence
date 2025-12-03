@@ -124,7 +124,7 @@ async function profileRoutes(fastify, options)
 		try
 		{
 			const check = await DBget.checkPasswordMatch(userId, current_password);
-			if (!check && check.match !== true)
+			if (check && check.match !== true)
 				return reply.code(400).send({status: 'ERROR', error: 'Current password does not match'});
 			await DBupdate.updatePassword(new_password, userId);
 			return reply.code(200).send({status: 'UPDATED'});

@@ -424,16 +424,16 @@ const SettingsPage: React.FC = () => {
 			setConfirmNewPassword("");
 
 		} catch (e: any) {
-			console.error("Caught error in savePassword:", e);
+			console.log("Caught error in savePassword:", e);
 
 			let backendError;
 			try {
-				backendError = JSON.parse(e.message);
+				backendError = JSON.parse(e.error);
 			} catch (_) {
-				backendError = { error: e.message };
+				backendError = { error: e.error };
 			}
-
-			if (backendError.error === "Invalid password") {
+			console.log("Caught error in savePassword:", backendError);
+			if (backendError.error === "Current password does not match") {
 				setInlineErrors({ password: t("error.password.currentIncorrect") });
 			} else if (e.sessionExpired) {
 				// Let apiFetch handle redirect
