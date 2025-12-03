@@ -37,7 +37,7 @@ async function registerUser(fastify, options)
 async function loginUser(fastify, options)
 {
     const {DBget, secure} = options;
-    fastify.post(API_PROTOCOL.LOGIN_USER.path, async (request, reply) => {
+    fastify.post(API_PROTOCOL.LOGIN_USER.path, { schema: signSchema }, async (request, reply) => {
         const {username, password} = request.body || {};
         if (!username || !password)
             return  reply.code(400).send({error: 'INVALID_PAYLOAD', message: 'Username and password are required'});
@@ -122,7 +122,6 @@ async function deleteUser(fastify, options)
 async function setupTwoFactor(fastify, options) {
     const { DBget, DBupdate} = options;
     fastify.post(API_PROTOCOL.TFA_SETUP.path, {}, async (request, reply) => {
-        // flog.info({ function: 'setupTwoFactor' }, 'Starting 2FA setup process.');
         try {
             const userId = request.userId;
             if (!userId) {
@@ -131,7 +130,6 @@ async function setupTwoFactor(fastify, options) {
 
             const isEnabled = await DBget.is2FaEnabled(userId);
             if (isEnabled) {
-                // flog.warn({ function: 'setupTwoFactor', userId: userId }, 'User tried setup but 2FA is already enabled.');
                 return reply.code(400).send({ error: '2FA is already enabled. Please disable it first to set up a new one.' });
             }
 
