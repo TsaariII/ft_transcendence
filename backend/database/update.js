@@ -269,7 +269,8 @@ function resyncPlayerScoreAndRank(userId)
 				COALESCE(COUNT(*), 0)                                                   AS total_games
 			 FROM games
 			 WHERE status = 'finished'
-			   AND (p1_id = ? OR p2_id = ?)`,
+			   AND (p1_id = ? OR p2_id = ?)
+			   AND type = 'login'`,
 			[userId, userId, userId, userId],
 			(err, row) => {
 				if (err)

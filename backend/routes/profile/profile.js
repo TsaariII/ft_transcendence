@@ -2,6 +2,7 @@ const {API_PROTOCOL} = require('@sharedApi');
 const {saveAndGetAvatarUrl, deleteOldAvatar} = require('./save_avatar.js');
 const {logger} = require('@logger');
 const flog = logger.child({fileContext: 'profile.js'});
+const passwordSchema = require('@schemas/passwordSchema');
 
 const {
 	getActiveTournamentForUser,
@@ -113,7 +114,7 @@ async function profileRoutes(fastify, options)
 			return reply.code(500).send({status: 'ERROR', error: 'Server error'});
 		}
 	});
-	fastify.patch(API_PROTOCOL.CHANGE_PASSWORD.path, async (request, reply) => {
+	fastify.patch(API_PROTOCOL.CHANGE_PASSWORD.path, { schema: passwordSchema }, async (request, reply) => {
 		const {current_password, new_password} = request.body || {};
 		const userId = request.userId;
 		if (!userId)

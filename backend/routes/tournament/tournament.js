@@ -83,22 +83,25 @@ module.exports = async function tournamentRoutes(fastify, options) {
 	fastify.post(API_PROTOCOL.VERIFY_PLAYER.path, async (request, reply) => {
 		const { db } = options;
 		const token = request.cookies?.auth_token;
+		const USERNAME_REGEX = /^[A-Za-z][A-Za-z0-9_]{5,11}$/;
+		const PASSWORD_REGEX = /^[a-zA-Z0-9!@#$%^&*()_\-+=.]{8,16}$/;
 		if (!token) return reply.code(401).send({ status: 'ERROR', error: 'Not authenticated' });
 		let userId; try { userId = getUserIdFromToken(token); } catch { return reply.code(401).send({ status: 'ERROR', error: 'Invalid auth token' }); }
-		request.log.info(
-			{ params: request.params, body: request.body, cookies: Object.keys(request.cookies || {}) },
-			'verify-player in'
-		);
 		const tid = Number(request.body?.tournament_id);
 		const { role, alias, username, password } = request.body || {};
 		if (!Number.isInteger(tid)) return reply.code(400).send({ status: 'ERROR', error: 'Invalid tournament id' });
-		if (role === 'player1') {
+		if (role === 'player1')
+		{
 			await upsertHostAlias(db, tid, String(alias || '').trim());
 			const state = await buildTournamentState(db, tid, userId);
 			return reply.send({ status: 'OK', tournament: state });
 		}
 		if (!['player2','player3','player4'].includes(role)) return reply.code(400).send({ status: 'ERROR', error: 'Role must be 2–4' });
 		if (!alias || !username || !password) return reply.code(400).send({ status: 'ERROR', error: 'Missing fields' });
+		const normalizedUsername = String(username).trim();
+		const normalizedPassword = String(password);
+		if (!USERNAME_REGEX.test(normalizedUsername) || !PASSWORD_REGEX.test(normalizedPassword))
+			return reply.code(400).send({ status: 'ERROR', error: 'Invalid username or password format' });
 		const roleNum = roleStringToNumber(role);
 		if (await isRoleTaken(db, tid, roleNum)) return reply.code(409).send({ status: 'ERROR', error: `Role ${role} already taken` });
 		const u = await getUserByCredentials(db, username, password);
