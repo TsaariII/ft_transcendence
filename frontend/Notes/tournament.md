@@ -49,15 +49,15 @@ export interface Match {
 1. Tournament (lobby) page is the main entry point for the tournament and manages the other components
   * When "Start a new tournament" is clicked
     - Frontend sends ```CreateTournamentPayload``` to ```CREATE_TOURNAMENT``` API path
-    - Backend generates a tournament_id and adds logged in user to the tournament in ```CreateTournamentResponse``` and returns it to frontend
+    - Backend generates a tournament_id and adds logged in user to the players array in ```CreateTournamentResponse``` and returns it to frontend
 2. Frontend shows input fields for all 4 players, player1 is logged in player
 3. For player1, user must enter alias and click 'Save Alias'
-	-> Frontend validates alias input based on specified rules
+	-> Frontend validates alias input based on REGEX and uniqueness rules
 	-> backend call ```VerifyPlayerPayload``` to ```VERIFY_PLAYER````
 4. For player1, clicking Edit alias must send a new verify call to backend to update the alias
 5. Backend returns ```VerifyPlayerResponse``
 6. For other players, user must fill in username, password and alias fields and then click "Add Player" button
-	-> Frontend validates alias input based on specified rules
+	-> Frontend validates alias input based on REGEX rules
 	-> backend call ```VerifyPlayerPayload``` to ```VERIFY_PLAYER```` and the player  is added to the tournament at the backend
 	-> Backend returns ```VerifyPlayerResponse``
 7. If user removes a player from the tournament 
@@ -67,7 +67,7 @@ export interface Match {
 9. Clicking 'Cancel tournament' button, sends DELETE call to ```CANCEL_TOURNAMENT``` endpoint and backend wipes out tournament from database
 10. When "Start tournament" button is clicked
   * TournamentSetup page: Frontend sends ```StartTournamentPayload``` request to ```START_TOURNAMENT```
-  * Backend responds with ```StartTournamentResponse``` which should include match IDs for all matches and players for round1 matches
+  * Backend responds with ```StartTournamentResponse``` which includes match IDs for all matches and players for round1 matches
 11. TournamentBracket component: Frontend renders a tournament bracket based on ```StartTournamentResponse```
   * First round matches are known, others are TBD
   * Buttons for playing all three matches (enabled for first match)
@@ -85,7 +85,7 @@ export interface Match {
 The main controller for the tournament flow
 
  Responsibilities:
- - Displays the header and main layout for the tournament page
+ - Displays the main layout for the tournament page
  - Manages tournament state (create → setup → bracket → active match)
  - Creates a new tournament through backend API
  - Handles setup phase (adding and verifying players)

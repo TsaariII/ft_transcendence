@@ -19,8 +19,6 @@ export interface Match {
     player2: number;
   };
   status: 'pending' | 'ongoing' | 'finished';
-  //lastUpdated: Date;
-  //gameState?: any;
 }
 
 export interface TournamentState {

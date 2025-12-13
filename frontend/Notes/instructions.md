@@ -14,5 +14,5 @@
 5. Open app in Firefox  
 http://localhost:5173.
 
-6. Now when you make changes to the code, you can immediately see them reflected in the browser
+6. Now when changes are made to the code, they are immediately reflected in the browser
 

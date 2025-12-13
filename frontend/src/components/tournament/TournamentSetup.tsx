@@ -75,29 +75,10 @@ const TournamentSetup: React.FC<TournamentSetupProps> = ({ onCancel, onTournamen
 	/* Starts the tournament:
 		- Sends tournament_id to backend
 	*/
-
-	// const handleStartTournament = async () => {
-	// 	const payload: StartTournamentPayload = {
-	// 		tournament_id: tournament.tournament_id,
-	// 	};
-
-		// try {
-		// 	setLoading(true);
-			// const url = API_PROTOCOL.START_TOURNAMENT.path.replace(
-			// 	":id", String(tournament.tournament_id)
-			// );
-			// const data: StartTournamentResponse = await apiFetch(
-			// API_PROTOCOL.START_TOURNAMENT.path,
-			// {
-			// 	method: API_PROTOCOL.START_TOURNAMENT.method,
-			// 	headers: { "Content-Type": "application/json" },
-			// 	body: JSON.stringify(payload),
-			// }
-			// );
-		const handleStartTournament = async () => {
-			const payload: StartTournamentPayload = {
-			tournament_id: tournament.tournament_id,
-		};
+	const handleStartTournament = async () => {
+		const payload: StartTournamentPayload = {
+		tournament_id: tournament.tournament_id,
+	};
 		try {
 			setLoading(true);
 			const url = API_PROTOCOL.START_TOURNAMENT.path.replace(

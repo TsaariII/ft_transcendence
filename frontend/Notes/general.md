@@ -190,25 +190,31 @@ from the 'vite/client' package
 - Contains reusable React components that aren’t full pages
 
 #### Game
-- GameCanvas.tsx
-- Paddle.tsx
+- ChooseGameMode.tsx
+- GameSettings.tsx
+- MiniLogin.tsx
 
 #### Layout
 - Navbar.tsx → navigation bar used on multiple pages
+- ArcadeFrame.tsx → Purple frame used all all pages
+- etc.
+
+#### Profile
+- PlayerProfileModal.tsx → Other player's profile component
 
 #### Tournament
-- 
+- PlayerList.tsx → component for adding players to tournament
+- TournamentBracket.tsx → shows tournament matches, buttons for playing them and the winner
+- TournamentSetup.tsx → API calls for adding and removing players to/ from tournament
 
 #### UI
-- Button.tsx → custom styled buttons
+- Button.tsx → custom styled button
+- DoodleButton.tsx  → Doodle that works as a button with text appearing when hovered
 - Modal.tsx → Form/dialog for signing in and registering
-- PlayerCard.tsx → shows a player on the leaderboard/friend list
+- SketchyButton.tsx → selection of custom buttons (only shadow variant is really used)
 
-### Hooks
-- Custom React hooks for logic that can be reused across components
-  - useAuth.ts → handle login state, JWT, and 2FA
-  - useWebSocket.ts → connect to server-side Pong or tournament updates
-  - useLeaderboard.ts → fetch and cache leaderboard data
+### Context
+  - AuthContext.tsx → stores the profile data of player and centrally fetches whenever there are changes
 
 ### Mocks
 - Mock data and mock service workers for development/testing
@@ -216,20 +222,15 @@ from the 'vite/client' package
   - handlers.ts → defines fake API responses for login, game state, leaderboard
 
 ### Pages
-- React components that correspond to full pages/routes
-  - LandingPage.tsx → login/register page
-  - GamePage.tsx → local Pong game
+- Components that correspond to full pages/routes
+  - Exit.tsx → shows exit button and related messages
+  - Friends.tsx → friends list and search field for adding friends
+  - GamePage.tsx → local Pong game 
+  - LandingPage.tsx → login/register modals and links to key pages
+  - NotFound.tsx → 404 page not found
+  - ProfilePage.tsx → profile, stats and match history
+  - Settings.tsx → options for changing language, username, password, enabling 2FA, deleting profile
   - TournamentLobby.tsx → tournament registration & matchmaking
-  - Leaderboard.tsx → player rankings
-  - Friends.tsx → friends list and friend requests
-  - ProfilePage.tsx → profile settings (avatar, 2FA)
-
-### Services
-- Modules that handle API or backend calls
-  - authService.ts → login, register, 2FA verification
-  - gameService.ts → start local games, update paddle/ball state
-  - tournamentService.ts → create/join tournaments, fetch bracket
-  - leaderboardService.ts → get player rankings
 
 ### Styles
 - Global CSS, Tailwind imports or other styling files
@@ -237,11 +238,8 @@ from the 'vite/client' package
 
 ### Types
 - TypeScript interfaces
-    - User.ts → UserProfile, Friend, Match
-    - Game.ts → PaddleState, BallState, PaddleMovementPayload
-    - Tournament.ts → Tournament, Matchup, Bracket
+    - Tournament.ts → Tournament, Match, Bracket
 
 ### Utils
 - Helper functions or small utilities
-    - formatDate.ts → format timestamps for match history
-    - validateUsername.ts → check username format before sending to backend (is this needed?)
+    - apiFetch.ts → most API calls go through this. It catches 401 (token expired error) and handles logout

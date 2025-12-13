@@ -302,8 +302,8 @@ const TournamentLobby: React.FC = () => {
 		tournament.status === "waiting" || 
 		(tournament.status === "ongoing" && (!tournament.bracket || tournament.bracket.length === 0)));
 
-	const bracketVisible = tournament && 
-		(tournament.status === "ongoing" || tournament.status === "finished") && 
+	const isOngoing = tournament && 
+		tournament.status === "ongoing" && 
 		tournament.bracket && 
 		tournament.bracket.length > 0;
 
@@ -311,9 +311,13 @@ const TournamentLobby: React.FC = () => {
 	const isFinished = tournament && tournament.status === "finished";
 
 	// Check if all players have a username
-	const anyPlayerNoUsername = tournament && tournament.players?.some(
-		(player) => !player.username || player.username.trim() === ""
+	const allPlayersHaveUsername =
+		tournament?.players?.every(
+			(player) => player.username && player.username.trim() !== ""
 		);
+
+	const shouldShowBracket =
+		isOngoing || (isFinished && allPlayersHaveUsername);
 
 	const Key = ({ children }: { children: React.ReactNode }) => (
 		<span className="inline-flex items-center justify-center px-1 sm:px-1.5 md:px-2 py-0.5 sm:py-1 
@@ -388,19 +392,19 @@ const TournamentLobby: React.FC = () => {
 								<div className="w-full max-w-4xl min-w-0">
 									<TournamentSetup
 										onCancel={handleCancelTournament}
-										onTournamentStarted={() => {}} 
+										onTournamentStarted={() => {}}
 									/>
 								</div>
 							)}
 
 							{/* Tournament Bracket - Shown when tournament status" */}
-								{bracketVisible && (isFinished && anyPlayerNoUsername)} (
-									<TournamentBracket
-										onStartMatch={handleStartTournamentGame}
-										onCancel={handleCancelTournament}
-										onClose={closeTournament}
-									/>
-							)
+							{shouldShowBracket && (
+								<TournamentBracket
+									onStartMatch={handleStartTournamentGame}
+									onCancel={handleCancelTournament}
+									onClose={closeTournament}
+								/>
+							)}
 						</div>
 					)}
 
